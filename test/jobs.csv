@@ -1,0 +1,11 @@
+Sex,Ethnicity,Highest degree,Job,type,Class,Pred
+M,Native,H. school,Board,1,1
+M,Native,Univ.,Board,1,0
+M,Native,H. school,Board,1,1
+M,Non-nat.,H. school,Healthcare,1,0
+M,Non-nat.,Univ.,Healthcare,0,1
+F,Non-nat.,Univ.,Education,0,0
+F,Native,H. school,Education,0,1
+F,Native,None,Healthcare,1,0
+F,Non-nat.,Univ.,Education,0,1
+F,Native,H. school,Board,1,0
