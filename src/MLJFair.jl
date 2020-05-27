@@ -16,11 +16,13 @@ export fair_tensor, fact
 
 const CategoricalElement = Union{CategoricalValue,CategoricalString}
 const Vec = AbstractVector
+const Measure =  MLJBase.Measure
 
 # ===================================================================
 # Includes
 
 include("utilities.jl")
 include("fair_tensor.jl")
+include("measures/measures.jl")
 
 end # module
