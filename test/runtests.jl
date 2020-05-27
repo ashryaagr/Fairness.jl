@@ -1,6 +1,10 @@
 using MLJFair
 using Test
 
-@testset "MLJFair.jl" begin
-    @test f(1, 2)==5
+@testset "fair_tensor" begin
+    include("fair_tensor.jl")
+end
+
+@testset "measures" begin
+    include("measures/measures.jl")
 end
