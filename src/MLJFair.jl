@@ -10,6 +10,8 @@ using CategoricalArrays
 ## METHOD EXPORTS
 
 export fair_tensor, fact
+export fairZ
+export DemographicParity
 
 # ===================================================================
 ## CONSTANTS

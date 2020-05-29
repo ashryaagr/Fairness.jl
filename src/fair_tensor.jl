@@ -32,12 +32,6 @@ Computes the fairness tensor, where ŷ are the predicted classes,
 y are the ground truth values, grp are the group values.
 The ordering follows that of `levels(y)`.
 
-## Keywords
-
-* `rev=false`: his keyword allows to swap the ordering of labels/classes.
-* `warn=true`: whether to show a warning in case `y` does not have scientific
-               type `OrderedFactor{2}` (see note below).
-
 """
 function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement},
                           grp::Vec{<:CategoricalElement})
