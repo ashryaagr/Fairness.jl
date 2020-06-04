@@ -1,16 +1,65 @@
-(::TruePositive)(ft::FairTensor) = sum(ft.mat[:, 1, 1])
-(::FalsePositive)(ft::FairTensor) = sum(ft.mat[:, 1, 2])
-(::FalseNegative)(ft::FairTensor) = sum(ft.mat[:, 2, 1])
-(::TrueNegative)(ft::FairTensor) = sum(ft.mat[:, 2, 2])
+"
+Finds the index of grp in ft.labels which corresponds to ft.mat
+"
+function _ftIdx(ft::FairTensor, grp)
+    idx = findfirst(x->x==string.(grp), ft.labels)
+    if idx==Nothing throw(ArgumentError("$grp not found in the fairness tensor")) end
+    return idx
+end
+
+# Helper function for calculating TruePositive, FalseNegative, etc.
+# If grp is :, it calculates combined value for all groups, else the specified group
+_calcmetric(ft::FairTensor, grp, inds...) = typeof(grp)==Colon ? sum(ft.mat[:, inds...]) : sum(ft.mat[_ftIdx(ft, grp), inds...])
+
+(::TruePositive)(ft::FairTensor; grp=:) = _calcmetric(ft, grp, 1, 1)
+(::FalsePositive)(ft::FairTensor; grp=:) = _calcmetric(ft, grp, 1, 2)
+(::FalseNegative)(ft::FairTensor; grp=:) = _calcmetric(ft, grp, 2, 1)
+(::TrueNegative)(ft::FairTensor; grp=:) = _calcmetric(ft, grp, 2, 2)
+
 
 # The functions true_positive, false_negative, etc are instances of TruePositive, FalseNegative, etc.
 # So on using true_positive(fair_tensor) will use the above defined functions
-(::TPR)(ft::FairTensor) = 1/(1+false_negative(ft)/true_positive(ft))
-(::TNR)(ft::FairTensor) = 1/(1+false_positive(ft)/true_negative(ft))
-(::FPR)(ft::FairTensor) = 1-true_negative_rate(ft)
-(::FNR)(ft::FairTensor) = 1-true_positive_rate(ft)
+(::TPR)(ft::FairTensor; grp=:) = 1/(1+false_negative(ft; grp=grp)/true_positive(ft; grp=grp))
+(::TNR)(ft::FairTensor; grp=:) = 1/(1+false_positive(ft; grp=grp)/true_negative(ft; grp=grp))
+(::FPR)(ft::FairTensor; grp=:) = 1-true_negative_rate(ft; grp=grp)
+(::FNR)(ft::FairTensor; grp=:) = 1-true_positive_rate(ft; grp=grp)
 
 
-(::FDR)(ft::FairTensor) = 1/(1+false_positive(ft)/true_positive(ft))
-(::Precision)(ft::FairTensor) = 1 - false_discovery_rate(ft)
-(::NPV)(ft::FairTensor) =  1/(1+false_negative(ft)/true_negative(ft))
+(::FDR)(ft::FairTensor; grp=:) = 1/(1+false_positive(ft; grp=grp)/true_positive(ft; grp=grp))
+(::Precision)(ft::FairTensor; grp=:) = 1 - false_discovery_rate(ft; grp=grp)
+(::NPV)(ft::FairTensor; grp=:) =  1/(1+false_negative(ft; grp=grp)/true_negative(ft; grp=grp))
+
+
+"""
+    disparity(M, ft; refGrp=nothing)
+
+Computes disparity for fairness tensor `ft` with respect to an array of metrics `M`.
+
+For any class A and a reference Group B, disparity = metric(A)/metric(B)
+
+A dataframe is returned with disparity values for all combinations of metrics and classes.
+It contains a column named labels for the classes and has a column for disparity of each metric in M.
+The column names are metric names appended with `_disparity`.
+
+## Keywords
+
+* `refGroup=nothing` : The reference group
+
+Please note that division by 0 will result in NaN
+"""
+function disparity(M::Vector{<:Measure}, ft::FairTensor{C}; refGrp=nothing) where C
+    refGrp!==nothing || throw(ArgumentError("Value of reference group needs to be provideds"))
+    refGrpIdx = _ftIdx(ft, refGrp)
+    df = DataFrame(labels=ft.labels)
+    for m in M
+        colName = string(m) * "_disparity"
+        colDisparity = Symbol(colName)
+        baseVal = m(ft; grp=refGrp)
+        arr = zeros(Float64, C)
+        for i in 1:C
+            arr[i] = m(ft; grp=ft.labels[i])/baseVal
+        end
+        df[:, colDisparity] = arr
+    end
+    return df
+end

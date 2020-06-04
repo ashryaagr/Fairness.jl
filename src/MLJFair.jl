@@ -5,18 +5,18 @@ module MLJFair
 using Tables
 using MLJBase
 using CategoricalArrays
+using DataFrames
 
 # ===================================================================
 ## METHOD EXPORTS
 
 export fair_tensor, fact
-export fairZ
 export DemographicParity
 
 #Export the metric instances from MLJBase to permit calculation of metrics without using MLJBase
 export TruePositive, TrueNegative, FalsePositive, FalseNegative,
-       TruePositiveRate, TrueNegativeRate, FalsePositiveRate, Precision, NPV
-       FalseNegativeRate, FalseDiscoveryRate
+       TruePositiveRate, TrueNegativeRate, FalsePositiveRate,
+       FalseNegativeRate, FalseDiscoveryRate, Precision, NPV,
        # standard synonyms
        TPR, TNR, FPR, FNR, FDR, PPV,
        # instances and their synonyms
@@ -29,6 +29,8 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
        positivepredictive_value, positive_predictive_value,
        tpr, tnr, fpr, fnr,
        falsediscovery_rate, false_discovery_rate, fdr, npv, ppv
+
+export disparity
 
 # ===================================================================
 ## CONSTANTS
