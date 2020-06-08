@@ -76,5 +76,5 @@ end
     @test names(d) == [:labels, :true_positive_rate_disparity, :false_positive_rate_disparity,
                         :positive_predictive_value_disparity]
     a = convert(Array, d[:, [2, 3, 4]])
-    @test all(isnan.(a[:, 2])) && isnan(a[1, 3]) && a[[2, 3], 3]≈[1, 1.5] && a[:, 4]==[0, 1, 1]
+    @test all(isnan.(a[:, 1])) && isnan(a[1, 2]) && a[[2, 3], 2]≈[1, 1.5] && a[:, 3]==[0, 1, 1]
 end

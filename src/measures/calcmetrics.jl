@@ -7,7 +7,7 @@ For Index i for the grp  returned by this function ft[i, :, :] returns the
 "
 function _ftIdx(ft::FairTensor, grp)
     idx = findfirst(x->x==string.(grp), ft.labels)
-    if idx==Nothing throw(ArgumentError("$grp not found in the fairness tensor")) end
+    if idx==nothing throw(ArgumentError("$grp not found in the fairness tensor")) end
     return idx
 end
 
@@ -58,6 +58,7 @@ function disparity(M::Vector{<:Measure}, ft::FairTensor{C}; refGrp=nothing) wher
     for m in M
         colName = string(m) * "_disparity"
         colDisparity = Symbol(colName)
+        # TODO : _ftIdx is repeatedly called internally. Instead the value can be stored and reused.
         baseVal = m(ft; grp=refGrp)
         arr = zeros(Float64, C)
         for i in 1:C
