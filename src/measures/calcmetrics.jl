@@ -1,5 +1,9 @@
 "
-Finds the index of grp in ft.labels which corresponds to ft.mat
+    _ftIdx(ft, grp)
+
+Finds the index of grp (string) in ft.labels which corresponds to ft.mat.
+For Index i for the grp  returned by this function ft[i, :, :] returns the
+2D array [[TP, FP], [FN, TN]] for that group.
 "
 function _ftIdx(ft::FairTensor, grp)
     idx = findfirst(x->x==string.(grp), ft.labels)

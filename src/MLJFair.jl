@@ -11,6 +11,9 @@ using DataFrames
 ## METHOD EXPORTS
 
 export fair_tensor, fact
+export _ftIdx
+
+# Export the Boolean Metrics
 export DemographicParity
 
 #Export the metric instances from MLJBase to permit calculation of metrics without using MLJBase
@@ -30,6 +33,7 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
        tpr, tnr, fpr, fnr,
        falsediscovery_rate, false_discovery_rate, fdr, npv, ppv
 
+# Export the additional CalcMetrics
 export disparity
 
 # ===================================================================

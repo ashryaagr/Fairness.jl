@@ -1,8 +1,8 @@
 """
     FairTensor{C}
 
-Fairness Tensor with C classes. It consists of C 2*2 matrices stacked up to form a Matrix
-of size 2*2*C. Each 2*2 matrix contains values [[TP, FP], [FN, TN]].
+Fairness Tensor with C classes. It consists of C 2 x 2 matrices stacked up to form a Matrix
+of size 2 x 2 x C. Each 2 x 2 matrix contains values [[TP, FP], [FN, TN]].
 """
 struct FairTensor{C}
     mat::Array{Int, 3}

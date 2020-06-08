@@ -50,3 +50,31 @@ end
     @test positive_predictive_value(ft) == 0.6
     @test negative_predictive_value(ft) == 0.2
 end
+
+@testset "Group Specific Calc. Metrics" begin
+    ft = job_fairtensor()
+    @test MLJFair._ftIdx(ft, "Education") == 2
+    @test_throws ArgumentError MLJFair._ftIdx(ft, "ABCDE")
+    @test true_positive(ft; grp=ft.labels[1]) == 2
+    @test truenegative(ft; grp=ft.labels[2]) == 1
+    @test falsepositive(ft; grp=ft.labels[3]) == 1
+    @test falsenegative(ft; grp=ft.labels[1]) == 2
+    @test truepositive_rate(ft; grp=ft.labels[1]) == 0.5
+    @test truenegative_rate(ft; grp=ft.labels[2]) ≈ 1/3
+    @test falsepositive_rate(ft; grp=ft.labels[2]) ≈ 2/3
+    @test isnan(falsenegative_rate(ft; grp=ft.labels[2]))
+    @test falsediscovery_rate(ft; grp=ft.labels[3]) == 0.0
+    @test positive_predictive_value(ft; grp=ft.labels[3]) == 1.0
+    @test negative_predictive_value(ft; grp=ft.labels[3]) == 0.0
+end
+
+@testset "Disparity" begin
+    ft = job_fairtensor()
+    M = [true_positive_rate, false_positive_rate, ppv]
+    @test_throws ArgumentError disparity(M, ft)
+    d = disparity(M, ft; refGrp="Education")
+    @test names(d) == [:labels, :true_positive_rate_disparity, :false_positive_rate_disparity,
+                        :positive_predictive_value_disparity]
+    a = convert(Array, d[:, [2, 3, 4]])
+    @test all(isnan.(a[:, 2])) && isnan(a[1, 3]) && a[[2, 3], 3]≈[1, 1.5] && a[:, 4]==[0, 1, 1]
+end

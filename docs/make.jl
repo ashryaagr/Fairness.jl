@@ -6,11 +6,11 @@ makedocs(;
     format=Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
     pages=[
         "Home" => "index.md",
-        "Measures" => "measures.md",
         "FairTensor" => "fairtensor.md",
+        "Measures" => "measures.md",
     ],
     repo="https://github.com/ashryaagr/MLJFair.jl/blob/{commit}{path}#L{line}",
-    sitename="MLJFair.jl"
+    sitename="MLJFair"
 )
 
 # By default Documenter does not deploy docs just for PR
