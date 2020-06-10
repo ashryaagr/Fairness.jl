@@ -31,10 +31,16 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
        false_negative_rate, negative_predictive_value,
        positivepredictive_value, positive_predictive_value,
        tpr, tnr, fpr, fnr,
-       falsediscovery_rate, false_discovery_rate, fdr, npv, ppv
+       falsediscovery_rate, false_discovery_rate, fdr, npv, ppv,
+       recall, sensitivity, hit_rate, miss_rate,
+       specificity, selectivity, f1score, fallout
 
 # Export the additional CalcMetrics
 export disparity
+
+# -------------------------------------------------------------------
+# re-export From CategoricalArrays
+export categorical, levels, levels!
 
 # ===================================================================
 ## CONSTANTS

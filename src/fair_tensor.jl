@@ -32,6 +32,7 @@ Computes the fairness tensor, where ŷ are the predicted classes,
 y are the ground truth values, grp are the group values.
 The ordering follows that of `levels(y)`.
 
+Note that ŷ, y and grp are all categorical arrays
 """
 function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement},
                           grp::Vec{<:CategoricalElement})

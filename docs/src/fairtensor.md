@@ -15,4 +15,15 @@ It is a stack of C 2-dimensional arrays of size 2 x 2 arrays. Each 2 x 2 array r
 MLJFair.FairTensor
 fair_tensor
 ```
-<!-- Now add example where fairness tensor is constructed along with the output -->
+
+### Example
+
+```@repl
+using MLJFair
+ŷ = categorical([1, 0, 1, 1, 0]);
+y = categorical([0, 0, 1, 1, 1]);
+grp = categorical(["Asian", "African", "Asian", "American", "African"]);
+ft = fair_tensor(ŷ, y, grp);
+ft.mat
+ft.labels
+```
