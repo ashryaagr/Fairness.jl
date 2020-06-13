@@ -11,16 +11,17 @@ julia> Pkg.add("https://github.com/ashryaagr/MLJFair.jl")
 # Components
 It shall be divided into following components
 - FairTensor
-- Measures [WIP]
+- Measures
   - CalcMetrics
+  - FairMetrics
   - BoolMetrics
-- Algorithms [Shall be implemented after Measures]
+- Algorithms [WIP]
   - Preprocessing Algorithms
   - InProcessing Algorithms
   - PostProcessing Algorithms
 
-It currently has only fairness metrics[WIP].
+It currently has only metrics.
 
 # Getting Started
 - [Examples and tutorials](https://github.com/ashryaagr/MLJFair.jl/tree/master/examples) are a good starting point.
-- Documentation is also available for this package.
+- [Documentation](https://www.ashrya.in/MLJFair.jl/dev) is also available for this package.

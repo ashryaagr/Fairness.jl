@@ -35,11 +35,12 @@ _calcmetric(ft::FairTensor, grp, inds...) = typeof(grp)==Colon ? sum(ft.mat[:, i
 
 
 """
-    disparity(M, ft; refGrp=nothing)
+    disparity(M, ft; refGrp=nothing, func=/)
 
 Computes disparity for fairness tensor `ft` with respect to an array of metrics `M`.
 
-For any class A and a reference Group B, disparity = metric(A)/metric(B)
+For any class A and a reference Group B, `disparity = func(metric(A), metric(B))`.
+By default `func` is `/` .
 
 A dataframe is returned with disparity values for all combinations of metrics and classes.
 It contains a column named labels for the classes and has a column for disparity of each metric in M.
@@ -48,10 +49,12 @@ The column names are metric names appended with `_disparity`.
 ## Keywords
 
 * `refGroup=nothing` : The reference group
+* `func=/` : The function used to evaluate disparity. This function should take 2 arguments.
+The second argument shall correspond to reference group.
 
 Please note that division by 0 will result in NaN
 """
-function disparity(M::Vector{<:Measure}, ft::FairTensor{C}; refGrp=nothing) where C
+function disparity(M::Vector{<:Measure}, ft::FairTensor{C}; refGrp=nothing, func=/) where C
     refGrp!==nothing || throw(ArgumentError("Value of reference group needs to be provideds"))
     refGrpIdx = _ftIdx(ft, refGrp)
     df = DataFrame(labels=ft.labels)
@@ -62,7 +65,7 @@ function disparity(M::Vector{<:Measure}, ft::FairTensor{C}; refGrp=nothing) wher
         baseVal = m(ft; grp=refGrp)
         arr = zeros(Float64, C)
         for i in 1:C
-            arr[i] = m(ft; grp=ft.labels[i])/baseVal
+            arr[i] = func(m(ft; grp=ft.labels[i]), baseVal)
         end
         df[:, colDisparity] = arr
     end

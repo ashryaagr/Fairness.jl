@@ -62,6 +62,10 @@ true_positive_rate(ft; grp="Asian")
 `recall`, `sensitivity`, `hit_rate`, `miss_rate`,
 `specificity`, `selectivity`, `fallout`
 
+## FairMetrics
+
+These metrics build upon CalcMetrics and provide more insight about data through DataFrame. disparity and Parity corresponding to several CalcMetrics can be handled in a single call to them.
+
 ###
 ```@docs
 disparity
@@ -69,7 +73,22 @@ disparity
 
 ```@repl measures
 M = [true_positive_rate, positive_predictive_value];
-disparity(M, ft; refGrp="Asian")
+df = disparity(M, ft; refGrp="Asian");
+df |> pretty #hide
+f(x, y) = x - y
+df_1 = disparity(M, ft; refGrp="Asian", func=f);
+df_1 |> pretty #hide
+```
+
+```@docs
+parity
+```
+
+```@repl measures
+parity(df, 0.2);
+df |> pretty #hide
+parity(df; func= x-> x > 0.8);
+df |> pretty #hide
 ```
 
 ## BoolMetrics

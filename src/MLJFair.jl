@@ -35,13 +35,15 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
        recall, sensitivity, hit_rate, miss_rate,
        specificity, selectivity, f1score, fallout
 
-# Export the additional CalcMetrics
-export disparity
+# Export the fairness metrics
+export disparity, parity
 
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
 export categorical, levels, levels!
 
+# re-export from MLJBase
+export pretty
 # ===================================================================
 ## CONSTANTS
 
