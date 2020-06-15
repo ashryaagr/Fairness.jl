@@ -6,6 +6,7 @@ using Tables
 using MLJBase
 using CategoricalArrays
 using DataFrames
+using MLJModelInterface
 
 # ===================================================================
 ## METHOD EXPORTS
@@ -38,6 +39,8 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
 # Export the fairness metrics
 export disparity, parity
 
+export ReweighingWrapper
+
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
 export categorical, levels, levels!
@@ -50,6 +53,7 @@ export pretty
 const CategoricalElement = Union{CategoricalValue,CategoricalString}
 const Vec = AbstractVector
 const Measure =  MLJBase.Measure
+const MMI =  MLJModelInterface
 
 # ===================================================================
 # Includes
@@ -57,5 +61,6 @@ const Measure =  MLJBase.Measure
 include("utilities.jl")
 include("fair_tensor.jl")
 include("measures/measures.jl")
+include("algorithms/algorithms.jl")
 
 end # module
