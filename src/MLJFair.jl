@@ -6,8 +6,8 @@ using Tables
 using MLJBase
 using CategoricalArrays
 using DataFrames
-using MLJModelInterface
-
+using MLJModels, MLJModelInterface
+using StatsBase
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -39,7 +39,7 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
 # Export the fairness metrics
 export disparity, parity
 
-export ReweighingWrapper
+export ReweighingWrapper, ReweighingSamplingWrapper
 
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
