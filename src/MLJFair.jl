@@ -7,7 +7,8 @@ using MLJBase
 using CategoricalArrays
 using DataFrames
 using MLJModels, MLJModelInterface
-using StatsBase
+using StatsBase # For reweighing algorithm
+using JuMP, GLPK # For Equalized Odds Postprocessing algorithms
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -40,6 +41,7 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
 export disparity, parity
 
 export ReweighingWrapper, ReweighingSamplingWrapper
+export EqOddsWrapper
 
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
