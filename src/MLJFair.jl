@@ -1,8 +1,9 @@
 module MLJFair
 
 # ===================================================================
-# IMPORTS
-using Tables
+## IMPORTS
+
+using Tables, CSV # For loading datasets
 using MLJBase
 using CategoricalArrays
 using DataFrames
@@ -43,6 +44,8 @@ export disparity, parity
 export ReweighingWrapper, ReweighingSamplingWrapper
 export EqOddsWrapper
 
+# Export macros for datasets from datasets/
+export @load_toydata, @load_toyfairtensor
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
 export categorical, levels, levels!
@@ -57,12 +60,15 @@ const Vec = AbstractVector
 const Measure =  MLJBase.Measure
 const MMI =  MLJModelInterface
 
+# the directory containing this file: (.../src/)
+const MODULE_DIR = dirname(@__FILE__)
 # ===================================================================
-# Includes
+## Includes
 
 include("utilities.jl")
 include("fair_tensor.jl")
 include("measures/measures.jl")
 include("algorithms/algorithms.jl")
+include("datasets/datasets.jl")
 
 end # module
