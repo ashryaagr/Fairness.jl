@@ -8,19 +8,26 @@ function EqOddsWrapper(classifier::MLJBase.Model; grp::Symbol=:class)
 end
 
 # Corresponds to eq_odds_optimal_mix_rates function, mix_rates are returned as fitresult
-function MLJBase.fit(model::EqOddsWrapper, verbosity::Int,
+function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 	X, y)
 	grps = X[:, model.grp]
 	length(levels(grps))==2 || throw(ArgumentError("This algorithm supports only groups with 2 different values only"))
 
 	# As equalized odds is a postprocessing algorithm, the model needs to be fitted first
-	mch = machine(model, X, y)
+	mch = machine(model.classifier, X, y)
 	fit!(mch)
-	ŷ = predict(mch, X)
+	ŷ = MMI.predict(mch, X)
+
+	if typeof(ŷ[1]) <: MLJBase.UnivariateFinite
+		ŷ = MLJBase.mode.(ŷ)
+	end
+
+	ŷ = convert(Array, ŷ) # Incase ŷ is categorical array, convert to normal array to support various operations
+	y = convert(Array, y)
 
 	# Finding the probabilities of changing predictions is a Linear Programming Problem
 	# JuMP and Cbc are used to for this Linear Programming Problem
-	m = Model(GLPK.Optimizer)
+	m = JuMP.Model(GLPK.Optimizer)
 
 	# The prefix s Corresponds to priveledged class
 	@variable(m, 0<= sp2p <=1)
@@ -86,18 +93,27 @@ function MLJBase.fit(model::EqOddsWrapper, verbosity::Int,
 				  (on2p * mean(oflip .& om_tn) + on2n * mean(oconst .& om_tn)) / (1 - obr))
 
 	@constraint(m, constraint5, spp_given_p==opp_given_p)
-	@constraint(m, constraint6, spn_given_p==opn_given_p)
+	@constraint(m, constraint6, spn_given_n==opn_given_n)
 
 	optimize!(m)
 
-	fitresult = [value(sp2n), value(sn2p), value(op2n), value(on2p)]
+	fitresult = [[JuMP.value(sp2n), JuMP.value(sn2p), JuMP.value(op2n), JuMP.value(on2p)], mch.fitresult]
 
 	return fitresult, nothing, nothing
 end
 
 # Corresponds to eq_odds function which uses mix_rates to modify results
-function MLJBase.predict(model::EqOddsWrapper, fitresult, Xnew)
-	ŷ = predict(model.classifier, Xnew)
+function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
+
+	(sp2n, sn2p, op2n, on2p), classifier_fitresult = fitresult
+
+	ŷ = MMI.predict(model.classifier, classifier_fitresult, Xnew)
+
+	if typeof(ŷ[1]) <: MLJBase.UnivariateFinite
+		ŷ = MLJBase.mode.(ŷ)
+	end
+
+	ŷ = convert(Array, ŷ) # Need to convert to normal array as categorical array doesn't support sub
 	grps = Xnew[:, model.grp]
 
 	privClass = levels(grps)[2]
@@ -105,18 +121,17 @@ function MLJBase.predict(model::EqOddsWrapper, fitresult, Xnew)
 	priv = grps .== privClass
 	unpriv = grps .== unprivClass
 
-	sp2n, sn2p, op2n, on2p = fitresult
 
-	s_pp_indices = shuffle(find(grp.==privClass .& ŷ.==1)) # predicted positive for priv class
-	s_pn_indices = shuffle(find(grp.==unprivClass .& ŷ.==0)) # predicted negative for unpriv class
-	o_pp_indices = shuffle(find(grp.==privClass .& y.==1)) # predicted positive for priv class
-	o_pn_indices = shuffle(find(grp.==unprivClass .& ŷ.==0)) # predicted negative for unpriv class
+	s_pp_indices = shuffle(findall((grps.==privClass) .& (ŷ.==1))) # predicted positive for priv class
+	s_pn_indices = shuffle(findall((grps.==privClass) .& (ŷ.==0))) # predicted negative for unpriv class
+	o_pp_indices = shuffle(findall((grps.==unprivClass) .& (ŷ.==1))) # predicted positive for priv class
+	o_pn_indices = shuffle(findall((grps.==unprivClass) .& (ŷ.==0))) # predicted negative for unpriv class
 
-	# 1 is added to indices because arrays in julia start from 1
-	s_p2n_indices = s_pp_indices[1:1+convert(Int, round(length(s_pp_indices)*sp2n ,digits=0))]
-	s_n2p_indices = s_pn_indices[1:1+convert(Int, round(length(s_pn_indices)*sn2p ,digits=0))]
-	o_p2n_indices = o_pp_indices[1:1+convert(Int, round(length(o_pp_indices)*op2n ,digits=0))]
-	o_n2p_indices = o_pn_indices[1:1+convert(Int, round(length(o_pn_indices)*on2p ,digits=0))]
+	# Note : arrays in julia start from 1
+	s_p2n_indices = s_pp_indices[1:convert(Int, floor(length(s_pp_indices)*sp2n))]
+	s_n2p_indices = s_pn_indices[1:convert(Int, floor(length(s_pn_indices)*sn2p))]
+	o_p2n_indices = o_pp_indices[1:convert(Int, floor(length(o_pp_indices)*op2n))]
+	o_n2p_indices = o_pn_indices[1:convert(Int, floor(length(o_pn_indices)*on2p))]
 
 	ŷ[s_p2n_indices] = 1 .- ŷ[s_p2n_indices]
 	ŷ[s_n2p_indices] = 1 .- ŷ[s_n2p_indices]

@@ -38,11 +38,8 @@ function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement
                           grp::Vec{<:CategoricalElement})
 
     check_dimensions(ŷ, y)
-    Set(levels(y))==Set([0, 1]) || throw(ArgumentError("Values in y should be binary in nature."))
-    Set(levels(ŷ))==Set([0, 1]) || throw(ArgumentError("Values in ŷ should be binary in nature."))
     check_dimensions(ŷ, grp)
-    # TODO: Handle the case with levels(y) = 0 or 1 or ϕ specially. Maybe keep an optional argument for the label
-
+    
     levels_ = levels(grp)
     c = length(levels_)
     # Dictionary data-structure is used now to map group labels and the corresponding index.
