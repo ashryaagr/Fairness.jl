@@ -1,8 +1,18 @@
+"""
+    EqOddsWrapper
+
+It is a postprocessing algorithm which uses Linear Programming to optimise the constraints for Equalized Odds.
+"""
 mutable struct EqOddsWrapper <: DeterministicNetwork
 	grp::Symbol
 	classifier::MLJBase.Model
 end
 
+"""
+    EqOddsWrapper
+
+Instantiates EqOddsWrapper which wraps the classifier
+"""
 function EqOddsWrapper(classifier::MLJBase.Model; grp::Symbol=:class)
 	return EqOddsWrapper(grp, classifier)
 end

@@ -6,6 +6,8 @@ The instances can be called by passing fairness tensor to it. Its general form i
 
 The Measures have been divided into calcMetrics and boolmetrics depending on whether the metric returns Numerical value or Boolean value respectively.
 
+Note : All these metrics can be used even when more than 2 values are possible for the sensitive attribute.
+
 MLJFair._ftIdx is a utility function that has been used to calculate metrics and shall be helpful while using MLJFair to inspect Fairness tensor values.
 ```@docs
 MLJFair._ftIdx

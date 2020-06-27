@@ -1,5 +1,6 @@
 using Documenter
 using MLJFair
+using MLJBase, MLJModels
 
 makedocs(;
     modules=[MLJFair],
@@ -8,6 +9,8 @@ makedocs(;
         "Home" => "index.md",
         "FairTensor" => "fairtensor.md",
         "Measures" => "measures.md",
+        "Fairness Algortihms" => "algorithms.md",
+        "Datasets" => "datasets.md"
     ],
     repo="https://github.com/ashryaagr/MLJFair.jl/blob/{commit}{path}#L{line}",
     sitename="MLJFair"

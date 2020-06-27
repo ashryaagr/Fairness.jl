@@ -15,9 +15,9 @@ It shall be divided into following components
   - CalcMetrics
   - FairMetrics
   - BoolMetrics
-- Algorithms [WIP]
+- Algorithms
   - Preprocessing Algorithms
-  - InProcessing Algorithms
+  - InProcessing Algorithms [WIP]
   - PostProcessing Algorithms
 
 It currently has only metrics.
