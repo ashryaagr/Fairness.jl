@@ -2,6 +2,8 @@
 language: julia
 os:
   - linux
+notifications:
+  email: false
 env:
   - JULIA_NUM_THREADS=30
 julia:
@@ -18,12 +20,14 @@ jobs:
       # disable global before_script in order not to install Compose twice
       before_script:
       script:
-        - julia --color=yes --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
-                                                   Pkg.instantiate()'
-        - julia --color=yes --project=docs/ docs/make.jl
-      after_success: skip
-notifications:
-  email: false
+        - |
+          julia --color=yes --project=docs/ -e'
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()
+            include("docs/make.jl")
+          '
+
 after_success:
   # push coverage results to Codecov
-  - julia -e 'using Pkg; pkg"add Coverage"; using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'using Pkg; pkg"add Coverage"; using Coverage; Coveralls.submit(process_folder())'

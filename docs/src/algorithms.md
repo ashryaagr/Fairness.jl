@@ -41,7 +41,7 @@ A fairness algorithm can be added over another fairness algorithm by simply wrap
 The use of wrappers provides you the ability to add as many algorithms as you want!!
 
 ```@repl
-using MLJFair, MLJ #hide
+using MLJFair, MLJBase, MLJModels #hide
 X, y, _ = @load_toydata; #hide
 model = ConstantClassifier();
 wrappedModel = ReweighingSamplingWrapper(model; grp=:Sex);

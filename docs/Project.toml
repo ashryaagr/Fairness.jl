@@ -1,5 +1,8 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+MLJBase = "a7f614a8-145f-11e9-1d2a-a57a1082229d"
+MLJFair = "7c232609-d7a1-4356-98a6-13e736dd6dcd"
+MLJModels = "d491faf4-2d78-11e9-2867-c94bc002c0b7"
 
 [compat]
 julia = "1.2"
