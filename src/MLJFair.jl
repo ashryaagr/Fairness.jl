@@ -3,6 +3,7 @@ module MLJFair
 # ===================================================================
 ## IMPORTS
 
+import Base
 using Tables, CSV # For loading datasets
 using MLJBase
 using CategoricalArrays
@@ -10,6 +11,7 @@ using DataFrames
 using MLJModels, MLJModelInterface
 using StatsBase # For reweighing algorithm
 using JuMP, GLPK # For Equalized Odds Postprocessing algorithms
+using Ipopt # For LinProgWrapper algorithm
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -42,7 +44,7 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
 export disparity, parity
 
 export ReweighingWrapper, ReweighingSamplingWrapper
-export EqOddsWrapper
+export EqOddsWrapper, LinProgWrapper
 
 # Export macros for datasets from datasets/
 export @load_toydata, @load_toyfairtensor

@@ -55,7 +55,7 @@ The second argument shall correspond to reference group.
 Please note that division by 0 will result in NaN
 """
 function disparity(M::Vector{<:Measure}, ft::FairTensor{C}; refGrp=nothing, func=/) where C
-    refGrp!==nothing || throw(ArgumentError("Value of reference group needs to be provideds"))
+    refGrp!==nothing || throw(ArgumentError("Value of reference group needs to be provided"))
     refGrpIdx = _ftIdx(ft, refGrp)
     df = DataFrame(labels=ft.labels)
     for m in M
