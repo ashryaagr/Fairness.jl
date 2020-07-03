@@ -13,7 +13,6 @@ function _fairTensorLinProg(ft::FairTensor, vals)
 		a[1, 2] = mat[i, 1, 2]*p2p + mat[i, 2, 1]*n2p
 		a[2, 1] = mat[i, 2, 1]*n2n + mat[i, 1, 1]*p2n
 		a[2, 2] = mat[i, 2, 2]*n2n + mat[i, 1, 2]*p2n
-		# for i=1:2, j=1:2 a[i, j] = round(a[i, j]) end
 		ft.mat[i, :, :] = a
 	end
 	return ft
@@ -22,7 +21,8 @@ end
 """
     LinProgWrapper
 
-It is a postprocessing algorithm which uses Linear Programming to optimise the constraints for specified metric.
+It is a postprocessing algorithm that uses JuMP and Ipopt library to minimise error and satisfy the specified constraint at the same time.
+Automatic differentiation and gradient based optimisation is used to find probabilities with which the predictions are changed for each group.
 """
 mutable struct LinProgWrapper <: DeterministicNetwork
 	grp::Symbol
@@ -31,9 +31,9 @@ mutable struct LinProgWrapper <: DeterministicNetwork
 end
 
 """
-    LinProgWrapper
+    LinProgWrapper(classifier; grp=:class, measure)
 
-Instantiates LinProgWrapper which wraps the classifier
+Instantiates LinProgWrapper which wraps the classifier and containts the measure to optimised and the sensitive attribute(grp)
 """
 function LinProgWrapper(classifier::MLJBase.Model; grp::Symbol=:class, measure::Measure)
 	return LinProgWrapper(grp, classifier, measure)
@@ -43,7 +43,7 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	grps = X[:, model.grp]
 	length(levels(grps))==2 || throw(ArgumentError("This algorithm supports only groups with 2 different values only"))
 
-	# As equalized odds is a postprocessing algorithm, the model needs to be fitted first
+	# As LinProgWrapper is a postprocessing algorithm, the model needs to be fitted first
 	mch = machine(model.classifier, X, y)
 	fit!(mch)
 	ŷ = MMI.predict(mch, X)
@@ -56,7 +56,7 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	y = convert(Array, y)
 
 	# Finding the probabilities of changing predictions is a Linear Programming Problem
-	# JuMP and Cbc are used to for this Linear Programming Problem
+	# JuMP and Ipopt Optimizer are used to for this Linear Programming Problem
 	m = JuMP.Model(Ipopt.Optimizer)
 
 	# The prefix s Corresponds to priveledged class
@@ -82,16 +82,23 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	vals[1, :] = [sp2n, sn2p]
 	vals[2, :] = [op2n, on2p]
 
-	newft = _fairTensorLinProg(ft, vals)
+	newft = MLJFair._fairTensorLinProg(ft, vals)
 
-	# error = fpr(ft) + fnr(ft)
-	error = false_positive(ft) + false_negative(ft)
-	@objective(m, Min, error)
+	mat = reshape(ft.mat, (8))
+	@variable(m, aux[1:8])
+	@constraint(m, cons[i=1:8], mat[i]==aux[i])
+
+	register(m, :fpr, 8, (x...)->fpr(MLJFair.FairTensor{2}(reshape(collect(x), (2, 2, 2)), ft.labels)), autodiff=true)
+	register(m, :fnr, 8, (x...)->fnr(MLJFair.FairTensor{2}(reshape(collect(x), (2, 2, 2)), ft.labels)), autodiff=true)
+	@NLobjective(m, Min, fpr(aux...) + fnr(aux...))
 
 	measure = model.measure
-	@expression(m, m1, measure(ft; grp=levels(grps)[1]))
-	@expression(m, m2, measure(ft; grp=levels(grps)[2]))
-	@constraint(m, constraint5, m1==m2)
+	register(m, :ms1, 8, (x...)->measure(MLJFair.FairTensor{2}(reshape(collect(x), (2, 2, 2)), ft.labels), grp=levels(grps)[1]), autodiff=true)
+	register(m, :ms2, 8, (x...)->measure(MLJFair.FairTensor{2}(reshape(collect(x), (2, 2, 2)), ft.labels), grp=levels(grps)[2]), autodiff=true)
+
+	@NLexpression(m, m1, ms1(aux...))
+	@NLexpression(m, m2, ms2(aux...))
+	@NLconstraint(m, constraint5, m1==m2)
 
 	optimize!(m)
 

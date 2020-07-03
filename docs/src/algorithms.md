@@ -34,6 +34,13 @@ EqOddsWrapper
 MLJFair.EqOddsWrapper(::MLJBase.Model)
 ```
 
+### LinProg Algorithm
+This algorithm supports all the metrics provided by MLJFair. It hasn't been tested on other possible user defined metrics. It supports training data with binary sensitive attribute.
+```@docs
+LinProgWrapper
+MLJFair.LinProgWrapper(::MLJBase.Model)
+```
+
 ## Composability
 
 MLJFair provides you the ability to easily use multiple fairness algorithms on top of each other.
@@ -41,8 +48,8 @@ A fairness algorithm can be added over another fairness algorithm by simply wrap
 The use of wrappers provides you the ability to add as many algorithms as you want!!
 
 ```@repl
-using MLJFair, MLJBase, MLJModels #hide
-X, y, _ = @load_toydata; #hide
+using MLJFair, MLJBase, MLJModels
+X, y, _ = @load_toydata;
 model = ConstantClassifier();
 wrappedModel = ReweighingSamplingWrapper(model; grp=:Sex);
 wrappedModel2 = EqOddsWrapper(wrappedModel; grp=:Sex);

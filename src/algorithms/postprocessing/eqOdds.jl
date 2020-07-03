@@ -9,7 +9,7 @@ mutable struct EqOddsWrapper <: DeterministicNetwork
 end
 
 """
-    EqOddsWrapper
+    EqOddsWrapper(classifier; grp=:class)
 
 Instantiates EqOddsWrapper which wraps the classifier
 """

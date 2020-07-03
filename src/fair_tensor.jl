@@ -14,7 +14,7 @@ end
 
 Instantiates a FairTensor using the matrix m.
 """
-function FairTensor(m::Array{Int, 3}, labels::Vector{String})
+function FairTensor(m, labels::Vector{String})
     s = size(m)
     (s[3] == s[2] && s[3] == 2) || throw(ArgumentError("Expected a 2*2*C type Matrix."))
     length(labels) == s[1] ||

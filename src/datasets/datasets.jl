@@ -1,7 +1,7 @@
 const DATA_DIR = joinpath(MODULE_DIR, "..", "data")
 
 """
-load_dataset(fpath, coercions)
+    load_dataset(fpath, coercions)
 
 Load one of standard dataset like Boston etc assuming the file is a
 comma separated file with a header.

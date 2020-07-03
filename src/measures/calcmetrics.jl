@@ -13,7 +13,7 @@ end
 
 # Helper function for calculating TruePositive, FalseNegative, etc.
 # If grp is :, it calculates combined value for all groups, else the specified group
-_calcmetric(ft::FairTensor, grp, inds...) = typeof(grp)==Colon ? sum(ft.mat[:, inds...]) : sum(ft.mat[_ftIdx(ft, grp), inds...])
+_calcmetric(ft::FairTensor, grp, inds...) = typeof(grp)==Colon ? sum(ft[:, inds...]) : sum(ft[_ftIdx(ft, grp), inds...])
 
 (::TruePositive)(ft::FairTensor; grp=:) = _calcmetric(ft, grp, 1, 1)
 (::FalsePositive)(ft::FairTensor; grp=:) = _calcmetric(ft, grp, 1, 2)
@@ -23,15 +23,15 @@ _calcmetric(ft::FairTensor, grp, inds...) = typeof(grp)==Colon ? sum(ft.mat[:, i
 
 # The functions true_positive, false_negative, etc are instances of TruePositive, FalseNegative, etc.
 # So on using true_positive(fair_tensor) will use the above defined functions
-(::TPR)(ft::FairTensor; grp=:) = 1/(1+false_negative(ft; grp=grp)/true_positive(ft; grp=grp))
-(::TNR)(ft::FairTensor; grp=:) = 1/(1+false_positive(ft; grp=grp)/true_negative(ft; grp=grp))
+(::TPR)(ft::FairTensor; grp=:) = 1/(1+false_negative(ft; grp=grp)/(1e-15 + true_positive(ft; grp=grp)))
+(::TNR)(ft::FairTensor; grp=:) = 1/(1+false_positive(ft; grp=grp)/(1e-15 + true_negative(ft; grp=grp)))
 (::FPR)(ft::FairTensor; grp=:) = 1-true_negative_rate(ft; grp=grp)
 (::FNR)(ft::FairTensor; grp=:) = 1-true_positive_rate(ft; grp=grp)
 
 
-(::FDR)(ft::FairTensor; grp=:) = 1/(1+false_positive(ft; grp=grp)/true_positive(ft; grp=grp))
+(::FDR)(ft::FairTensor; grp=:) = 1/(1+false_positive(ft; grp=grp)/(1e-15 + true_positive(ft; grp=grp)))
 (::Precision)(ft::FairTensor; grp=:) = 1 - false_discovery_rate(ft; grp=grp)
-(::NPV)(ft::FairTensor; grp=:) =  1/(1+false_negative(ft; grp=grp)/true_negative(ft; grp=grp))
+(::NPV)(ft::FairTensor; grp=:) =  1/(1+false_negative(ft; grp=grp)/(1e-15 + true_negative(ft; grp=grp)))
 
 
 """
