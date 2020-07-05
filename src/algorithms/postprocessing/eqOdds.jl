@@ -21,9 +21,9 @@ end
 function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 	X, y)
 	grps = X[:, model.grp]
-	length(levels(grps))==2 || throw(ArgumentError("This algorithm supports only groups with 2 different values only"))
+	n = length(levels(grps)) # Number of different values for sensitive attribute
 
-	# As equalized odds is a postprocessing algorithm, the model needs to be fitted first
+	# As equalized odds is a postprocessing algorithm, the model needs to be fitted a_
 	mch = machine(model.classifier, X, y)
 	fit!(mch)
 	ŷ = MMI.predict(mch, X)
@@ -39,75 +39,75 @@ function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 	# JuMP and Cbc are used to for this Linear Programming Problem
 	m = JuMP.Model(GLPK.Optimizer)
 
-	# The prefix s Corresponds to priveledged class
-	@variable(m, 0<= sp2p <=1)
-	@variable(m, 0<= sp2n <=1)
-	@variable(m, 0<= sn2p <=1)
-	@variable(m, 0<= sn2n <=1)
+	@variable(m, 0<= p2p[1:n] <=1)
+	@variable(m, 0<= p2n[1:n] <=1)
+	@variable(m, 0<= n2p[1:n] <=1)
+	@variable(m, 0<= n2n[1:n] <=1)
 
-	# The prefix o Corresponds to unpriveledged class
-	@variable(m, 0<= op2p <=1)
-	@variable(m, 0<= op2n <=1)
-	@variable(m, 0<= on2p <=1)
-	@variable(m, 0<= on2n <=1)
+	@constraint(m, cons1[i=1:n], p2p[i] == 1 - p2n[i])
+	@constraint(m, cons2[i=1:n], n2p[i] == 1 - n2n[i])
 
-	@constraint(m, constraint1, sp2p == 1 - sp2n)
-	@constraint(m, constraint2, sn2p == 1 - sn2n)
-	@constraint(m, constraint3, op2p == 1 - op2n)
-	@constraint(m, constraint4, on2p == 1 - on2n)
+	a_Class = levels(grps)[1]
+	a_Grp = grps .== a_Class
 
-	privClass = levels(grps)[2]
-	unprivClass = levels(grps)[1]
-	priv = grps .== privClass
-	unpriv = grps .== unprivClass
+	a_flip = 1 .- ŷ[a_Grp]
+	a_const = ŷ[a_Grp]
 
-	sflip = 1 .- ŷ[priv]
-	sconst = ŷ[priv]
-	oflip = 1 .- ŷ[unpriv]
-	oconst = ŷ[unpriv]
-
-	sbr = mean(y[priv]) # Base rate for priviledged class
-	obr = mean(y[unpriv]) # Base rate for unpriveledged class
+	a_BaseRate = mean(y[a_Grp]) # Base rate for a_ class
 
 	ft = fair_tensor(categorical(ŷ), categorical(y), categorical(grps))
-	sfpr = fpr(ft; grp=privClass) * sp2p + tnr(ft; grp=privClass) * sn2p
-	sfnr = fnr(ft; grp=privClass) * sn2n + tpr(ft; grp=privClass) * sp2n
-	ofpr = fpr(ft; grp=unprivClass) * op2p + tnr(ft; grp=unprivClass) * on2p
-	ofnr = fnr(ft; grp=unprivClass) * on2n + tpr(ft; grp=unprivClass) * op2n
-	error = sfpr + sfnr + ofpr + ofnr
+
+	error = 0
+	for i in 1:n
+		i_fpr = fpr(ft; grp=levels(grps)[i]) * p2p[i] + tnr(ft; grp=levels(grps)[i]) * n2p[i]
+		i_fnr = fnr(ft; grp=levels(grps)[i]) * n2n[i] + tpr(ft; grp=levels(grps)[i]) * p2n[i]
+		error += (i_fpr + i_fnr)
+	end
 	@objective(m, Min, error)
 
-	sm_tn = ŷ[priv].==0 .& y[priv].==0
-	sm_fn = ŷ[priv].==0 .& y[priv].==1
-	sm_tp = ŷ[priv].==1 .& y[priv].==1
-	sm_fp = ŷ[priv].==1 .& y[priv].==0
-
-	om_tn = ŷ[unpriv].==0 .& y[unpriv].==0
-	om_fn = ŷ[unpriv].==0 .& y[unpriv].==1
-	om_tp = ŷ[unpriv].==1 .& y[unpriv].==1
-	om_fp = ŷ[unpriv].==1 .& y[unpriv].==0
+	a_tn = ŷ[a_Grp].==0 .& y[a_Grp].==0
+	a_fn = ŷ[a_Grp].==0 .& y[a_Grp].==1
+	a_tp = ŷ[a_Grp].==1 .& y[a_Grp].==1
+	a_fp = ŷ[a_Grp].==1 .& y[a_Grp].==0
 
 	# Following variables names have been changed from the implementation by Equalized Odds postprocessing algorithm
 	# These variables better explain the corresponding quantity.
-	# For eg. spp_given_p Corresponds to Predicted Positive given Negative for priveledged class
-	spp_given_p = ((sn2p * mean(sflip .& sm_fn) + sn2n * mean(sconst .& sm_fn)) / sbr +
-				  (sp2p * mean(sconst .& sm_tp) + sp2n * mean(sflip .& sm_tp)) / sbr)
+	# For eg. a_pp_given_p Corresponds to Predicted Positive given Negative for class named a
 
-	spn_given_n = ((sp2n * mean(sflip .& sm_fp) + sp2p * mean(sconst .& sm_fp)) / (1 - sbr) +
-				  (sn2p * mean(sflip .& sm_tn) + sn2n * mean(sconst .& sm_tn)) / (1 - sbr))
+	a_pp_given_p = ((n2p[1] * mean(a_flip .& a_fn) + n2n[1] * mean(a_const .& a_fn)) / a_BaseRate +
+				  (p2p[1] * mean(a_const .& a_tp) + p2n[1] * mean(a_flip .& a_tp)) / a_BaseRate)
 
-	opp_given_p = ((on2p * mean(oflip .& om_fn) + on2n * mean(oconst .& om_fn)) / obr +
-				  (op2p * mean(oconst .& om_tp) + op2n * mean(oflip .& om_tp)) / obr)
+	a_pn_given_n = ((p2n[1] * mean(a_flip .& a_fp) + p2p[1] * mean(a_const .& a_fp)) / (1 - a_BaseRate) +
+				  (n2p[1] * mean(a_flip .& a_tn) + n2n[1] * mean(a_const .& a_tn)) / (1 - a_BaseRate))
 
-	opn_given_n = ((op2n * mean(oflip .& om_fp) + op2p * mean(oconst .& om_fp)) / (1 - obr) +
-				  (on2p * mean(oflip .& om_tn) + on2n * mean(oconst .& om_tn)) / (1 - obr))
+	for i in 2:n
+		i_Class = levels(grps)[i]
 
-	@constraint(m, constraint5, spp_given_p==opp_given_p)
-	@constraint(m, constraint6, spn_given_n==opn_given_n)
+		i_Grp = grps .== i_Class
+
+		i_flip = 1 .- ŷ[i_Grp]
+		i_const = ŷ[i_Grp]
+
+		i_BaseRate = mean(y[i_Grp]) # Base rate for a_ class
+
+		i_tn = ŷ[i_Grp].==0 .& y[i_Grp].==0
+		i_fn = ŷ[i_Grp].==0 .& y[i_Grp].==1
+		i_tp = ŷ[i_Grp].==1 .& y[i_Grp].==1
+		i_fp = ŷ[i_Grp].==1 .& y[i_Grp].==0
+
+		i_pp_given_p = ((n2p[i] * mean(i_flip .& i_fn) + n2n[i] * mean(i_const .& i_fn)) / i_BaseRate +
+					  (p2p[i] * mean(i_const .& i_tp) + p2n[i] * mean(i_flip .& i_tp)) / i_BaseRate)
+
+		i_pn_given_n = ((p2n[i] * mean(i_flip .& i_fp) + p2p[i] * mean(i_const .& i_fp)) / (1 - i_BaseRate) +
+					  (n2p[i] * mean(i_flip .& i_tn) + n2n[i] * mean(i_const .& i_tn)) / (1 - i_BaseRate))
+
+		@constraint(m, a_pp_given_p==i_pp_given_p)
+		@constraint(m, a_pn_given_n==i_pn_given_n)
+	end
 
 	optimize!(m)
 
-	fitresult = [[JuMP.value(sp2n), JuMP.value(sn2p), JuMP.value(op2n), JuMP.value(on2p)], mch.fitresult]
+	fitresult = [[JuMP.value.(p2n), JuMP.value.(n2p)], mch.fitresult]
 
 	return fitresult, nothing, nothing
 end
@@ -115,7 +115,7 @@ end
 # Corresponds to eq_odds function which uses mix_rates to modify results
 function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 
-	(sp2n, sn2p, op2n, on2p), classifier_fitresult = fitresult
+	(p2n, n2p), classifier_fitresult = fitresult
 
 	ŷ = MMI.predict(model.classifier, classifier_fitresult, Xnew)
 
@@ -126,27 +126,21 @@ function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 	ŷ = convert(Array, ŷ) # Need to convert to normal array as categorical array doesn't support sub
 	grps = Xnew[:, model.grp]
 
-	privClass = levels(grps)[2]
-	unprivClass = levels(grps)[1]
-	priv = grps .== privClass
-	unpriv = grps .== unprivClass
+	n = length(levels(grps)) # Number of different values for sensitive attribute
 
+	for i in 1:n
+		Class = levels(grps)[i]
+		Grp = grps .== Class
 
-	s_pp_indices = shuffle(findall((grps.==privClass) .& (ŷ.==1))) # predicted positive for priv class
-	s_pn_indices = shuffle(findall((grps.==privClass) .& (ŷ.==0))) # predicted negative for unpriv class
-	o_pp_indices = shuffle(findall((grps.==unprivClass) .& (ŷ.==1))) # predicted positive for priv class
-	o_pn_indices = shuffle(findall((grps.==unprivClass) .& (ŷ.==0))) # predicted negative for unpriv class
+		pp_indices = shuffle(findall((grps.==Grp) .& (ŷ.==1))) # predicted positive for iᵗʰ class
+		pn_indices = shuffle(findall((grps.==Class) .& (ŷ.==0))) # predicted negative for iᵗʰ class
 
-	# Note : arrays in julia start from 1
-	s_p2n_indices = s_pp_indices[1:convert(Int, floor(length(s_pp_indices)*sp2n))]
-	s_n2p_indices = s_pn_indices[1:convert(Int, floor(length(s_pn_indices)*sn2p))]
-	o_p2n_indices = o_pp_indices[1:convert(Int, floor(length(o_pp_indices)*op2n))]
-	o_n2p_indices = o_pn_indices[1:convert(Int, floor(length(o_pn_indices)*on2p))]
+		# Note : arrays in julia start from 1
+		p2n_indices = pp_indices[1:convert(Int, floor(length(pp_indices)*p2n[i]))]
+		n2p_indices = pn_indices[1:convert(Int, floor(length(pn_indices)*n2p[i]))]
 
-	ŷ[s_p2n_indices] = 1 .- ŷ[s_p2n_indices]
-	ŷ[s_n2p_indices] = 1 .- ŷ[s_n2p_indices]
-	ŷ[o_p2n_indices] = 1 .- ŷ[o_p2n_indices]
-	ŷ[o_n2p_indices] = 1 .- ŷ[o_n2p_indices]
-
+		ŷ[p2n_indices] = 1 .- ŷ[p2n_indices]
+		ŷ[n2p_indices] = 1 .- ŷ[n2p_indices]
+	end
 	return ŷ
 end

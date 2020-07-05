@@ -28,7 +28,7 @@ MLJFair._calculateWeights
 These are the algorithms that have control over the final predictions. They can tweak final predictions to optimise fairness constraints.
 
 ### Equalized Odds Algorithm
-This algorithm currently supports training data with binary sensitive attribute.
+This algorithm supports training data with 2 or more possible values for the sensitive attribute.
 ```@docs
 EqOddsWrapper
 MLJFair.EqOddsWrapper(::MLJBase.Model)

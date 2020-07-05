@@ -2,7 +2,7 @@ Base.zero(::Type{Union{Int64, VariableRef, GenericAffExpr{Float64,VariableRef}}}
 
 # Helper function to modify the fairness tensor according to the values for sp2n, on2p, etc
 # vals is a 2D array of the form [[sp2n, sn2p], [op2n, on2p]]
-function _fairTensorLinProg(ft::FairTensor, vals)
+function _fairTensorLinProg!(ft::FairTensor, vals)
 	mat = deepcopy(ft.mat)
 	ft.mat = zeros(Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, size(mat)...)
 	for i in 1:length(ft.labels)
@@ -15,7 +15,6 @@ function _fairTensorLinProg(ft::FairTensor, vals)
 		a[2, 2] = mat[i, 2, 2]*n2n + mat[i, 1, 2]*p2n
 		ft.mat[i, :, :] = a
 	end
-	return ft
 end
 
 """
@@ -82,7 +81,7 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	vals[1, :] = [sp2n, sn2p]
 	vals[2, :] = [op2n, on2p]
 
-	newft = MLJFair._fairTensorLinProg(ft, vals)
+	_fairTensorLinProg!(ft, vals)
 
 	mat = reshape(ft.mat, (8))
 	@variable(m, aux[1:8])
