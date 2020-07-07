@@ -23,7 +23,7 @@ Returns the tuple (X, y, ŷ)
 macro load_toydata()
     quote
         fpath = joinpath(DATA_DIR, "jobs.csv")
-        data = CSV.read(fpath)
+        data = DataFrame!(CSV.File(fpath))
         categorical!(data, names(data)[1:6])
         (data[!, names(data)[1:4]], data[!, :Class], data[!, :Pred])
     end

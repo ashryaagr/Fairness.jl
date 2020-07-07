@@ -7,8 +7,8 @@ Utility function to read csv file of job data and convert columns to categorical
 "
 function jobdata()
     fpath = joinpath(@__DIR__, "..", "..", "data", "jobs.csv")
-    data = CSV.read(fpath)
-    categorical!(data, [names(data)[4], :Class, :Pred])
+    data = DataFrame!(CSV.File(fpath))
+    categorical!(data, names(data)[1:6])
     return data
 end
 

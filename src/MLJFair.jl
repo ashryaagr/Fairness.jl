@@ -57,7 +57,7 @@ export pretty
 # ===================================================================
 ## CONSTANTS
 
-const CategoricalElement = Union{CategoricalValue,CategoricalString}
+const CategoricalElement = Union{CategoricalValue,CategoricalValue{String, R} where R}
 const Vec = AbstractVector
 const Measure =  MLJBase.Measure
 const MMI =  MLJModelInterface
