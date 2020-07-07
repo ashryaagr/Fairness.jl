@@ -23,7 +23,7 @@ end
 It is a postprocessing algorithm that uses JuMP and Ipopt library to minimise error and satisfy the specified constraint at the same time.
 Automatic differentiation and gradient based optimisation is used to find probabilities with which the predictions are changed for each group.
 """
-mutable struct LinProgWrapper <: DeterministicNetwork
+mutable struct LinProgWrapper <: DeterministicComposite
 	grp::Symbol
 	classifier::MLJBase.Model
 	measure::Measure

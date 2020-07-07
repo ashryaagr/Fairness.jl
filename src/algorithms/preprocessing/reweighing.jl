@@ -27,7 +27,7 @@ end
 ReweighingWrapper is a preprocessing algorithm wrapper in which Weights for each group-label combination is calculated.
 These calculated weights are then passed to the classifier model which further uses it to make training fair.
 """
-mutable struct ReweighingWrapper <: DeterministicNetwork
+mutable struct ReweighingWrapper <: DeterministicComposite
     grp::Symbol
     classifier::MLJBase.Model
 end
@@ -47,24 +47,22 @@ end
 function MLJBase.fit(model::ReweighingWrapper,
     verbosity::Int, X, y)
 
-    Xs = source(X)
-    ys = source(y, kind=:target)
-
-    stand_model = Standardizer()
-    stand = machine(stand_model, Xs)
-    W = transform(stand, Xs)
-
     grps = X[:, model.grp]
 
     weights = _calculateWeights(grps, y)
 
+    Xs = source(X)
+    ys = source(y)
+    Ws = source(weights)
+    
     classifier = model.classifier
-    cls_mch = machine(classifier, W, ys, weights)
-    ŷ= MMI.predict(cls_mch, W)
+    mach1 = machine(classifier, Xs, ys, Ws)
+    ŷ = MMI.predict(mach1, Xs)
 
-    fit!(ŷ, verbosity=0)
+    mach2 = machine(Deterministic(), Xs, ys; predict=ŷ)
+    fit!(mach2, verbosity=verbosity)
 
-    return fitresults(ŷ)
+    return mach2()
 end
 
 
@@ -75,7 +73,7 @@ ReweighingSamplingWrapper is a preprocessing algorithm wrapper in which Weights 
 Using the calculated weights, rows are sampled uniformly. The weight is used to sample uniformly.
 The number of datapoints used to train after sampling from the reweighed dataset can be specified by `noSamples`.
 """
-mutable struct ReweighingSamplingWrapper <: DeterministicNetwork
+mutable struct ReweighingSamplingWrapper <: DeterministicComposite
     grp::Symbol
     classifier::MLJBase.Model
     noSamples::Int
@@ -101,10 +99,13 @@ function MLJBase.fit(model::ReweighingSamplingWrapper,
     indices = sample(1:length(y), FrequencyWeights(weights), n; replace=true, ordered=false)
     Xnew = X[indices, :]
     ynew = y[indices]
-    Xs = source(Xnew, kind=:input)
-    ys = source(ynew, kind=:target)
-    mch = machine(model.classifier, Xs, ys)
-    ŷ = MMI.predict(mch, Xs)
-    fit!(ŷ, verbosity=0)
-    return fitresults(ŷ)
+    Xs = source(Xnew)
+    ys = source(ynew)
+    mach1 = machine(model.classifier, Xs, ys)
+    ŷ = MMI.predict(mach1, Xs)
+
+    mach2 = machine(Deterministic(), Xs, ys; predict=ŷ)
+    fit!(mach2, verbosity=verbosity)
+
+    return mach2()
 end

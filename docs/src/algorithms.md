@@ -17,7 +17,14 @@ MLJFair.ReweighingSamplingWrapper(::MLJBase.Model)
 ```
 
 ### Reweighing Algorithm
-This algorithm is currently not functioning expectedly. You can switch to ReweighingSamplingWrapper which provides similar functionality.
+This model being wrapped with this wrapper needs to support weights. If the model doesn't support training using weights, then error is thrown. In case weights are not supported by your desired model, them switch to ReweighingSampling Algorithm.
+To find the models in MLJ that support weights, execute:
+```julia
+using MLJ
+for model in models()
+   if model.supports_weights println(model.name) end
+end
+```
 ```@docs
 ReweighingWrapper
 MLJFair.ReweighingWrapper(::MLJBase.Model)

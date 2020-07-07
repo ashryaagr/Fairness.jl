@@ -3,7 +3,7 @@
 
 It is a postprocessing algorithm which uses Linear Programming to optimise the constraints for Equalized Odds.
 """
-mutable struct EqOddsWrapper <: DeterministicNetwork
+mutable struct EqOddsWrapper <: DeterministicComposite
 	grp::Symbol
 	classifier::MLJBase.Model
 end
