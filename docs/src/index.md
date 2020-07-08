@@ -20,8 +20,6 @@ It shall be divided into following components
   - InProcessing Algorithms [WIP]
   - PostProcessing Algorithms
 
-It currently has only metrics.
-
 # Getting Started
 - [Examples and tutorials](https://github.com/ashryaagr/MLJFair.jl/tree/master/examples) are a good starting point.
 - [Documentation](https://www.ashrya.in/MLJFair.jl/dev) is also available for this package.
