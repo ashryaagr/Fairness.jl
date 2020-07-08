@@ -2,7 +2,7 @@
     FairTensor{C}
 
 Fairness Tensor with C classes. It consists of C 2 x 2 matrices stacked up to form a Matrix
-of size 2 x 2 x C. Each 2 x 2 matrix contains values [[TP, FP], [FN, TN]].
+of size C x 2 x 2. Each 2 x 2 matrix contains values [[TP, FP], [FN, TN]].
 """
 mutable struct FairTensor{C}
     mat # No type has been specified here due to the LinProgWrapper postprocessing algorithm

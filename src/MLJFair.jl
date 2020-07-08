@@ -40,6 +40,9 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
        recall, sensitivity, hit_rate, miss_rate,
        specificity, selectivity, f1score, fallout
 
+# Export Fairness Metric Wrappers
+export MetricWrapper
+
 # Export the fairness metrics
 export disparity, parity
 
