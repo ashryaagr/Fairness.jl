@@ -9,9 +9,17 @@ function (::Mean)(dicts::Array{Dict{Any, Any}})
         for dict in dicts
             valSum += dict[grp]
         end
-        valuesDict[grp] = valSum/n
+        if typeof(valSum)==Int64
+            valuesDict[grp] = valSum # When the individual metric value is an integer(eg. for true_positive), then aggregation is via sum
+        else
+            valuesDict[grp] = valSum/n # When the metric is a float, then it is a rate(eg. for true_positive_rate). So, aggregation is via mean
+        end
     end
     return valuesDict
+end
+
+function (::Mean)(dict::Dict{Any,Any})
+    return dict
 end
 
 struct MetricWrapper <: MLJBase.Measure
@@ -21,6 +29,14 @@ end
 
 function MetricWrapper(measure::MLJBase.Measure; grp=:class)
     MetricWrapper(measure, grp)
+end
+
+function MetricWrappers(measures::Array{MLJBase.Measure, 1}; grp=:class)
+    wrappedMetrics = []
+    for measure in measures
+        push!(wrappedMetrics, MetricWrapper(measure; grp=grp))
+    end
+    return wrappedMetrics
 end
 
 function (FM::MetricWrapper)(ŷ, X, y)
@@ -43,10 +59,13 @@ end
 
 
 MLJBase.name(::Type{<:MetricWrapper}) = "MetricWrapper"
-MLJBase.target_scitype(::Type{<:MetricWrapper}) = AbstractArray{Multiclass{2},1}
+# MLJBase.target_scitype(::Type{<:MetricWrapper}) = AbstractArray{Multiclass{2},1}
 MLJBase.supports_weights(::Type{<:MetricWrapper}) = false # for now
 # MLJBase.prediction_type(::Type{<:MetricWrapper}) = :deterministic # Not specifying it to have check_measures false
 MLJBase.orientation(::Type{<:MetricWrapper}) = :other # other options are :score, :loss
 MLJBase.reports_each_observation(::Type{<:MetricWrapper}) = false
 MLJBase.aggregation(::Type{<:MetricWrapper}) = Mean()
 MLJBase.is_feature_dependent(::Type{<:MetricWrapper}) = true
+
+# To display the name of actual measure while printing instead of the name MetricWrapper
+Base.show(stream::IO, m::MetricWrapper) = print(stream, m.measure)
