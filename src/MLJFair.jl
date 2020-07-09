@@ -4,6 +4,7 @@ module MLJFair
 ## IMPORTS
 
 import Base
+using Random
 using Tables, CSV # For loading datasets
 using MLJBase
 using CategoricalArrays

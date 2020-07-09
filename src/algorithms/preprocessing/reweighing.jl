@@ -54,7 +54,7 @@ function MLJBase.fit(model::ReweighingWrapper,
     Xs = source(X)
     ys = source(y)
     Ws = source(weights)
-    
+
     classifier = model.classifier
     mach1 = machine(classifier, Xs, ys, Ws)
     ŷ = MMI.predict(mach1, Xs)
@@ -71,32 +71,39 @@ end
 
 ReweighingSamplingWrapper is a preprocessing algorithm wrapper in which Weights for each group-label combination is calculated.
 Using the calculated weights, rows are sampled uniformly. The weight is used to sample uniformly.
-The number of datapoints used to train after sampling from the reweighed dataset can be specified by `noSamples`.
+The number of datapoints used to train after sampling from the reweighed dataset can be controlled by `factor`.
 """
 mutable struct ReweighingSamplingWrapper <: DeterministicComposite
     grp::Symbol
     classifier::MLJBase.Model
-    noSamples::Int
+    factor::Float64
+    rng::Union{Int,AbstractRNG}
 end
 
 """
-    ReweighingSamplingWrapper(classifier; grp=:class, noSamples=-1)
+    ReweighingSamplingWrapper(classifier; grp=:class, factor=1, rng=Random.GLOBAL_RNG)
 
 Instantiates a ReweighingSamplingWrapper which wrapper the classifier with the Reweighing fairness algorithm together with sampling.
 The sensitive attribute can be specified by the parameter `grp`.
-`noSamples` indicates the number of datapoints used to train after sampling from the reweighed dataset.
-A negative or no value value for `noSamples` parameter instructs the algorithm to use the same number of datapoints as in original sample.
+`factor`*number_of_samples_in_original_data datapoints are sampled using calculated weights and then used to train after sampling from the reweighed dataset.
+A negative or no value value for `factor` parameter instructs the algorithm to use the same number of datapoints as in original sample.
 """
-function ReweighingSamplingWrapper(classifier::MLJBase.Model; grp::Symbol=:class, noSamples::Int=-1)
-    return ReweighingSamplingWrapper(grp, classifier, noSamples)
+function ReweighingSamplingWrapper(classifier::MLJBase.Model; grp::Symbol=:class, factor::Float64=1.0, rng=nothing)
+    if rng isa Integer
+        rng = MersenneTwister(rng)
+    end
+    if rng == nothing
+        rng = Random.GLOBAL_RNG
+    end
+    return ReweighingSamplingWrapper(grp, classifier, factor, rng)
 end
 
 function MLJBase.fit(model::ReweighingSamplingWrapper,
     verbosity::Int, X, y)
     grps = X[:, model.grp]
-    n = model.noSamples<0 ? length(y) : model.noSamples
+    n = model.factor<0 ? length(y) : Int(round(model.factor*length(y)))
     weights = _calculateWeights(grps, y)
-    indices = sample(1:length(y), FrequencyWeights(weights), n; replace=true, ordered=false)
+    indices = sample(model.rng, 1:length(y), FrequencyWeights(weights), n; replace=true, ordered=false)
     Xnew = X[indices, :]
     ynew = y[indices]
     Xs = source(Xnew)

@@ -62,7 +62,7 @@ It is a 3D matrix of values of TruePositives, False Negatives, etc for each grou
     - parity
   - BoolMetrics
     - DemographicParity
-  - MetricWrapper
+  - MetricWrapper, MetricWrappers
 
 ### Fairness Algorithms
 These algorithms are wrappers. These help in mitigating bias and improve fairness.
