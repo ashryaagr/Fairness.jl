@@ -55,25 +55,47 @@ MLJFair is divided into following components
 It is a 3D matrix of values of TruePositives, False Negatives, etc for each group. It greatly helps in optimization and removing the redundant calculations.
 
 ### Measures
-  - CalcMetrics
-    - true_positive_rate, false_positive....
-  - FairMetrics
-    - disparity
-    - parity
-  - BoolMetrics
-    - DemographicParity
-  - MetricWrapper, MetricWrappers
+
+#### CalcMetrics
+
+| Name | Metric Instances |
+|-----|-------------|
+| True Positive | truepositive,  true_positive
+| True Negative | truenegative, true_negative
+| False Positive | falsepositive, false_positive
+| False Negative | falsenegative, false_negative
+| True Positive Rate | truepositive_rate, true_positive_rate, tpr, recall, sensitivity, hit_rate
+| True Negative Rate | truenegative_rate, true_negative_rate, tnr, specificity, selectivity
+| False Positive Rate | falsepositive_rate, false_positive_rate, fpr, fallout
+| False Negative Rate | falsenegative_rate, false_negative_rate, fnr, miss_rate
+| False Discovery Rate | falsediscovery_rate, false_discovery_rate, fdr
+| Precision | positivepredictive_value, positive_predictive_value, ppv
+| Negative Predictive Value | negativepredictive_value, negative_predictive_value, npv
+
+#### FairMetrics
+
+| Name | Formula | Value for Custom function (func)
+|-----|-------------|----------------|
+| disparity | metric(Gᵢ)/metric(RefGrp) ∀ i| func(metric(Gᵢ), metric(RefGrp)) ∀ i
+| parity | [ (1-ϵ) <= dispariy_value[i] <= 1/(1-ϵ) ∀ i ] | [ func(disparity_value[i]) ∀ i ]
+
+#### BoolMetrics [WIP]
+These metrics shall use either parity or shall have custom implementation to return boolean values
+
+| Metric | Aliases |
+|-----|-------------|
+| Demographic Parity | DemographicParity
 
 ### Fairness Algorithms
 These algorithms are wrappers. These help in mitigating bias and improve fairness.
-  - Preprocessing Algorithms
-      - Reweighing
-      - ReweighingSampling
-  - PostProcessing Algorithms
-      - Equalized Odds PostProcessing
-      - LinProg PostProcessing (Generalizes the Equalized Odds algorithm for any metric)
-  - InProcessing Algorithms
-      - Meta-Fair algorithm with provable guarantees[WIP]
+
+| Algorithm Name | Metric Optimised | Supports Multi-valued protected attribute | Type | Reference |
+|----------------|------------------|-------------------------------------------|------|-----------|
+| Reweighing | General | :heavy_check_mark: |  Preprocessing | [Kamiran and Calders, 2012](http://doi.org/10.1007/s10115-011-0463-8)
+| Reweighing-Sampling | General | :heavy_check_mark: | Preprocessing | [Kamiran and Calders, 2012](http://doi.org/10.1007/s10115-011-0463-8)
+| Equalized Odds Algorithm | Equalized Odds | :heavy_check_mark: | Postprocessing | [Hardt et al., 2016](https://papers.nips.cc/paper/6374-equality-of-opportunity-in-supervised-learning)
+| LinProg Algorithm | Any metric | :x: [WIP] | Postprocessing | Our own algorithm
+| Meta-Fair algorithm[WIP] | Any metric | :heavy_check_mark: | Inprocessing | [Celis et al.. 2018](https://arxiv.org/abs/1806.06055)
 
 # Getting Started
 - [Examples and tutorials](https://github.com/ashryaagr/MLJFair.jl/tree/master/examples) are a good starting point.
