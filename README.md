@@ -35,7 +35,7 @@ ReweighingSamplingWrapper(
     classifier = ConstantClassifier(),
     noSamples = -1) @312
 
-julia> evaluate(measures=MetricWrappers(
+julia> evaluate(
           wrappedModel,
           X, y,
           measures=MetricWrappers(
