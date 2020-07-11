@@ -10,7 +10,6 @@ These are the algorithms that have control over the training data to be fed into
 This class of algorithms improves the representation of groups in the training data.
 
 ### ReweighingSampling Algorithm
-This algorithm also supports training data where more than 2 values are possible for sensitive attribute.
 ```@docs
 ReweighingSamplingWrapper
 MLJFair.ReweighingSamplingWrapper(::MLJBase.Model)
@@ -35,14 +34,13 @@ MLJFair._calculateWeights
 These are the algorithms that have control over the final predictions. They can tweak final predictions to optimise fairness constraints.
 
 ### Equalized Odds Algorithm
-This algorithm supports training data with 2 or more possible values for the sensitive attribute.
 ```@docs
 EqOddsWrapper
 MLJFair.EqOddsWrapper(::MLJBase.Model)
 ```
 
 ### LinProg Algorithm
-This algorithm supports all the metrics provided by MLJFair. It hasn't been tested on other possible user defined metrics. It supports training data with binary sensitive attribute.
+This algorithm supports all the metrics provided by MLJFair.
 ```@docs
 LinProgWrapper
 MLJFair.LinProgWrapper(::MLJBase.Model)

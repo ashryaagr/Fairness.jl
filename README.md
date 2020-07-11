@@ -20,6 +20,10 @@ Pkg.add("MLJ")
 - Well structured and intutive design
 - Extensive tests and Documentation
 
+# Getting Started
+
+- [Documentation](https://www.ashrya.in/MLJFair.jl/dev) is a good starting point for this package.
+
 # Example
 Following is an introductory example of using MLJFair. Observe how easy it has become to measure and mitigate bias in Machine Learning algorithms.
 ```julia
@@ -94,9 +98,5 @@ These algorithms are wrappers. These help in mitigating bias and improve fairnes
 | Reweighing | General | :heavy_check_mark: |  Preprocessing | [Kamiran and Calders, 2012](http://doi.org/10.1007/s10115-011-0463-8)
 | Reweighing-Sampling | General | :heavy_check_mark: | Preprocessing | [Kamiran and Calders, 2012](http://doi.org/10.1007/s10115-011-0463-8)
 | Equalized Odds Algorithm | Equalized Odds | :heavy_check_mark: | Postprocessing | [Hardt et al., 2016](https://papers.nips.cc/paper/6374-equality-of-opportunity-in-supervised-learning)
-| LinProg Algorithm | Any metric | :x: [WIP] | Postprocessing | Our own algorithm
+| LinProg Algorithm | Any metric | :heavy_check_mark: | Postprocessing | Our own algorithm
 | Meta-Fair algorithm[WIP] | Any metric | :heavy_check_mark: | Inprocessing | [Celis et al.. 2018](https://arxiv.org/abs/1806.06055)
-
-# Getting Started
-- [Examples and tutorials](https://github.com/ashryaagr/MLJFair.jl/tree/master/examples) are a good starting point.
-- [Documentation](https://www.ashrya.in/MLJFair.jl/dev) is also available for this package.
