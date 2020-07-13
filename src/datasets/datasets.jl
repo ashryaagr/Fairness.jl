@@ -1,5 +1,24 @@
 const DATA_DIR = joinpath(MODULE_DIR, "..", "data")
 
+const COERCE_ADULT = (
+    :age => Continuous,
+    :workclass => Multiclass,
+    :fnlwgt => Continuous,
+    :education => Multiclass,
+    :education_num => Continuous,
+    :marital_status => Multiclass,
+    :occupation => Multiclass,
+    :relationship => Multiclass,
+    :race => Multiclass,
+    :capital_gain => Continuous,
+    :capital_loss => Continuous,
+    :hours_per_week => Continuous,
+    :native_country => Multiclass,
+    :native_country => Multiclass,
+    :income_per_year => Multiclass,
+    :dataset => Multiclass
+)
+
 """
     load_dataset(fpath, coercions)
 
@@ -54,5 +73,14 @@ macro load_compas()
         y = data[!, "is_recid"]
         ŷ = convert.(Int64, data[!, "score_text"] == "High")
         (X, y, ŷ)
+    end
+end
+
+"Macro to load Adult dataset."
+macro load_adult()
+    quote
+        data = load_dataset("adult.csv", COERCE_ADULT)
+        y, X = unpack(data, ==(:income_per_year), x -> x != :dataset)
+        (X, y)
     end
 end
