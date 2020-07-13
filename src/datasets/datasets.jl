@@ -40,3 +40,19 @@ macro load_toyfairtensor()
         fair_tensor(ŷ, y, X[!, names(X)[4]])
     end
 end
+
+"
+Macro to load COMPAS dataset.
+https://github.com/propublica/compas-analysis/blob/master/Compas%20Analysis.ipynb
+"
+macro load_compas()
+    quote
+        fpath = joinpath(DATA_DIR, "compas-scores-two-years.csv")
+        data = DataFrame!(CSV.File(fpath))
+        categorical!(data, [:sex, :age_cat, :race, :score_text])
+        X = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "age_cat", "priors_count", "days_b_screening_arrest", "decile_score", "priors_count"]]
+        y = data[!, "is_recid"]
+        ŷ = convert.(Int64, data[!, "score_text"] == "High")
+        (X, y, ŷ)
+    end
+end
