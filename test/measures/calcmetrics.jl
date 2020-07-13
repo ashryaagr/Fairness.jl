@@ -1,6 +1,7 @@
 @testset "Constructors of Basic Fairness Calc. Metrics" begin
     ft = job_fairtensor()
     # check all constructors
+    # These exend the struct from MLJ Base https://github.com/ashryaagr/MLJFair.jl/blob/1d0093232ff215ea8a7e8521b0612162f70a92c3/src/measures/calcmetrics.jl#L18
     m = TruePositive()
     @test m(ft) == truepositive(ft)
     m = TrueNegative()
