@@ -1,6 +1,8 @@
 using Documenter
 using MLJFair
-using MLJBase, MLJModels
+using MLJBase, MLJ
+using PrettyPrinting
+using DataFrames
 
 makedocs(;
     modules=[MLJFair],
