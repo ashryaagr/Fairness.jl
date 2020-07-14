@@ -98,6 +98,7 @@ macro load_adult()
         (X, y)
     end
 end
+
 """
 Load the full version of [German credit dataset](https://archive.ics.uci.edu/ml/datasets/Statlog+%28German+Credit+Data%29).
 This dataset has 20 features and 1000 rows. The protected attributes are gender_status and age (>25 is priviledged)
