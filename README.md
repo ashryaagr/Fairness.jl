@@ -1,6 +1,17 @@
 # MLJFair
 
-[MLJFair](https://github.com/ashryaagr/MLJFair.jl) is a comprehensive bias audit and mitigation toolkit in julia and is supported by MLJ Ecosystem.
+[![Build Status](https://travis-ci.com/ashryaagr/MLJFair.jl.svg?branch=master)](https://travis-ci.com/ashryaagr/MLJFair.jl)
+[![Coverage Status](https://coveralls.io/repos/github/ashryaagr/MLJFair.jl/badge.svg)](https://coveralls.io/github/ashryaagr/MLJFair.jl)
+<a href="https://slackinvite.julialang.org/">
+  <img src="https://img.shields.io/badge/chat-on%20slack-orange.svg"
+       alt="#mlj">
+</a>
+<a href="https://www.ashrya.in/MLJFair.jl/dev/">
+  <img src="https://img.shields.io/badge/docs-stable-blue.svg"
+       alt="Documentation">
+</a>
+
+[MLJFair](https://github.com/ashryaagr/MLJFair.jl) is a comprehensive bias audit and mitigation toolkit in julia. Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) has been used in this package.
 
 # Installation
 ```julia
@@ -22,6 +33,7 @@ Pkg.add("MLJ")
 # Getting Started
 
 - [Documentation](https://www.ashrya.in/MLJFair.jl/dev) is a good starting point for this package.
+- To understand MLJFair, it is recommended that the user goes through the [MLJ Documentation](https://alan-turing-institute.github.io/MLJ.jl/stable/). It shall help the user in understanding the usage of machine, evaluate, etc.
 
 # Example
 Following is an introductory example of using MLJFair. Observe how easy it has become to measure and mitigate bias in Machine Learning algorithms.
