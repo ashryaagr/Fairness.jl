@@ -20,20 +20,15 @@ const COERCE_ADULT = (
 )
 
 """
-    load_dataset(fpath, coercions)
-
-Load one of standard dataset like Boston etc assuming the file is a
-comma separated file with a header.
-
+Checks whether the dataset is already present in data directory. Downloads it if not present.
 """
-function load_dataset(fname::String, coercions::Tuple)
-    fpath = joinpath(DATA_DIR, fname)
-    data_raw, data_header = readdlm(fpath, ',', header=true)
-    data_table = Tables.table(data_raw; header=Symbol.(vec(data_header)))
-    return coerce(data_table, coercions...; tight=true)
+function ensure_download(url::String, file::String)
+    cd(DATA_DIR) # This is to ensue that the dataset is not downloaded to /tmp instead of ./data
+    fpath = joinpath(DATA_DIR, file)
+    if !isfile(fpath)
+        download(url, file)
+    end
 end
-# The above function is taken from MLJBase/src/data/datasets.jl
-# TODO: Use Above function to load various datasets like COMPAS, German, etc.
 
 "
 Macro to read csv file of job data and convert columns to categorical.
@@ -66,21 +61,89 @@ https://github.com/propublica/compas-analysis/blob/master/Compas%20Analysis.ipyn
 "
 macro load_compas()
     quote
-        fpath = joinpath(DATA_DIR, "compas-scores-two-years.csv")
+        url = "https://github.com/propublica/compas-analysis/blob/master/compas-scores-two-years.csv"
+        fname = "compas-scores-two-years.csv"
+        ensure_download(url, fname)
+
+        fpath = joinpath(DATA_DIR, fname)
         data = DataFrame!(CSV.File(fpath))
         categorical!(data, [:sex, :age_cat, :race, :score_text])
         X = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "age_cat", "priors_count", "days_b_screening_arrest", "decile_score", "priors_count"]]
         y = data[!, "is_recid"]
-        ŷ = convert.(Int64, data[!, "score_text"] == "High")
-        (X, y, ŷ)
+        (X, y)
     end
 end
 
 "Macro to load Adult dataset."
 macro load_adult()
     quote
-        data = load_dataset("adult.csv", COERCE_ADULT)
-        y, X = unpack(data, ==(:income_per_year), x -> x != :dataset)
+        url = "http://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+        fname = "adult.data"
+        cols = ["age", "workclass", "fnlwgt", "education",
+            "education-num", "marital_status", "occupation",
+            "relationship", "race", "sex", "capital_gain",
+            "capital_loss", "hours_per_week", "native_country",
+            "income_per_year"
+        ]
+        ensure_download(url, fname)
+        fpath = joinpath(DATA_DIR, fname)
+        data = DataFrame!(CSV.File(fpath, header=cols))
+
+        data.income_per_year = map(df.income_per_year) do η
+            η == ">50K" ? 1 : 0
+        end
+
+        coerce!(data, COERCE_ADULT)
+        y, X = unpack(data, ==(:income_per_year), col -> true)
+        (X, y)
+    end
+end
+"""
+Load the full version of [German credit dataset](https://archive.ics.uci.edu/ml/datasets/Statlog+%28German+Credit+Data%29).
+This dataset has 20 features and 1000 rows. The protected attributes are gender_status and age (>25 is priviledged)
+Using the 20 features, it classifies the credit decision to a person as good or bad credit risks.
+
+Returns (X, y)
+"""
+macro load_german()
+    quote
+        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data"
+        fname = "german.data"
+        cols = [
+            "status", "duration", "credit_history",
+            "purpose", "credit_amount", "savings", "employment",
+            "installment_rate", "gender_status",
+            "other_debtors", "residence_since", "property", "age",
+            "installment_plans", "housing", "existing_credits",
+            "skill_level", "people_liable", "telephone",
+            "foreign_worker", "label"
+        ]
+        ensure_download(url, fname)
+        fpath = joinpath(DATA_DIR, fname)
+        df = DataFrame!(CSV.File(fpath, header=cols))
+
+        # As of now the Package supports only labels which are subset of (0, 1)
+        # But the german dataset has labels (1, 2). So, we need to map the labels {1=>0, 2=>1}
+        # This restriction will soon be removed and levels(label) shall be used to decide favourable label
+        df.label = map(df.label) do η
+            η == 2 ? 1 : 0
+        end
+
+        gender_status = Dict(
+            "A91" => "male_divorced_separated",
+            "A92" => "female_divorced_separated_married",
+            "A93" => "male_single",
+            "A94" => "male_married_widowed",
+            "A95" => "female_single", # There seems to be no row with this value in data
+        )
+
+        df.gender_status = map(df.gender_status) do η
+            gender_status[η]
+        end
+
+        coerce!(df, Textual => Multiclass)
+        coerce!(df, :label => Multiclass)
+        y, X = unpack(df, ==(:label), col -> true);
         (X, y)
     end
 end

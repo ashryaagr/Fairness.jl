@@ -10,7 +10,10 @@ end
     include("measures/measures.jl")
 end
 
+@testset "dataset_macros" begin
+    include("datasets/datasets.jl")
+end
+
 @testset "algorithms" begin
     include("algorithms/algorithms.jl")
-
 end
