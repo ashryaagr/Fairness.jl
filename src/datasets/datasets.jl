@@ -61,14 +61,16 @@ https://github.com/propublica/compas-analysis/blob/master/Compas%20Analysis.ipyn
 "
 macro load_compas()
     quote
-        url = "https://github.com/propublica/compas-analysis/blob/master/compas-scores-two-years.csv"
+        url = "https://raw.githubusercontent.com/propublica/compas-analysis/master/compas-scores-two-years.csv"
         fname = "compas-scores-two-years.csv"
         ensure_download(url, fname)
 
         fpath = joinpath(DATA_DIR, fname)
         data = DataFrame!(CSV.File(fpath))
-        categorical!(data, ["sex", "age_cat", "race", "score_text"])
-        X = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "age_cat", "priors_count", "days_b_screening_arrest", "decile_score", "priors_count"]]
+        # dropmissing!(data, names(data))
+        # coerce!(data, Textual => Multiclass)
+        # coerce!(data, :is_recid => Multiclass)
+        X = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score"]]
         y = data[!, "is_recid"]
         (X, y)
     end
@@ -88,12 +90,14 @@ macro load_adult()
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
         data = DataFrame!(CSV.File(fpath, header=cols))
-
+        
+        dropmissing!(data, names(data))
         data.income_per_year = map(data.income_per_year) do η
-            η == ">50K" ? 1 : 0
+            η == " <=50K" ? 0 : 1
         end
 
-        coerce!(data, COERCE_ADULT)
+        # coerce!(data, COERCE_ADULT...)
+        coerce!(data, :income_per_year => Multiclass)
         y, X = unpack(data, ==(:income_per_year), col -> true)
         (X, y)
     end
