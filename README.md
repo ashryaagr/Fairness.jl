@@ -1,7 +1,6 @@
 # MLJFair
 
-[MLJFair](https://github.com/ashryaagr/MLJFair.jl) is a bias audit and mitigation toolkit in julia and is supported by MLJ Ecosystem.
-It is being developed as a part of JSOC 2020 Program sponsored by JuliaComputing.
+[MLJFair](https://github.com/ashryaagr/MLJFair.jl) is a comprehensive bias audit and mitigation toolkit in julia and is supported by MLJ Ecosystem.
 
 # Installation
 ```julia
