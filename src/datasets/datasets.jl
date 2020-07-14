@@ -67,7 +67,7 @@ macro load_compas()
 
         fpath = joinpath(DATA_DIR, fname)
         data = DataFrame!(CSV.File(fpath))
-        categorical!(data, [:sex, :age_cat, :race, :score_text])
+        categorical!(data, ["sex", "age_cat", "race", "score_text"])
         X = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "age_cat", "priors_count", "days_b_screening_arrest", "decile_score", "priors_count"]]
         y = data[!, "is_recid"]
         (X, y)
@@ -89,7 +89,7 @@ macro load_adult()
         fpath = joinpath(DATA_DIR, fname)
         data = DataFrame!(CSV.File(fpath, header=cols))
 
-        data.income_per_year = map(df.income_per_year) do η
+        data.income_per_year = map(data.income_per_year) do η
             η == ">50K" ? 1 : 0
         end
 
