@@ -2,7 +2,7 @@
 	X, y = @load_compas
 	fpath = joinpath(MLJFair.DATA_DIR, "compas-scores-two-years.csv")
 	@test isfile(fpath)
-	# @test scitype(y) == AbstractArray{Multiclass{2}, 1}
+	@test scitype(y) == AbstractArray{Multiclass{2}, 1}
 	cols = ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score"]
 	@test string.(names(X)) == cols
 end

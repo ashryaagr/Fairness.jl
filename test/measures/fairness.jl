@@ -1,5 +1,5 @@
 @testset "Parity" begin
-    ft = job_fairtensor()
+    ft = @load_toyfairtensor
     M = [true_positive_rate]
     df = disparity(m, ft; refGrp="Board")
     df = parity(df, 0.2)

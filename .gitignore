@@ -6,3 +6,5 @@ Manifest.toml
 .DS_Store
 sandbox/
 docs/build
+data/*
+!data/jobs.csv

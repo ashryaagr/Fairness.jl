@@ -1,5 +1,5 @@
 @testset "Constructors of Basic Fairness Calc. Metrics" begin
-    ft = job_fairtensor()
+    ft = @load_toyfairtensor
     # check all constructors
     # These exend the struct from MLJ Base https://github.com/ashryaagr/MLJFair.jl/blob/1d0093232ff215ea8a7e8521b0612162f70a92c3/src/measures/calcmetrics.jl#L18
     m = TruePositive()
@@ -38,7 +38,7 @@
 end
 
 @testset "Values for Basic Fairness Calc. Metrics" begin
-    ft = job_fairtensor()
+    ft = @load_toyfairtensor
     @test true_positive(ft) == 2
     @test truenegative(ft) == 1
     @test falsepositive(ft) == 3
@@ -53,7 +53,7 @@ end
 end
 
 @testset "Group Specific Calc. Metrics" begin
-    ft = job_fairtensor()
+    ft = @load_toyfairtensor
     @test MLJFair._ftIdx(ft, "Education") == 2
     @test_throws ArgumentError MLJFair._ftIdx(ft, "ABCDE")
     @test true_positive(ft; grp=ft.labels[1]) == 2
@@ -70,7 +70,7 @@ end
 end
 
 @testset "Disparity" begin
-    ft = job_fairtensor()
+    ft = @load_toyfairtensor
     M = [true_positive_rate, false_positive_rate, ppv]
     @test_throws ArgumentError disparity(M, ft)
     d = disparity(M, ft; refGrp="Education")

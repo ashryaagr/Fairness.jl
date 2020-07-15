@@ -1,5 +1,5 @@
 @testset "Boolean Fairness Metrics" begin
-    ft = job_fairtensor()
+    ft = @load_toyfairtensor
     dp = DemographicParity()
     @test dp(ft) == false
     @test dp.C == 3
