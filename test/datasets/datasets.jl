@@ -13,7 +13,7 @@ end
 	@test isfile(fpath)
 	@test scitype(y) == AbstractArray{Multiclass{2}, 1}
 	cols = ["age", "workclass", "fnlwgt", "education",
-		"education-num", "marital_status", "occupation",
+		"education_num", "marital_status", "occupation",
 		"relationship", "race", "sex", "capital_gain",
 		"capital_loss", "hours_per_week", "native_country",
 	]
