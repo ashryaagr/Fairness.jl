@@ -10,13 +10,12 @@ const COERCE_ADULT = (
     :occupation => Multiclass,
     :relationship => Multiclass,
     :race => Multiclass,
+    :sex => Multiclass,
     :capital_gain => Continuous,
     :capital_loss => Continuous,
     :hours_per_week => Continuous,
     :native_country => Multiclass,
-    :native_country => Multiclass,
     :income_per_year => Multiclass,
-    :dataset => Multiclass
 )
 
 """
@@ -67,9 +66,12 @@ macro load_compas()
 
         fpath = joinpath(DATA_DIR, fname)
         data = DataFrame!(CSV.File(fpath))
-        # dropmissing!(data, names(data))
-        # coerce!(data, Textual => Multiclass)
-        # coerce!(data, :is_recid => Multiclass)
+        data = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score", "is_recid"]]
+        dropmissing!(data, disallowmissing=true)
+        coerce!(data, Textual => Multiclass)
+        coerce!(data, :is_recid => Multiclass)
+        y, X = unpack(data, ==(:is_recid), col -> true)
+
         X = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score"]]
         y = data[!, "is_recid"]
         (X, y)
@@ -79,10 +81,10 @@ end
 "Macro to load Adult dataset."
 macro load_adult()
     quote
-        url = "http://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
         fname = "adult.data"
         cols = ["age", "workclass", "fnlwgt", "education",
-            "education-num", "marital_status", "occupation",
+            "education_num", "marital_status", "occupation",
             "relationship", "race", "sex", "capital_gain",
             "capital_loss", "hours_per_week", "native_country",
             "income_per_year"
@@ -90,13 +92,13 @@ macro load_adult()
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
         data = DataFrame!(CSV.File(fpath, header=cols))
-        
-        dropmissing!(data, names(data))
+
+        data = dropmissing(data, names(data))
         data.income_per_year = map(data.income_per_year) do η
             η == " <=50K" ? 0 : 1
         end
 
-        # coerce!(data, COERCE_ADULT...)
+        coerce!(data, COERCE_ADULT...)
         coerce!(data, :income_per_year => Multiclass)
         y, X = unpack(data, ==(:income_per_year), col -> true)
         (X, y)
