@@ -52,7 +52,7 @@ export EqOddsWrapper, LinProgWrapper
 
 # Export macros for datasets from datasets/
 export @load_toydata, @load_toyfairtensor
-export @load_german
+export @load_compas, @load_adult, @load_german
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
 export categorical, levels, levels!

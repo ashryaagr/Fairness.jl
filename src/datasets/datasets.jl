@@ -1,5 +1,23 @@
 const DATA_DIR = joinpath(MODULE_DIR, "..", "data")
 
+const COERCE_ADULT = (
+    :age => Continuous,
+    :workclass => Multiclass,
+    :fnlwgt => Continuous,
+    :education => Multiclass,
+    :education_num => Continuous,
+    :marital_status => Multiclass,
+    :occupation => Multiclass,
+    :relationship => Multiclass,
+    :race => Multiclass,
+    :sex => Multiclass,
+    :capital_gain => Continuous,
+    :capital_loss => Continuous,
+    :hours_per_week => Continuous,
+    :native_country => Multiclass,
+    :income_per_year => Multiclass,
+)
+
 """
 Checks whether the dataset is already present in data directory. Downloads it if not present.
 """
@@ -33,6 +51,57 @@ macro load_toyfairtensor()
     quote
         X, y, ŷ = @load_toydata
         fair_tensor(ŷ, y, X[!, names(X)[4]])
+    end
+end
+
+"
+Macro to load COMPAS dataset.
+https://github.com/propublica/compas-analysis/blob/master/Compas%20Analysis.ipynb
+"
+macro load_compas()
+    quote
+        url = "https://raw.githubusercontent.com/propublica/compas-analysis/master/compas-scores-two-years.csv"
+        fname = "compas-scores-two-years.csv"
+        ensure_download(url, fname)
+
+        fpath = joinpath(DATA_DIR, fname)
+        data = DataFrame!(CSV.File(fpath))
+        data = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score", "is_recid"]]
+        dropmissing!(data, disallowmissing=true)
+        coerce!(data, Textual => Multiclass)
+        coerce!(data, :is_recid => Multiclass)
+        y, X = unpack(data, ==(:is_recid), col -> true)
+
+        X = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score"]]
+        y = data[!, "is_recid"]
+        (X, y)
+    end
+end
+
+"Macro to load Adult dataset."
+macro load_adult()
+    quote
+        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+        fname = "adult.data"
+        cols = ["age", "workclass", "fnlwgt", "education",
+            "education_num", "marital_status", "occupation",
+            "relationship", "race", "sex", "capital_gain",
+            "capital_loss", "hours_per_week", "native_country",
+            "income_per_year"
+        ]
+        ensure_download(url, fname)
+        fpath = joinpath(DATA_DIR, fname)
+        data = DataFrame!(CSV.File(fpath, header=cols))
+
+        data = dropmissing(data, names(data))
+        data.income_per_year = map(data.income_per_year) do η
+            η == " <=50K" ? 0 : 1
+        end
+
+        coerce!(data, COERCE_ADULT...)
+        coerce!(data, :income_per_year => Multiclass)
+        y, X = unpack(data, ==(:income_per_year), col -> true)
+        (X, y)
     end
 end
 
