@@ -17,6 +17,12 @@ function EqOddsWrapper(classifier::MLJBase.Model; grp::Symbol=:class)
 	return EqOddsWrapper(grp, classifier)
 end
 
+function MLJBase.clean!(model::EqOddsWrapper)
+    warning = ""
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning = "Only Binary Classifiers are supported")
+    return warning
+end
+
 # Corresponds to eq_odds_optimal_mix_rates function, mix_rates are returned as fitresult
 function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 	X, y)
@@ -144,3 +150,5 @@ function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 	end
 	return ŷ
 end
+
+MMI.target_scitype(::Type{<:EqOddsWrapper}) = AbstractVector{<:Finite{2}}

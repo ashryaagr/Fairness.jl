@@ -38,6 +38,12 @@ function LinProgWrapper(classifier::MLJBase.Model; grp::Symbol=:class, measure::
 	return LinProgWrapper(grp, classifier, measure)
 end
 
+function MLJBase.clean!(model::LinProgWrapper)
+    warning = ""
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning = "Only Binary Classifiers are supported")
+    return warning
+end
+
 function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	grps = X[:, model.grp]
 	n = length(levels(grps)) # Number of different values for sensitive attribute
@@ -128,3 +134,5 @@ function MMI.predict(model::LinProgWrapper, fitresult, Xnew)
 	end
 	return ŷ
 end
+
+MMI.target_scitype(::Type{<:LinProgWrapper}) = AbstractVector{<:Finite{2}}

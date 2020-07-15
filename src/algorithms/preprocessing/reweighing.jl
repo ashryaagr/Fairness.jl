@@ -44,6 +44,12 @@ function ReweighingWrapper(classifier::MLJBase.Model; grp::Symbol=:class)
     return ReweighingWrapper(grp, classifier)
 end
 
+function MLJBase.clean!(model::ReweighingWrapper)
+    warning = ""
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning = "Only Binary Classifiers are supported")
+    return warning
+end
+
 function MLJBase.fit(model::ReweighingWrapper,
     verbosity::Int, X, y)
 
@@ -65,6 +71,7 @@ function MLJBase.fit(model::ReweighingWrapper,
     return mach2()
 end
 
+MMI.target_scitype(::Type{<:ReweighingWrapper}) = AbstractVector{<:Finite{2}}
 
 """
     ReweighingSamplingWrapper
@@ -98,6 +105,12 @@ function ReweighingSamplingWrapper(classifier::MLJBase.Model; grp::Symbol=:class
     return ReweighingSamplingWrapper(grp, classifier, factor, rng)
 end
 
+function MLJBase.clean!(model::ReweighingSamplingWrapper)
+    warning = ""
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning = "Only Binary Classifiers are supported")
+    return warning
+end
+
 function MLJBase.fit(model::ReweighingSamplingWrapper,
     verbosity::Int, X, y)
     grps = X[:, model.grp]
@@ -116,3 +129,5 @@ function MLJBase.fit(model::ReweighingSamplingWrapper,
 
     return mach2()
 end
+
+MMI.target_scitype(::Type{<:ReweighingSamplingWrapper}) = AbstractVector{<:Finite{2}}
