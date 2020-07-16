@@ -40,6 +40,9 @@ function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement
     check_dimensions(ŷ, y)
     check_dimensions(ŷ, grp)
     length(levels(y))==2 || throw(ArgumentError("Binary Targets are only supported"))
+    labels = levels(y)
+    favLabel = labels[2]
+    unfavLabel = labels[1]
 
     levels_ = levels(grp)
     c = length(levels_)
@@ -52,14 +55,8 @@ function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement
 
     # Coverting Categorical Vector to Bool Vector.
     # TODO: Can think of adding another dispatch where user directly passes Bool Vec
-    y = deepcopy(y)
-    ŷ = deepcopy(ŷ) # Create deepcopy to prevent changes in passed data
-    y[y.==levels(y)[1]] .= 0 # Unfavourabe outcome marked as 0
-    y[y.==levels(y)[2]] .= 1 # Favoured outcome marked as 1
-    ŷ[ŷ.==levels(ŷ)[1]] .= 0
-    ŷ[ŷ.==levels(ŷ)[2]] .= 1
-    y = convert(AbstractVector{Bool}, y)
-    ŷ = convert(AbstractVector{Bool}, ŷ)
+    y = y.==favLabel
+    ŷ = ŷ.==favLabel
     n = length(y)
 
     fact = zeros(Int, c, 2, 2)
