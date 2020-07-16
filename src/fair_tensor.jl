@@ -16,7 +16,7 @@ Instantiates a FairTensor using the matrix m.
 """
 function FairTensor(m, labels::Vector{String})
     s = size(m)
-    (s[3] == s[2] && s[3] == 2) || throw(ArgumentError("Expected a 2*2*C type Matrix."))
+    (s[3] == s[2] && s[3] == 2) || throw(ArgumentError("Expected a C*2*2 type Matrix."))
     length(labels) == s[1] ||
         throw(ArgumentError("As many labels as classes must be provided."))
     FairTensor{s[1]}(m, labels)
@@ -39,6 +39,7 @@ function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement
 
     check_dimensions(ŷ, y)
     check_dimensions(ŷ, grp)
+    length(levels(y))==2 || throw(ArgumentError("Binary Targets are only supported"))
 
     levels_ = levels(grp)
     c = length(levels_)
@@ -51,6 +52,12 @@ function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement
 
     # Coverting Categorical Vector to Bool Vector.
     # TODO: Can think of adding another dispatch where user directly passes Bool Vec
+    y = deepcopy(y)
+    ŷ = deepcopy(ŷ) # Create deepcopy to prevent changes in passed data
+    y[y.==levels(y)[1]] .= 0 # Unfavourabe outcome marked as 0
+    y[y.==levels(y)[2]] .= 1 # Favoured outcome marked as 1
+    ŷ[ŷ.==levels(ŷ)[1]] .= 0
+    ŷ[ŷ.==levels(ŷ)[2]] .= 1
     y = convert(AbstractVector{Bool}, y)
     ŷ = convert(AbstractVector{Bool}, ŷ)
     n = length(y)
