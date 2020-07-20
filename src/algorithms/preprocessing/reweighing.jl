@@ -33,20 +33,21 @@ mutable struct ReweighingWrapper{M<:MLJBase.Model} <: DeterministicComposite
 end
 
 """
-    ReweighingWrapper(classifier; grp=:class)
+    ReweighingWrapper(classifier=nothing, grp=:class)
 
 Instantiates a ReweighingWrapper which wrapper the `classifier` with the Reweighing fairness algorithm.
 The sensitive attribute can be specified by the parameter `grp`.
 If `classifier` doesn't support weights while training, an error is thrown.
 """
-function ReweighingWrapper(classifier::MLJBase.Model; grp::Symbol=:class)
+function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class)
     supports_weights(classifier) || throw(ArgumentError("Classifier provided does not support weights"))
     return ReweighingWrapper(grp, classifier)
 end
 
 function MLJBase.clean!(model::ReweighingWrapper)
     warning = ""
-    target_scitype(model) <: AbstractVector{<:Finite} || (warning = "Only Binary Classifiers are supported")
+    model.classifier!=nothing || (warning *= "No classifier specified in model")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
     return warning
 end
 
@@ -89,14 +90,14 @@ mutable struct ReweighingSamplingWrapper{M<:MLJBase.Model} <: DeterministicCompo
 end
 
 """
-    ReweighingSamplingWrapper(classifier; grp=:class, factor=1, rng=Random.GLOBAL_RNG)
+    ReweighingSamplingWrapper(classifier=nothing, grp=:class, factor=1, rng=Random.GLOBAL_RNG)
 
 Instantiates a ReweighingSamplingWrapper which wrapper the classifier with the Reweighing fairness algorithm together with sampling.
 The sensitive attribute can be specified by the parameter `grp`.
 `factor`*number_of_samples_in_original_data datapoints are sampled using calculated weights and then used to train after sampling from the reweighed dataset.
 A negative or no value value for `factor` parameter instructs the algorithm to use the same number of datapoints as in original sample.
 """
-function ReweighingSamplingWrapper(classifier::MLJBase.Model; grp::Symbol=:class, factor::Float64=1.0, rng=nothing)
+function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, factor::Float64=1.0, rng=nothing)
     if rng isa Integer
         rng = MersenneTwister(rng)
     end
@@ -108,7 +109,8 @@ end
 
 function MLJBase.clean!(model::ReweighingSamplingWrapper)
     warning = ""
-    target_scitype(model) <: AbstractVector{<:Finite} || (warning = "Only Binary Classifiers are supported")
+    model.classifier!=nothing || (warning *= "No classifier specified in model")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
     return warning
 end
 

@@ -30,17 +30,18 @@ mutable struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
 end
 
 """
-    LinProgWrapper(classifier; grp=:class, measure)
+    LinProgWrapper(classifier=nothing, grp=:class, measure)
 
 Instantiates LinProgWrapper which wraps the classifier and containts the measure to optimised and the sensitive attribute(grp)
 """
-function LinProgWrapper(classifier::MLJBase.Model; grp::Symbol=:class, measure::Measure)
+function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure::Measure)
 	return LinProgWrapper(grp, classifier, measure)
 end
 
 function MLJBase.clean!(model::LinProgWrapper)
     warning = ""
-    target_scitype(model) <: AbstractVector{<:Finite} || (warning = "Only Binary Classifiers are supported")
+	model.classifier!=nothing || (warning *= "No classifier specified in model")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
     return warning
 end
 

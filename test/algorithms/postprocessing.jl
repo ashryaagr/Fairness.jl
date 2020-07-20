@@ -1,7 +1,7 @@
 @testset "Equalized Odds Postprocessing" begin
 	X, y, _ = @load_toydata;
 	model = ConstantClassifier()
-	wrappedModel = EqOddsWrapper(model; grp=:Sex)
+	wrappedModel = EqOddsWrapper(classifier=model, grp=:Sex)
 	mach = machine(wrappedModel, X, y)
 	fit!(mach)
 	ŷ = predict(mach, X[6:10, :])
@@ -13,7 +13,7 @@ end
 @testset "LinProgWrapper Postprocessing" begin
 	X, y, _ = @load_toydata;
 	model = ConstantClassifier()
-	wrappedModel = LinProgWrapper(model, grp=:Sex, measure=true_positive_rate)
+	wrappedModel = LinProgWrapper(classifier=model, grp=:Sex, measure=true_positive_rate)
 	mach = machine(wrappedModel, X, y)
 	fit!(mach)
 	ŷ = predict(mach, X[6:10, :])
