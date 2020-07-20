@@ -23,9 +23,9 @@ end
 It is a postprocessing algorithm that uses JuMP and Ipopt library to minimise error and satisfy the equality of specified specified measures for all groups at the same time.
 Automatic differentiation and gradient based optimisation is used to find probabilities with which the predictions are changed for each group.
 """
-mutable struct LinProgWrapper <: DeterministicComposite
+mutable struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
-	classifier::MLJBase.Model
+	classifier::M
 	measure::Measure
 end
 
@@ -135,4 +135,5 @@ function MMI.predict(model::LinProgWrapper, fitresult, Xnew)
 	return ŷ
 end
 
-MMI.target_scitype(::Type{<:LinProgWrapper}) = AbstractVector{<:Finite{2}}
+MMI.input_scitype(::Type{<:LinProgWrapper{M}}) where M = input_scitype(M)
+MMI.target_scitype(::Type{<:LinProgWrapper{M}}) where M = AbstractVector{<:Finite{2}}

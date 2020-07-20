@@ -3,9 +3,9 @@
 
 It is a postprocessing algorithm which uses Linear Programming to optimise the constraints for Equalized Odds.
 """
-mutable struct EqOddsWrapper <: DeterministicComposite
+mutable struct EqOddsWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
-	classifier::MLJBase.Model
+	classifier::M
 end
 
 """
@@ -151,4 +151,5 @@ function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 	return ŷ
 end
 
-MMI.target_scitype(::Type{<:EqOddsWrapper}) = AbstractVector{<:Finite{2}}
+MMI.input_scitype(::Type{<:EqOddsWrapper{M}}) where M = input_scitype(M)
+MMI.target_scitype(::Type{<:EqOddsWrapper{M}}) where M = AbstractVector{<:Finite{2}}
