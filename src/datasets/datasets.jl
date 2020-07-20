@@ -30,7 +30,7 @@ function ensure_download(url::String, file::String)
 end
 
 "
-Macro to read csv file of job data and convert columns to categorical.
+Macro to read csv file of job data (data/jobs.csv) and convert columns to categorical.
 Returns the tuple (X, y, ŷ)
 "
 macro load_toydata()
@@ -43,7 +43,7 @@ macro load_toydata()
 end
 
 "
-Macro to create fairness Tensor for jobs.csv
+Macro to create fairness Tensor for data/jobs.csv
 The fairness tensor will be created on the basis of the column Job Type.
 This column has 3 different values for job types.
 "
@@ -54,10 +54,13 @@ macro load_toyfairtensor()
     end
 end
 
-"
-Macro to load COMPAS dataset.
-https://github.com/propublica/compas-analysis/blob/master/Compas%20Analysis.ipynb
-"
+"""
+Macro to load [COMPAS dataset](https://github.com/propublica/compas-analysis/blob/master/Compas%20Analysis.ipynb)
+It is a reduced version of COMPAS Datset with 8 features and 6907 rows. The protected attributes are sex and race.
+The available features are used to predict whether a criminal defendant's will recidivate(reoffend).
+
+Returns (X, y)
+"""
 macro load_compas()
     quote
         url = "https://raw.githubusercontent.com/propublica/compas-analysis/master/compas-scores-two-years.csv"
@@ -78,7 +81,13 @@ macro load_compas()
     end
 end
 
-"Macro to load Adult dataset."
+"""
+Macro to Load the [Adult dataset](https://archive.ics.uci.edu/ml/datasets/adult)
+It has 14 features and 32561 rows. The protected attributes are race and sex.
+This dataset is used to predict whether income exceeds 50K dollars per year.
+
+Returns (X, y)
+"""
 macro load_adult()
     quote
         url = "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"

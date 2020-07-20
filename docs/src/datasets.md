@@ -4,17 +4,37 @@ To make it easy to try algorithms and metrics on various datasets, MLJFair shall
 
 These datasets can be easily accesses using macros.
 
-## German Credit Dataset
+### COMPAS Dataset
 ```@docs
-@load_german
+@load_compas
 ```
 ```@repl datasets
 using MLJFair
-X, y = @load_german;
+X, y = @load_compas;
+```
+
+### Adult Dataset
+```@docs
+@load_adult
+```
+
+### German Credit Dataset
+```@docs
+@load_german
+```
+
+### Inspecting Datasets
+To see the columns in dataset, their types and scientific types, you can use `schema` from MLJ.
+```@repl
+using MLJFair, MLJ
+X, y = @load_adult;
+schema(X)
 ```
 
 ## Toy Data
 This is a 10 row dataset that was used by authors of Reweighing Algorithm.
+This dataset is intended to test ideas and evaluate metrics without calculating predictions.
+It is different from other macros as it returns (X, y, ŷ) instead of (X, y)
 
 ```@docs
 @load_toydata
@@ -31,7 +51,7 @@ You can try working with the vast range of datasets available through OpenML.
 Refer [MLJ's OpenML documentation](https://alan-turing-institute.github.io/MLJ.jl/v0.9/openml_integration/) for the OpenML API.
 The id to be passed to OpenML.load can be found through [OpenML site](https://www.openml.org/search?type=data)
 ```@repl
-using MLJBase, MLJFair;
+using MLJBase, MLJFair
 using DataFrames
 data = OpenML.load(1480); # load Indian Liver Patient Dataset
 df = DataFrame(data) ;
@@ -47,7 +67,7 @@ y = map(y) do η
 end;
 ```
 
-### Helper Functions
+## Helper Functions
 ```@docs
 MLJFair.ensure_download
 ```

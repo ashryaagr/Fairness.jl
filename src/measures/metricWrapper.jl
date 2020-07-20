@@ -22,15 +22,31 @@ function (::Mean)(dict::Dict{Any,Any})
     return dict
 end
 
+"""
+    MetricWrapper
+
+MetricWrapper wraps the fairness metrics and has the information about the protected attribute.
+
+"""
 struct MetricWrapper <: MLJBase.Measure
     measure::MLJBase.Measure
     grp::Symbol
 end
 
+"""
+    MetricWrapper(measure, grp=:class)
+
+Instantiates the struct MetricWrapper.
+"""
 function MetricWrapper(measure::MLJBase.Measure; grp=:class)
     MetricWrapper(measure, grp)
 end
 
+"""
+    MetricWrappers(measures, grp=:class)
+
+Creates MetricWrapper for multiple metrics at same time.
+"""
 function MetricWrappers(measures::Array{MLJBase.Measure, 1}; grp=:class)
     wrappedMetrics = []
     for measure in measures

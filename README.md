@@ -23,6 +23,7 @@ Pkg.add("MLJ")
 
 # What MLJFair offers over its alternatives?
 - As of writing, it is the only bias audit and mitigation toolkit to support data with multi-valued protected attribute. For eg. If the protected attribute, say race has more than 2 values: "Asian", "African", "American"..so on, then MLJFair can easily handle it with normal workflow.
+- Multiple Fairness algorithms can be applied at the same time by wrapping the wrapped Model. [Example is available in Documentation](https://www.ashrya.in/MLJFair.jl/dev/algorithms/#Composability)
 - Due to the support for multi-valued protected attribute, intersectional fairness can also be dealt with this toolkit. For eg. If the data has 2 protected attributes, say race and gender, then MLJFair can be used to handle it by combining the attributes like "female_american", "male_asian"...so on.
 - Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) can be leveraged when using MLJFair.
 - Tuning of models using MLJTuning from MLJ. Numerious ML models from MLJModels can be used together with MLJFair.
@@ -34,6 +35,7 @@ Pkg.add("MLJ")
 
 - [Documentation](https://www.ashrya.in/MLJFair.jl/dev) is a good starting point for this package.
 - To understand MLJFair, it is recommended that the user goes through the [MLJ Documentation](https://alan-turing-institute.github.io/MLJ.jl/stable/). It shall help the user in understanding the usage of machine, evaluate, etc.
+- Incase of any difficulty or confusion feel free to [open an issue](https://github.com/ashryaagr/MLJFair.jl/issues/new).
 
 # Example
 Following is an introductory example of using MLJFair. Observe how easy it has become to measure and mitigate bias in Machine Learning algorithms.
@@ -111,3 +113,8 @@ These algorithms are wrappers. These help in mitigating bias and improve fairnes
 | Equalized Odds Algorithm | Equalized Odds | :heavy_check_mark: | Postprocessing | [Hardt et al., 2016](https://papers.nips.cc/paper/6374-equality-of-opportunity-in-supervised-learning)
 | LinProg Algorithm | Any metric | :heavy_check_mark: | Postprocessing | Our own algorithm
 | Meta-Fair algorithm[WIP] | Any metric | :heavy_check_mark: | Inprocessing | [Celis et al.. 2018](https://arxiv.org/abs/1806.06055)
+
+# Contributing
+
+- Various Contribution opportunities are available. Some of the possible contributions have been listed at [the pinned issue](https://github.com/ashryaagr/MLJFair.jl/issues/3#issuecomment-656812338)
+- Feel free to open an issue or contact on slack. Let us know where your intersts and strengths lie and we can find possible contribution opportunities for you.
