@@ -32,8 +32,6 @@ function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 		ŷ = MLJBase.mode.(ŷ)
 	end
 
-	ŷ = convert(Array, ŷ) # Incase ŷ is categorical array, convert to normal array to support various operations
-	y = convert(Array, y)
 	labels = levels(y)
 	favLabel = labels[2]
 	unfavLabel = labels[1]
@@ -132,7 +130,6 @@ function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 		ŷ = MLJBase.mode.(ŷ)
 	end
 
-	ŷ = convert(Array, ŷ) # Need to convert to normal array as categorical array doesn't support sub
     favLabel = labels[2]
 	unfavLabel = labels[1]
 
