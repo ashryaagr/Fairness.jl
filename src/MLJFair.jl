@@ -5,10 +5,9 @@ module MLJFair
 
 import Base
 using Random
-using Tables, CSV # For loading datasets
+using DataFrames, CSV # For loading datasets
 using MLJBase
 using CategoricalArrays
-using DataFrames
 using MLJModels, MLJModelInterface
 using StatsBase # For reweighing algorithm
 using JuMP, GLPK # For Equalized Odds Postprocessing algorithms
