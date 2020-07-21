@@ -39,8 +39,11 @@ function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 		ŷ = MLJBase.mode.(ŷ)
 	end
 
-	ŷ = convert(Array, ŷ) # Incase ŷ is categorical array, convert to normal array to support various operations
-	y = convert(Array, y)
+	labels = levels(y)
+	favLabel = labels[2]
+	unfavLabel = labels[1]
+	y = y.==favLabel
+	ŷ = ŷ.==favLabel
 
 	# Finding the probabilities of changing predictions is a Linear Programming Problem
 	# JuMP and Cbc are used to for this Linear Programming Problem
@@ -114,7 +117,11 @@ function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 
 	optimize!(m)
 
-	fitresult = [[JuMP.value.(p2n), JuMP.value.(n2p)], mch.fitresult]
+	# fitresult will provide the info we require in the predict function.
+	fitresult = [[JuMP.value.(p2n), JuMP.value.(n2p)], mch.fitresult, labels]
+	# Note: It was necessary to return the levels(y) value in fitreult because in predict there
+	# is no way to infer the 2 possible values of labels/targets.
+	# Main reason to return values is the edge case : Maybe all of the ŷ predictions are same and we don't get to know both labels
 
 	return fitresult, nothing, nothing
 end
@@ -122,7 +129,7 @@ end
 # Corresponds to eq_odds function which uses mix_rates to modify results
 function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 
-	(p2n, n2p), classifier_fitresult = fitresult
+	(p2n, n2p), classifier_fitresult, labels = fitresult
 
 	ŷ = MMI.predict(model.classifier, classifier_fitresult, Xnew)
 
@@ -130,7 +137,9 @@ function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 		ŷ = MLJBase.mode.(ŷ)
 	end
 
-	ŷ = convert(Array, ŷ) # Need to convert to normal array as categorical array doesn't support sub
+    favLabel = labels[2]
+	unfavLabel = labels[1]
+
 	grps = Xnew[:, model.grp]
 
 	n = length(levels(grps)) # Number of different values for sensitive attribute
@@ -139,15 +148,15 @@ function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 		Class = levels(grps)[i]
 		Grp = grps .== Class
 
-		pp_indices = shuffle(findall((grps.==Grp) .& (ŷ.==1))) # predicted positive for iᵗʰ class
-		pn_indices = shuffle(findall((grps.==Class) .& (ŷ.==0))) # predicted negative for iᵗʰ class
+		pp_indices = shuffle(findall((grps.==Grp) .& (ŷ.==favLabel))) # predicted positive for iᵗʰ class
+		pn_indices = shuffle(findall((grps.==Class) .& (ŷ.==unfavLabel))) # predicted negative for iᵗʰ class
 
 		# Note : arrays in julia start from 1
 		p2n_indices = pp_indices[1:convert(Int, floor(length(pp_indices)*p2n[i]))]
 		n2p_indices = pn_indices[1:convert(Int, floor(length(pn_indices)*n2p[i]))]
 
-		ŷ[p2n_indices] = 1 .- ŷ[p2n_indices]
-		ŷ[n2p_indices] = 1 .- ŷ[n2p_indices]
+		ŷ[p2n_indices] .= unfavLabel
+		ŷ[n2p_indices] .= favLabel
 	end
 	return ŷ
 end

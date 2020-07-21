@@ -138,13 +138,6 @@ macro load_german()
         fpath = joinpath(DATA_DIR, fname)
         df = DataFrame!(CSV.File(fpath, header=cols))
 
-        # As of now the Package supports only labels which are subset of (0, 1)
-        # But the german dataset has labels (1, 2). So, we need to map the labels {1=>0, 2=>1}
-        # This restriction will soon be removed and levels(label) shall be used to decide favourable label
-        df.label = map(df.label) do η
-            η == 2 ? 1 : 0
-        end
-
         gender_status = Dict(
             "A91" => "male_divorced_separated",
             "A92" => "female_divorced_separated_married",
