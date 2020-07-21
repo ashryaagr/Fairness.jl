@@ -23,19 +23,26 @@ end
 It is a postprocessing algorithm that uses JuMP and Ipopt library to minimise error and satisfy the equality of specified specified measures for all groups at the same time.
 Automatic differentiation and gradient based optimisation is used to find probabilities with which the predictions are changed for each group.
 """
-mutable struct LinProgWrapper <: DeterministicComposite
+mutable struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
-	classifier::MLJBase.Model
+	classifier::M
 	measure::Measure
 end
 
 """
-    LinProgWrapper(classifier; grp=:class, measure)
+    LinProgWrapper(classifier=nothing, grp=:class, measure)
 
 Instantiates LinProgWrapper which wraps the classifier and containts the measure to optimised and the sensitive attribute(grp)
 """
-function LinProgWrapper(classifier::MLJBase.Model; grp::Symbol=:class, measure::Measure)
+function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure::Measure)
 	return LinProgWrapper(grp, classifier, measure)
+end
+
+function MLJBase.clean!(model::LinProgWrapper)
+    warning = ""
+	model.classifier!=nothing || (warning *= "No classifier specified in model")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
+    return warning
 end
 
 function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
@@ -128,3 +135,6 @@ function MMI.predict(model::LinProgWrapper, fitresult, Xnew)
 	end
 	return ŷ
 end
+
+MMI.input_scitype(::Type{<:LinProgWrapper{M}}) where M = input_scitype(M)
+MMI.target_scitype(::Type{<:LinProgWrapper{M}}) where M = AbstractVector{<:Finite{2}}

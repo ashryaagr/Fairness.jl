@@ -27,21 +27,28 @@ end
 ReweighingWrapper is a preprocessing algorithm wrapper in which Weights for each group-label combination is calculated.
 These calculated weights are then passed to the classifier model which further uses it to make training fair.
 """
-mutable struct ReweighingWrapper <: DeterministicComposite
+mutable struct ReweighingWrapper{M<:MLJBase.Model} <: DeterministicComposite
     grp::Symbol
-    classifier::MLJBase.Model
+    classifier::M
 end
 
 """
-    ReweighingWrapper(classifier; grp=:class)
+    ReweighingWrapper(classifier=nothing, grp=:class)
 
 Instantiates a ReweighingWrapper which wrapper the `classifier` with the Reweighing fairness algorithm.
 The sensitive attribute can be specified by the parameter `grp`.
 If `classifier` doesn't support weights while training, an error is thrown.
 """
-function ReweighingWrapper(classifier::MLJBase.Model; grp::Symbol=:class)
+function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class)
     supports_weights(classifier) || throw(ArgumentError("Classifier provided does not support weights"))
     return ReweighingWrapper(grp, classifier)
+end
+
+function MLJBase.clean!(model::ReweighingWrapper)
+    warning = ""
+    model.classifier!=nothing || (warning *= "No classifier specified in model")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
+    return warning
 end
 
 function MLJBase.fit(model::ReweighingWrapper,
@@ -65,6 +72,8 @@ function MLJBase.fit(model::ReweighingWrapper,
     return mach2()
 end
 
+MMI.input_scitype(::Type{<:ReweighingWrapper{M}}) where M = input_scitype(M)
+MMI.target_scitype(::Type{<:ReweighingWrapper{M}}) where M = AbstractVector{<:Finite{2}}
 
 """
     ReweighingSamplingWrapper
@@ -73,22 +82,22 @@ ReweighingSamplingWrapper is a preprocessing algorithm wrapper in which Weights 
 Using the calculated weights, rows are sampled uniformly. The weight is used to sample uniformly.
 The number of datapoints used to train after sampling from the reweighed dataset can be controlled by `factor`.
 """
-mutable struct ReweighingSamplingWrapper <: DeterministicComposite
+mutable struct ReweighingSamplingWrapper{M<:MLJBase.Model} <: DeterministicComposite
     grp::Symbol
-    classifier::MLJBase.Model
+    classifier::M
     factor::Float64
     rng::Union{Int,AbstractRNG}
 end
 
 """
-    ReweighingSamplingWrapper(classifier; grp=:class, factor=1, rng=Random.GLOBAL_RNG)
+    ReweighingSamplingWrapper(classifier=nothing, grp=:class, factor=1, rng=Random.GLOBAL_RNG)
 
 Instantiates a ReweighingSamplingWrapper which wrapper the classifier with the Reweighing fairness algorithm together with sampling.
 The sensitive attribute can be specified by the parameter `grp`.
 `factor`*number_of_samples_in_original_data datapoints are sampled using calculated weights and then used to train after sampling from the reweighed dataset.
 A negative or no value value for `factor` parameter instructs the algorithm to use the same number of datapoints as in original sample.
 """
-function ReweighingSamplingWrapper(classifier::MLJBase.Model; grp::Symbol=:class, factor::Float64=1.0, rng=nothing)
+function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, factor::Float64=1.0, rng=nothing)
     if rng isa Integer
         rng = MersenneTwister(rng)
     end
@@ -96,6 +105,13 @@ function ReweighingSamplingWrapper(classifier::MLJBase.Model; grp::Symbol=:class
         rng = Random.GLOBAL_RNG
     end
     return ReweighingSamplingWrapper(grp, classifier, factor, rng)
+end
+
+function MLJBase.clean!(model::ReweighingSamplingWrapper)
+    warning = ""
+    model.classifier!=nothing || (warning *= "No classifier specified in model")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
+    return warning
 end
 
 function MLJBase.fit(model::ReweighingSamplingWrapper,
@@ -116,3 +132,6 @@ function MLJBase.fit(model::ReweighingSamplingWrapper,
 
     return mach2()
 end
+
+MMI.input_scitype(::Type{<:ReweighingSamplingWrapper{M}}) where M = input_scitype(M)
+MMI.target_scitype(::Type{<:ReweighingSamplingWrapper{M}}) where M = AbstractVector{<:Finite{2}}

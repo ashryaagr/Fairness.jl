@@ -3,7 +3,9 @@ MLJFair provides with various algorithms that can help in mitigating bias and im
 
 ## Introduction
 These algorithms are wrappers.
-As demonstrated in last section, these wrappers can be used to compose a complex pipeline with more than 1 fairness algorithm. These fairness algorithms have been divided into 3 categories based on the parts in the pipeline that the algorithm can control. These 3 categories are Preprocessing, Postprocessing and Inprocessing[WIP].
+As demonstrated in last section, these wrappers can be used to compose a complex pipeline with more than 1 fairness algorithm.
+These wrappers can be used only with binary classifiers.
+These fairness algorithms have been divided into 3 categories based on the parts in the pipeline that the algorithm can control. These 3 categories are Preprocessing, Postprocessing and Inprocessing[WIP].
 
 ## Preprocessing Algorithms
 These are the algorithms that have control over the training data to be fed into machine learning model.
@@ -20,9 +22,7 @@ This model being wrapped with this wrapper needs to support weights. If the mode
 To find the models in MLJ that support weights, execute:
 ```julia
 using MLJ
-for model in models()
-   if model.supports_weights println(model.name) end
-end
+models(x-> x.supports_weights)
 ```
 ```@docs
 ReweighingWrapper

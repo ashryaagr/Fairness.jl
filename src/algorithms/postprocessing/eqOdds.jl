@@ -3,18 +3,25 @@
 
 It is a postprocessing algorithm which uses Linear Programming to optimise the constraints for Equalized Odds.
 """
-mutable struct EqOddsWrapper <: DeterministicComposite
+mutable struct EqOddsWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
-	classifier::MLJBase.Model
+	classifier::M
 end
 
 """
-    EqOddsWrapper(classifier; grp=:class)
+    EqOddsWrapper(classifier=nothing, grp=:class)
 
 Instantiates EqOddsWrapper which wraps the classifier
 """
-function EqOddsWrapper(classifier::MLJBase.Model; grp::Symbol=:class)
+function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class)
 	return EqOddsWrapper(grp, classifier)
+end
+
+function MLJBase.clean!(model::EqOddsWrapper)
+    warning = ""
+	model.classifier!=nothing || (warning *= "No classifier specified in model")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
+    return warning
 end
 
 # Corresponds to eq_odds_optimal_mix_rates function, mix_rates are returned as fitresult
@@ -144,3 +151,6 @@ function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 	end
 	return ŷ
 end
+
+MMI.input_scitype(::Type{<:EqOddsWrapper{M}}) where M = input_scitype(M)
+MMI.target_scitype(::Type{<:EqOddsWrapper{M}}) where M = AbstractVector{<:Finite{2}}
