@@ -1,6 +1,6 @@
 # Measures
 
-In MLJFair, measures are callable structs. Their instances are also available to be called directly.
+In Fairness, measures are callable structs. Their instances are also available to be called directly.
 
 The instances can be called by passing fairness tensor to it. Its general form is metric(ft::FairTensor; grp=nothing). The instances have multiple aliases for convinience.
 
@@ -29,7 +29,7 @@ measure(ft; grp)
 where ft is the fairness tensor. Here `grp` is an optional, named, string parameter used to compute the fairness metric for a specific group. If `grp` is not specified, the overall value of fairness metric is calculated.
 
 ```@repl measures
-using MLJFair
+using Fairness
 ŷ = categorical([1, 0, 1, 1, 0]);
 y = categorical([0, 0, 1, 1, 1]);
 grp = categorical(["Asian", "African", "Asian", "American", "African"]);
@@ -39,7 +39,7 @@ true_positive_rate(ft) # true_positive_rate is instance of TruePositiveRate
 true_positive_rate(ft; grp="Asian")
 ```
 
-##### Following Metrics (callable structs) are available through MLJFair :
+##### Following Metrics (callable structs) are available through Fairness :
 
 `TruePositive`, `TrueNegative`, `FalsePositive`, `FalseNegative`,
 `TruePositiveRate`, `TrueNegativeRate`, `FalsePositiveRate`,
@@ -137,7 +137,7 @@ dp.A, dp.C # New values in dp (instance of DemographicParity)
 ```
 
 ### Helper Functions
-MLJFair._ftIdx is a utility function that has been used to calculate metrics and shall be helpful while using MLJFair to inspect Fairness tensor values.
+Fairness._ftIdx is a utility function that has been used to calculate metrics and shall be helpful while using Fairness to inspect Fairness tensor values.
 ```@docs
-MLJFair._ftIdx
+Fairness._ftIdx
 ```

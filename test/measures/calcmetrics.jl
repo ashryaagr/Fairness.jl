@@ -1,7 +1,7 @@
 @testset "Constructors of Basic Fairness Calc. Metrics" begin
     ft = @load_toyfairtensor
     # check all constructors
-    # These exend the struct from MLJ Base https://github.com/ashryaagr/MLJFair.jl/blob/1d0093232ff215ea8a7e8521b0612162f70a92c3/src/measures/calcmetrics.jl#L18
+    # These exend the struct from MLJ Base https://github.com/ashryaagr/Fairness.jl/blob/1d0093232ff215ea8a7e8521b0612162f70a92c3/src/measures/calcmetrics.jl#L18
     m = TruePositive()
     @test m(ft) == truepositive(ft)
     m = TrueNegative()
@@ -54,8 +54,8 @@ end
 
 @testset "Group Specific Calc. Metrics" begin
     ft = @load_toyfairtensor
-    @test MLJFair._ftIdx(ft, "Education") == 2
-    @test_throws ArgumentError MLJFair._ftIdx(ft, "ABCDE")
+    @test Fairness._ftIdx(ft, "Education") == 2
+    @test_throws ArgumentError Fairness._ftIdx(ft, "ABCDE")
     @test true_positive(ft; grp=ft.labels[1]) == 2
     @test truenegative(ft; grp=ft.labels[2]) == 1
     @test falsepositive(ft; grp=ft.labels[3]) == 1

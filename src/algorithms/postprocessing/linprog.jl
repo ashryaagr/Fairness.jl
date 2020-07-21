@@ -88,12 +88,12 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	@variable(m, aux[1:4n])
 	@constraint(m,[i=1:4n], mat[i]==aux[i])
 
-	register(m, :fpr, 4n, (x...)->fpr(MLJFair.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels)), autodiff=true)
-	register(m, :fnr, 4n, (x...)->fnr(MLJFair.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels)), autodiff=true)
+	register(m, :fpr, 4n, (x...)->fpr(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels)), autodiff=true)
+	register(m, :fnr, 4n, (x...)->fnr(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels)), autodiff=true)
 	@NLobjective(m, Min, fpr(aux...) + fnr(aux...))
 
 	measure = model.measure
-	register(m, :ms, 9, (i, x...)->measure(MLJFair.FairTensor{2}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[1]), autodiff=true)
+	register(m, :ms, 9, (i, x...)->measure(Fairness.FairTensor{2}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[1]), autodiff=true)
 
 	@NLexpression(m, ms[i=1:n], ms(i, aux...))
 

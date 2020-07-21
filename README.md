@@ -1,46 +1,46 @@
-# MLJFair
+# Fairness
 
-[![Build Status](https://travis-ci.com/ashryaagr/MLJFair.jl.svg?branch=master)](https://travis-ci.com/ashryaagr/MLJFair.jl)
-[![Coverage Status](https://coveralls.io/repos/github/ashryaagr/MLJFair.jl/badge.svg)](https://coveralls.io/github/ashryaagr/MLJFair.jl)
+[![Build Status](https://travis-ci.com/ashryaagr/Fairness.jl.svg?branch=master)](https://travis-ci.com/ashryaagr/Fairness.jl)
+[![Coverage Status](https://coveralls.io/repos/github/ashryaagr/Fairness.jl/badge.svg)](https://coveralls.io/github/ashryaagr/Fairness.jl)
 <a href="https://slackinvite.julialang.org/">
   <img src="https://img.shields.io/badge/chat-on%20slack-orange.svg"
        alt="#mlj">
 </a>
-<a href="https://www.ashrya.in/MLJFair.jl/dev/">
+<a href="https://www.ashrya.in/Fairness.jl/dev/">
   <img src="https://img.shields.io/badge/docs-stable-blue.svg"
        alt="Documentation">
 </a>
 
-[MLJFair](https://github.com/ashryaagr/MLJFair.jl) is a comprehensive bias audit and mitigation toolkit in julia. Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) has been used in this package.
+[Fairness](https://github.com/ashryaagr/Fairness.jl) is a comprehensive bias audit and mitigation toolkit in julia. Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) has been used in this package.
 
 # Installation
 ```julia
 using Pkg
 Pkg.activate("my_environment", shared=true)
-Pkg.add("https://github.com/ashryaagr/MLJFair.jl")
+Pkg.add("https://github.com/ashryaagr/Fairness.jl")
 Pkg.add("MLJ")
 ```
 
-# What MLJFair offers over its alternatives?
-- As of writing, it is the only bias audit and mitigation toolkit to support data with multi-valued protected attribute. For eg. If the protected attribute, say race has more than 2 values: "Asian", "African", "American"..so on, then MLJFair can easily handle it with normal workflow.
-- Multiple Fairness algorithms can be applied at the same time by wrapping the wrapped Model. [Example is available in Documentation](https://www.ashrya.in/MLJFair.jl/dev/algorithms/#Composability)
-- Due to the support for multi-valued protected attribute, intersectional fairness can also be dealt with this toolkit. For eg. If the data has 2 protected attributes, say race and gender, then MLJFair can be used to handle it by combining the attributes like "female_american", "male_asian"...so on.
-- Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) can be leveraged when using MLJFair.
-- Tuning of models using MLJTuning from MLJ. Numerious ML models from MLJModels can be used together with MLJFair.
+# What Fairness offers over its alternatives?
+- As of writing, it is the only bias audit and mitigation toolkit to support data with multi-valued protected attribute. For eg. If the protected attribute, say race has more than 2 values: "Asian", "African", "American"..so on, then Fairness can easily handle it with normal workflow.
+- Multiple Fairness algorithms can be applied at the same time by wrapping the wrapped Model. [Example is available in Documentation](https://www.ashrya.in/Fairness.jl/dev/algorithms/#Composability)
+- Due to the support for multi-valued protected attribute, intersectional fairness can also be dealt with this toolkit. For eg. If the data has 2 protected attributes, say race and gender, then Fairness can be used to handle it by combining the attributes like "female_american", "male_asian"...so on.
+- Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) can be leveraged when using Fairness.
+- Tuning of models using MLJTuning from MLJ. Numerious ML models from MLJModels can be used together with Fairness.
 - It leverages the flexibility and speed of Julia to make it more efficient and easy-to-use at the same time
 - Well structured and intutive design
 - Extensive tests and Documentation
 
 # Getting Started
 
-- [Documentation](https://www.ashrya.in/MLJFair.jl/dev) is a good starting point for this package.
-- To understand MLJFair, it is recommended that the user goes through the [MLJ Documentation](https://alan-turing-institute.github.io/MLJ.jl/stable/). It shall help the user in understanding the usage of machine, evaluate, etc.
-- Incase of any difficulty or confusion feel free to [open an issue](https://github.com/ashryaagr/MLJFair.jl/issues/new).
+- [Documentation](https://www.ashrya.in/Fairness.jl/dev) is a good starting point for this package.
+- To understand Fairness, it is recommended that the user goes through the [MLJ Documentation](https://alan-turing-institute.github.io/MLJ.jl/stable/). It shall help the user in understanding the usage of machine, evaluate, etc.
+- Incase of any difficulty or confusion feel free to [open an issue](https://github.com/ashryaagr/Fairness.jl/issues/new).
 
 # Example
-Following is an introductory example of using MLJFair. Observe how easy it has become to measure and mitigate bias in Machine Learning algorithms.
+Following is an introductory example of using Fairness. Observe how easy it has become to measure and mitigate bias in Machine Learning algorithms.
 ```julia
-using MLJFair, MLJ
+using Fairness, MLJ
 X, y, ŷ = @load_toydata
 
 julia> model = ConstantClassifier()
@@ -66,7 +66,7 @@ julia> evaluate(
 ```
 
 # Components
-MLJFair is divided into following components
+Fairness is divided into following components
 
 ### FairTensor
 It is a 3D matrix of values of TruePositives, False Negatives, etc for each group. It greatly helps in optimization and removing the redundant calculations.
@@ -116,5 +116,5 @@ These algorithms are wrappers. These help in mitigating bias and improve fairnes
 
 # Contributing
 
-- Various Contribution opportunities are available. Some of the possible contributions have been listed at [the pinned issue](https://github.com/ashryaagr/MLJFair.jl/issues/3#issuecomment-656812338)
+- Various Contribution opportunities are available. Some of the possible contributions have been listed at [the pinned issue](https://github.com/ashryaagr/Fairness.jl/issues/3#issuecomment-656812338)
 - Feel free to open an issue or contact on slack. Let us know where your intersts and strengths lie and we can find possible contribution opportunities for you.

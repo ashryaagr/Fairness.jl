@@ -1,11 +1,11 @@
 using Documenter
-using MLJFair
+using Fairness
 using MLJBase, MLJ
 using PrettyPrinting
 using DataFrames
 
 makedocs(;
-    modules=[MLJFair],
+    modules=[Fairness],
     format=Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
     pages=[
         "Home" => "index.md",
@@ -14,8 +14,8 @@ makedocs(;
         "Fairness Algortihms" => "algorithms.md",
         "Datasets" => "datasets.md"
     ],
-    repo="https://github.com/ashryaagr/MLJFair.jl/blob/{commit}{path}#L{line}",
-    sitename="MLJFair"
+    repo="https://github.com/ashryaagr/Fairness.jl/blob/{commit}{path}#L{line}",
+    sitename="Fairness"
 )
 
 # By default Documenter does not deploy docs just for PR
@@ -26,5 +26,5 @@ makedocs(;
 ENV["TRAVIS_PULL_REQUEST"] = "false"
 
 deploydocs(;
-    repo="github.com/ashryaagr/MLJFair.jl.git",
+    repo="github.com/ashryaagr/Fairness.jl.git",
 )

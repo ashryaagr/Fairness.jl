@@ -1,4 +1,4 @@
-name = "MLJFair"
+name = "Fairness"
 uuid = "7c232609-d7a1-4356-98a6-13e736dd6dcd"
 authors = ["ashryaagr <ashryaagr@gmail.com>"]
 version = "0.1.0"

@@ -1,5 +1,5 @@
 # Fairness Algorithms
-MLJFair provides with various algorithms that can help in mitigating bias and improving fairness metrics.
+Fairness provides with various algorithms that can help in mitigating bias and improving fairness metrics.
 
 ## Introduction
 These algorithms are wrappers.
@@ -14,7 +14,7 @@ This class of algorithms improves the representation of groups in the training d
 ### ReweighingSampling Algorithm
 ```@docs
 ReweighingSamplingWrapper
-MLJFair.ReweighingSamplingWrapper()
+Fairness.ReweighingSamplingWrapper()
 ```
 
 ### Reweighing Algorithm
@@ -26,8 +26,8 @@ models(x-> x.supports_weights)
 ```
 ```@docs
 ReweighingWrapper
-MLJFair.ReweighingWrapper()
-MLJFair._calculateWeights
+Fairness.ReweighingWrapper()
+Fairness._calculateWeights
 ```
 
 ## Postprocessing
@@ -36,24 +36,24 @@ These are the algorithms that have control over the final predictions. They can 
 ### Equalized Odds Algorithm
 ```@docs
 EqOddsWrapper
-MLJFair.EqOddsWrapper()
+Fairness.EqOddsWrapper()
 ```
 
 ### LinProg Algorithm
-This algorithm supports all the metrics provided by MLJFair.
+This algorithm supports all the metrics provided by Fairness.
 ```@docs
 LinProgWrapper
-MLJFair.LinProgWrapper()
+Fairness.LinProgWrapper()
 ```
 
 ## Composability
 
-MLJFair provides you the ability to easily use multiple fairness algorithms on top of each other.
-A fairness algorithm can be added over another fairness algorithm by simply wrapping the previous wrapped model with the new wrapper. MLJFair handles everything else for you!
+Fairness provides you the ability to easily use multiple fairness algorithms on top of each other.
+A fairness algorithm can be added over another fairness algorithm by simply wrapping the previous wrapped model with the new wrapper. Fairness handles everything else for you!
 The use of wrappers provides you the ability to add as many algorithms as you want!!
 
 ```@repl
-using MLJFair, MLJ
+using Fairness, MLJ
 X, y, _ = @load_toydata;
 model = ConstantClassifier();
 wrappedModel = ReweighingSamplingWrapper(classifier=model, grp=:Sex);

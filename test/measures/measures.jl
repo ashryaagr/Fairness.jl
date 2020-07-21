@@ -1,6 +1,6 @@
 module TestMeasures
 
-using MLJFair, Test
+using Fairness, Test
 
 include("calcmetrics.jl")
 include("boolmetrics.jl")

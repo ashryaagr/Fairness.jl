@@ -1,7 +1,7 @@
 module TestFairTensor
 
 using Test
-using MLJFair
+using Fairness
 
 @testset "fair_tensor" begin
     ft = @load_toyfairtensor
