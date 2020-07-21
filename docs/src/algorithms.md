@@ -14,7 +14,7 @@ This class of algorithms improves the representation of groups in the training d
 ### ReweighingSampling Algorithm
 ```@docs
 ReweighingSamplingWrapper
-MLJFair.ReweighingSamplingWrapper(::MLJBase.Model)
+MLJFair.ReweighingSamplingWrapper()
 ```
 
 ### Reweighing Algorithm
@@ -26,7 +26,7 @@ models(x-> x.supports_weights)
 ```
 ```@docs
 ReweighingWrapper
-MLJFair.ReweighingWrapper(::MLJBase.Model)
+MLJFair.ReweighingWrapper()
 MLJFair._calculateWeights
 ```
 
@@ -36,14 +36,14 @@ These are the algorithms that have control over the final predictions. They can 
 ### Equalized Odds Algorithm
 ```@docs
 EqOddsWrapper
-MLJFair.EqOddsWrapper(::MLJBase.Model)
+MLJFair.EqOddsWrapper()
 ```
 
 ### LinProg Algorithm
 This algorithm supports all the metrics provided by MLJFair.
 ```@docs
 LinProgWrapper
-MLJFair.LinProgWrapper(::MLJBase.Model)
+MLJFair.LinProgWrapper()
 ```
 
 ## Composability
@@ -56,8 +56,8 @@ The use of wrappers provides you the ability to add as many algorithms as you wa
 using MLJFair, MLJ
 X, y, _ = @load_toydata;
 model = ConstantClassifier();
-wrappedModel = ReweighingSamplingWrapper(model; grp=:Sex);
-wrappedModel2 = EqOddsWrapper(wrappedModel; grp=:Sex);
+wrappedModel = ReweighingSamplingWrapper(classifier=model, grp=:Sex);
+wrappedModel2 = EqOddsWrapper(classifier=wrappedModel, grp=:Sex);
 mch = machine(wrappedModel2, X, y);
 fit!(mch)
 ŷ = predict(mch, X);
