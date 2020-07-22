@@ -40,14 +40,17 @@ The sensitive attribute can be specified by the parameter `grp`.
 If `classifier` doesn't support weights while training, an error is thrown.
 """
 function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class)
-    supports_weights(classifier) || throw(ArgumentError("Classifier provided does not support weights"))
-    return ReweighingWrapper(grp, classifier)
+    model = ReweighingWrapper(grp, classifier)
+    message = MLJBase.clean!(model)
+    isempty(message) || @warn message
+    return model
 end
 
 function MLJBase.clean!(model::ReweighingWrapper)
     warning = ""
-    model.classifier!=nothing || (warning *= "No classifier specified in model")
-    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
+    model.classifier!=nothing || (warning *= "No classifier specified in model\n")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
+    supports_weights(model.classifier) || (warning *= "Classifier provided does not support weights\n")
     return warning
 end
 
@@ -104,13 +107,16 @@ function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Sym
     if rng == nothing
         rng = Random.GLOBAL_RNG
     end
-    return ReweighingSamplingWrapper(grp, classifier, factor, rng)
+    model = ReweighingSamplingWrapper(grp, classifier, factor, rng)
+    message = MLJBase.clean!(model)
+    isempty(message) || @warn message
+    return model
 end
 
 function MLJBase.clean!(model::ReweighingSamplingWrapper)
     warning = ""
-    model.classifier!=nothing || (warning *= "No classifier specified in model")
-    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
+    model.classifier!=nothing || (warning *= "No classifier specified in model\n")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
     return warning
 end
 

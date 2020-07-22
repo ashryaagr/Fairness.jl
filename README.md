@@ -11,22 +11,24 @@
        alt="Documentation">
 </a>
 
-[Fairness](https://github.com/ashryaagr/Fairness.jl) is a comprehensive bias audit and mitigation toolkit in julia. Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) has been used in this package.
+[Fairness.jl](https://github.com/ashryaagr/Fairness.jl) is a comprehensive bias audit and mitigation toolkit in julia. Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) has been used in this package.
+
+For an introduction to Fairness.jl refer the notebook available at https://nextjournal.com/ashryaagr/fairness
 
 # Installation
 ```julia
 using Pkg
 Pkg.activate("my_environment", shared=true)
-Pkg.add("https://github.com/ashryaagr/Fairness.jl")
+Pkg.add(PackageSpec(url="https://github.com/ashryaagr/Fairness.jl"))
 Pkg.add("MLJ")
 ```
 
-# What Fairness offers over its alternatives?
-- As of writing, it is the only bias audit and mitigation toolkit to support data with multi-valued protected attribute. For eg. If the protected attribute, say race has more than 2 values: "Asian", "African", "American"..so on, then Fairness can easily handle it with normal workflow.
+# What Fairness.jl offers over its alternatives?
+- As of writing, it is the only bias audit and mitigation toolkit to support data with multi-valued protected attribute. For eg. If the protected attribute, say race has more than 2 values: "Asian", "African", "American"..so on, then Fairness.jl can easily handle it with normal workflow.
 - Multiple Fairness algorithms can be applied at the same time by wrapping the wrapped Model. [Example is available in Documentation](https://www.ashrya.in/Fairness.jl/dev/algorithms/#Composability)
-- Due to the support for multi-valued protected attribute, intersectional fairness can also be dealt with this toolkit. For eg. If the data has 2 protected attributes, say race and gender, then Fairness can be used to handle it by combining the attributes like "female_american", "male_asian"...so on.
-- Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) can be leveraged when using Fairness.
-- Tuning of models using MLJTuning from MLJ. Numerious ML models from MLJModels can be used together with Fairness.
+- Due to the support for multi-valued protected attribute, intersectional fairness can also be dealt with this toolkit. For eg. If the data has 2 protected attributes, say race and gender, then Fairness.jl can be used to handle it by combining the attributes like "female_american", "male_asian"...so on.
+- Extensive support and functionality provided by [MLJ](https://github.com/alan-turing-institute/MLJ.jl) can be leveraged when using Fairness.jl
+- Tuning of models using MLJTuning from MLJ. Numerious ML models from MLJModels can be used together with Fairness.jl
 - It leverages the flexibility and speed of Julia to make it more efficient and easy-to-use at the same time
 - Well structured and intutive design
 - Extensive tests and Documentation
@@ -34,11 +36,11 @@ Pkg.add("MLJ")
 # Getting Started
 
 - [Documentation](https://www.ashrya.in/Fairness.jl/dev) is a good starting point for this package.
-- To understand Fairness, it is recommended that the user goes through the [MLJ Documentation](https://alan-turing-institute.github.io/MLJ.jl/stable/). It shall help the user in understanding the usage of machine, evaluate, etc.
+- To understand Fairness.jl, it is recommended that the user goes through the [MLJ Documentation](https://alan-turing-institute.github.io/MLJ.jl/stable/). It shall help the user in understanding the usage of machine, evaluate, etc.
 - Incase of any difficulty or confusion feel free to [open an issue](https://github.com/ashryaagr/Fairness.jl/issues/new).
 
 # Example
-Following is an introductory example of using Fairness. Observe how easy it has become to measure and mitigate bias in Machine Learning algorithms.
+Following is an introductory example of using Fairness.jl. Observe how easy it has become to measure and mitigate bias in Machine Learning algorithms.
 ```julia
 using Fairness, MLJ
 X, y, ŷ = @load_toydata
@@ -50,13 +52,13 @@ julia> wrappedModel = ReweighingSamplingWrapper(model, grp=:Sex)
 ReweighingSamplingWrapper(
     grp = :Sex,
     classifier = ConstantClassifier(),
-    noSamples = -1) @312
+    factor = 1) @312
 
 julia> evaluate(
           wrappedModel,
           X, y,
           measures=MetricWrappers(
-              [true_positive, true_positive_rate]; grp=:Sex))
+              [true_positive, true_positive_rate], grp=:Sex))
 ┌────────────────────┬─────────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────── ⋯
 │ _.measure          │ _.measurement                                                                       │ _.per_fold                           ⋯
 ├────────────────────┼─────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────── ⋯
@@ -66,7 +68,7 @@ julia> evaluate(
 ```
 
 # Components
-Fairness is divided into following components
+Fairness.jl is divided into following components
 
 ### FairTensor
 It is a 3D matrix of values of TruePositives, False Negatives, etc for each group. It greatly helps in optimization and removing the redundant calculations.

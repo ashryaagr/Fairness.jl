@@ -35,13 +35,16 @@ end
 Instantiates LinProgWrapper which wraps the classifier and containts the measure to optimised and the sensitive attribute(grp)
 """
 function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure::Measure)
-	return LinProgWrapper(grp, classifier, measure)
+	model = LinProgWrapper(grp, classifier, measure)
+	message = MLJBase.clean!(model)
+	isempty(message) || @warn message
+	return model
 end
 
 function MLJBase.clean!(model::LinProgWrapper)
     warning = ""
-	model.classifier!=nothing || (warning *= "No classifier specified in model")
-    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
+	model.classifier!=nothing || (warning *= "No classifier specified in model\n")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
     return warning
 end
 

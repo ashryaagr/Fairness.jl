@@ -14,13 +14,16 @@ end
 Instantiates EqOddsWrapper which wraps the classifier
 """
 function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class)
-	return EqOddsWrapper(grp, classifier)
+	model =  EqOddsWrapper(grp, classifier)
+	message = MLJBase.clean!(model)
+	isempty(message) || @warn message
+	return model
 end
 
 function MLJBase.clean!(model::EqOddsWrapper)
     warning = ""
-	model.classifier!=nothing || (warning *= "No classifier specified in model")
-    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported")
+	model.classifier!=nothing || (warning *= "No classifier specified in model\n")
+    target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
     return warning
 end
 
