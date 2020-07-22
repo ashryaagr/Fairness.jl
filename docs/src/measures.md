@@ -1,6 +1,6 @@
 # Measures
 
-In Fairness, measures are callable structs. Their instances are also available to be called directly.
+In Fairness.jl, measures are callable structs. Their instances are also available to be called directly.
 
 The instances can be called by passing fairness tensor to it. Its general form is metric(ft::FairTensor; grp=nothing). The instances have multiple aliases for convinience.
 
@@ -39,7 +39,7 @@ true_positive_rate(ft) # true_positive_rate is instance of TruePositiveRate
 true_positive_rate(ft; grp="Asian")
 ```
 
-##### Following Metrics (callable structs) are available through Fairness :
+##### Following Metrics (callable structs) are available through Fairness.jl :
 
 `TruePositive`, `TrueNegative`, `FalsePositive`, `FalseNegative`,
 `TruePositiveRate`, `TrueNegativeRate`, `FalsePositiveRate`,

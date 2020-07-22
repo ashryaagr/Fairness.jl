@@ -1,4 +1,4 @@
-# Fairness
+# Fairness.jl
 
 [![Build Status](https://travis-ci.com/ashryaagr/Fairness.jl.svg?branch=master)](https://travis-ci.com/ashryaagr/Fairness.jl)
 [![Coverage Status](https://coveralls.io/repos/github/ashryaagr/Fairness.jl/badge.svg)](https://coveralls.io/github/ashryaagr/Fairness.jl)
@@ -19,7 +19,7 @@ For an introduction to Fairness.jl refer the notebook available at https://nextj
 ```julia
 using Pkg
 Pkg.activate("my_environment", shared=true)
-Pkg.add(PackageSpec(url="https://github.com/ashryaagr/Fairness.jl"))
+Pkg.add("Fairness")
 Pkg.add("MLJ")
 ```
 

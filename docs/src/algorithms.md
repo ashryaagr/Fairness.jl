@@ -1,11 +1,12 @@
 # Fairness Algorithms
-Fairness provides with various algorithms that can help in mitigating bias and improving fairness metrics.
+Fairness.jl provides with various algorithms that can help in mitigating bias and improving fairness metrics.
 
 ## Introduction
 These algorithms are wrappers.
 As demonstrated in last section, these wrappers can be used to compose a complex pipeline with more than 1 fairness algorithm.
 These wrappers can be used only with binary classifiers.
-These fairness algorithms have been divided into 3 categories based on the parts in the pipeline that the algorithm can control. These 3 categories are Preprocessing, Postprocessing and Inprocessing[WIP].
+
+The fairness algorithms have been divided into 3 categories based on the parts in the pipeline that the algorithm can control. These 3 categories are Preprocessing, Postprocessing and Inprocessing[WIP].
 
 ## Preprocessing Algorithms
 These are the algorithms that have control over the training data to be fed into machine learning model.
@@ -48,8 +49,8 @@ Fairness.LinProgWrapper()
 
 ## Composability
 
-Fairness provides you the ability to easily use multiple fairness algorithms on top of each other.
-A fairness algorithm can be added over another fairness algorithm by simply wrapping the previous wrapped model with the new wrapper. Fairness handles everything else for you!
+Fairness.jl provides you the ability to easily use multiple fairness algorithms on top of each other.
+A fairness algorithm can be added over another fairness algorithm by simply wrapping the previous wrapped model with the new wrapper. Fairness.jl handles everything else for you!
 The use of wrappers provides you the ability to add as many algorithms as you want!!
 
 ```@repl
