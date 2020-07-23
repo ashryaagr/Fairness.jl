@@ -12,6 +12,7 @@ using MLJModels, MLJModelInterface
 using StatsBase # For reweighing algorithm
 using JuMP, GLPK # For Equalized Odds Postprocessing algorithms
 using Ipopt # For LinProgWrapper algorithm
+using ForwardDiff # For MetaFair algorithm
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -50,6 +51,7 @@ export disparity, parity, Disparity, Disparities
 
 export ReweighingWrapper, ReweighingSamplingWrapper
 export EqOddsWrapper, LinProgWrapper
+export MetaFairWrapper
 
 # Export macros for datasets from datasets/
 export @load_toydata, @load_toyfairtensor
