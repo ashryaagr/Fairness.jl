@@ -8,7 +8,7 @@ The Measures have been divided into calcMetrics and boolmetrics depending on whe
 
 Notes :
 - All these metrics can be used even when more than 2 values are possible for the sensitive attribute.
-- To use the CalcMetrics with the `evaluate` function from MLJ, you have to use [MetricWrapper or MetricWrappers](#MetricWrapper(s))
+- To use the CalcMetrics with the `evaluate` function from MLJ, you have to use [MetricWrapper or MetricWrappers](#MetricWrapper(s)). To use [disparity](#Fairness.disparity) with `evaluate` function, you have to use the struct [Disparity](#Fairness.Disparity)
 
 ## CalcMetrics
 
@@ -108,6 +108,21 @@ df_1 = disparity(M, ft; refGrp="Asian", func=f);
 df_1 |> pretty #hide
 ```
 
+**To use [disparity](#Fairness.disparity) with `evaluate` function, you have to use the struct [Disparity](#Fairness.Disparity)**
+```@docs
+Disparity
+Disparity(::MLJBase.Measure)
+Disparities
+```
+```julia
+evaluate(model, X, y,
+	measure=Disparity(tpr, grp=:sex, refGrp="White", func=-)
+
+evaluate(model, X, y,
+	measures=[
+	Disparities([tpr, fpr], grp=:sex, refGrp="White", func=-)...,
+	MetricWrappers([tpr, ppv], grp=:sex)...])
+```
 ```@docs
 parity
 ```

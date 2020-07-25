@@ -100,12 +100,12 @@ macro load_adult()
         ]
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
-        data = DataFrame!(CSV.File(fpath, header=cols, silencewarnings=true))
+        data = DataFrame!(CSV.File(fpath, header=cols, silencewarnings=true, delim=", "))
         # Warning is silenced to supress warnings for lesser number of columns
 
         data = dropmissing(data, names(data))
         data.income_per_year = map(data.income_per_year) do η
-            η == " <=50K" ? 0 : 1
+            η == "<=50K" ? 0 : 1
         end
 
         coerce!(data, COERCE_ADULT...)

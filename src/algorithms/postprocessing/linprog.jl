@@ -69,7 +69,7 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 
 	# Finding the probabilities of changing predictions is a Linear Programming Problem
 	# JuMP and Ipopt Optimizer are used to for this Linear Programming Problem
-	m = JuMP.Model(Ipopt.Optimizer)
+	m = JuMP.Model(optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0))
 
 	@variable(m, 0<= p2p[1:n] <=1)
 	@variable(m, 0<= p2n[1:n] <=1)

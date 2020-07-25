@@ -70,13 +70,3 @@ end
     @test isapprox(negative_predictive_value(ft; grp=ft.labels[3]) , 0.0; atol=1e-10, rtol=0)
     @test accuracy(ft; grp=ft.labels[1]) == 0.5
 end
-
-@testset "Disparity" begin
-    ft = @load_toyfairtensor
-    M = [true_positive_rate, false_positive_rate, ppv]
-    @test_throws ArgumentError disparity(M, ft)
-    d = disparity(M, ft; refGrp="Education")
-    @test names(d) == ["labels", "true_positive_rate_disparity", "false_positive_rate_disparity",
-                        "positive_predictive_value_disparity"]
-    @test size(d)==(3, 4)
-end

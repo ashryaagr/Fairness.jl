@@ -46,7 +46,7 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
 export MetricWrapper, MetricWrappers
 
 # Export the fairness metrics
-export disparity, parity
+export disparity, parity, Disparity, Disparities
 
 export ReweighingWrapper, ReweighingSamplingWrapper
 export EqOddsWrapper, LinProgWrapper
