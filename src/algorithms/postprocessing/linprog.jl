@@ -96,12 +96,13 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	@NLobjective(m, Min, fpr(aux...) + fnr(aux...))
 
 	measure = model.measure
-	register(m, :ms, 9, (i, x...)->measure(Fairness.FairTensor{2}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[1]), autodiff=true)
-
-	@NLexpression(m, ms[i=1:n], ms(i, aux...))
-
-	@NLconstraint(m, [i=2:n], ms[1]==ms[i])
-
+	register(m, :func1, 4n, (x...)->measure(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[1]), autodiff=true)
+	for i in 2:n
+		fn_symbol = Symbol("func$i")
+		register(m, fn_symbol, 4n, (x...)->measure(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[i]), autodiff=true)
+		JuMP.add_NL_constraint(m, :($(Expr(:call, fn_symbol, aux...))==$(Expr(:call, Symbol("func1"), aux...))))
+		# TODO: Replace call to func1 with a pre-computed expression
+	end
 	optimize!(m)
 
 	# fitresult will provide the info we require in the predict function.

@@ -1,6 +1,6 @@
 struct Mean <: MLJBase.AggregationMode end
 
-function (::Mean)(dicts::Array{Dict{Any, Any}})
+function (::Mean)(dicts)
     valuesDict = Dict()
     grps = keys(dicts[1])
     n = length(dicts)
@@ -47,7 +47,7 @@ end
 
 Creates MetricWrapper for multiple metrics at same time.
 """
-function MetricWrappers(measures::Array{MLJBase.Measure, 1}; grp=:class)
+function MetricWrappers(measures; grp=:class)
     wrappedMetrics = []
     for measure in measures
         push!(wrappedMetrics, MetricWrapper(measure; grp=grp))

@@ -21,6 +21,8 @@ export _ftIdx
 # Export the Boolean Metrics
 export DemographicParity
 
+export accuracy
+
 #Export the metric instances from MLJBase to permit calculation of metrics without using MLJBase
 export TruePositive, TrueNegative, FalsePositive, FalseNegative,
        TruePositiveRate, TrueNegativeRate, FalsePositiveRate,

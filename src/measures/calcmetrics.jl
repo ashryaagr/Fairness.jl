@@ -33,6 +33,9 @@ _calcmetric(ft::FairTensor, grp, inds...) = typeof(grp)==Colon ? sum(ft[:, inds.
 (::Precision)(ft::FairTensor; grp=:) = 1 - false_discovery_rate(ft; grp=grp)
 (::NPV)(ft::FairTensor; grp=:) =  1/(1+false_negative(ft; grp=grp)/(1e-15 + true_negative(ft; grp=grp)))
 
+(::MLJBase.Accuracy)(ft::FairTensor; grp=:) = (true_positive(ft; grp = grp) + true_negative(ft; grp = grp))/(
+        true_positive(ft; grp = grp) + true_negative(ft; grp = grp) +
+        false_positive(ft; grp = grp) + false_negative(ft; grp = grp))
 
 """
     disparity(M, ft; refGrp=nothing, func=/)

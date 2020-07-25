@@ -50,6 +50,7 @@ end
     @test falsediscovery_rate(ft) ≈ 0.4
     @test positive_predictive_value(ft) ≈ 0.6
     @test negative_predictive_value(ft) ≈ 0.2
+    @test accuracy(ft) == 0.3
 end
 
 @testset "Group Specific Calc. Metrics" begin
@@ -67,6 +68,7 @@ end
     @test isapprox(falsediscovery_rate(ft; grp=ft.labels[3]), 0.0; atol=1e-10, rtol=0)
     @test positive_predictive_value(ft; grp=ft.labels[3]) ≈ 1.0
     @test isapprox(negative_predictive_value(ft; grp=ft.labels[3]) , 0.0; atol=1e-10, rtol=0)
+    @test accuracy(ft; grp=ft.labels[1]) == 0.5
 end
 
 @testset "Disparity" begin

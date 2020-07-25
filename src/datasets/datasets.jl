@@ -57,7 +57,7 @@ end
 """
 Macro to load [COMPAS dataset](https://github.com/propublica/compas-analysis/blob/master/Compas%20Analysis.ipynb)
 It is a reduced version of COMPAS Datset with 8 features and 6907 rows. The protected attributes are sex and race.
-The available features are used to predict whether a criminal defendant's will recidivate(reoffend).
+The available features are used to predict whether a criminal defendant will recidivate(reoffend).
 
 Returns (X, y)
 """
@@ -100,7 +100,8 @@ macro load_adult()
         ]
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
-        data = DataFrame!(CSV.File(fpath, header=cols))
+        data = DataFrame!(CSV.File(fpath, header=cols, silencewarnings=true))
+        # Warning is silenced to supress warnings for lesser number of columns
 
         data = dropmissing(data, names(data))
         data.income_per_year = map(data.income_per_year) do η
