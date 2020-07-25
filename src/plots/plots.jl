@@ -16,3 +16,21 @@ function accuracy_vs_fairness(result)
 	end
 	display(plot!())
 end
+
+function algorithm_comparison(algorithms, X, y; measure, grp::Symbol=:class)
+	grps = X[!, grp]
+	categories = levels(grps)
+	train, test = partition(eachindex(y), 0.7, shuffle=true)
+	plot(title="Algorithm Fairness Comparison", seriestype=:scatter, xlabel="accuracy", ylabel="fairness")
+	for i in length(algorithms)
+		mach = machine(algorithms[i], X, y)
+		fit!(mach, rows=train)
+		ŷ = predict(mach, rows=test)
+		if typeof(ŷ) <: UnivariateFiniteArray
+			ŷ = StatsBase.mode.(ŷ)
+		end
+		ft = fair_tensor(ŷ, y[test], X[test, grp])
+		plot!([accuracy(ft)], [measure(ft)], seriestype=:scatter, label="algorithm_$i")
+	end
+	display(plot!())
+end
