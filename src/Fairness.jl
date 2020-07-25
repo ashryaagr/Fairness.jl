@@ -12,6 +12,7 @@ using MLJModels, MLJModelInterface
 using StatsBase # For reweighing algorithm
 using JuMP, GLPK # For Equalized Odds Postprocessing algorithms
 using Ipopt # For LinProgWrapper algorithm
+using Plots
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -60,6 +61,9 @@ export categorical, levels, levels!
 
 # re-export from MLJBase
 export pretty
+
+# export fucnctios to Plot graphs
+export accuracy_vs_fairness
 # ===================================================================
 ## CONSTANTS
 
@@ -78,5 +82,6 @@ include("fair_tensor.jl")
 include("measures/measures.jl")
 include("algorithms/algorithms.jl")
 include("datasets/datasets.jl")
+include("plots/plots.jl")
 
 end # module
