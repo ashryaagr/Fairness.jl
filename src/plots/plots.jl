@@ -17,20 +17,28 @@ function accuracy_vs_fairness(result)
 	display(plot!())
 end
 
-function algorithm_comparison(algorithms, X, y; measure, grp::Symbol=:class)
+function algorithm_comparison(algorithms, algo_names, X, y; measure,
+  refGrp, grp::Symbol=:class)
 	grps = X[!, grp]
 	categories = levels(grps)
 	train, test = partition(eachindex(y), 0.7, shuffle=true)
-	plot(title="Algorithm Fairness Comparison", seriestype=:scatter, xlabel="accuracy", ylabel="fairness")
-	for i in length(algorithms)
+	plot(title="Fairness vs Accuracy Comparison", seriestype=:scatter,
+        xlabel="accuracy", ylabel=MLJBase.name(measure)*"_disparity")
+	for i in 1:length(algorithms)
 		mach = machine(algorithms[i], X, y)
 		fit!(mach, rows=train)
-		ŷ = predict(mach, rows=test)
+		ŷ = MMI.predict(mach, rows=test)
 		if typeof(ŷ) <: UnivariateFiniteArray
 			ŷ = StatsBase.mode.(ŷ)
 		end
 		ft = fair_tensor(ŷ, y[test], X[test, grp])
-		plot!([accuracy(ft)], [measure(ft)], seriestype=:scatter, label="algorithm_$i")
+		plot!([accuracy(ft)], [measure(ft)/measure(ft, grp=refGrp)],
+      seriestype=:scatter, label=algo_names[i])
 	end
 	display(plot!())
 end
+
+algorithm_comparison([ConstantClassifier()],
+  ["NeuralNetworkClassifier", "Reweighing(Model)",
+    "LinProg+Reweighing(Model)"], X, y,
+  measure=false_positive_rate, refGrp="Caucasian", grp=:race)

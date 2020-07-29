@@ -63,7 +63,7 @@ export categorical, levels, levels!
 export pretty
 
 # export fucnctios to Plot graphs
-export accuracy_vs_fairness
+export accuracy_vs_fairness, algorithm_comparison
 # ===================================================================
 ## CONSTANTS
 
