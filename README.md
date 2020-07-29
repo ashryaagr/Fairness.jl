@@ -120,3 +120,23 @@ These algorithms are wrappers. These help in mitigating bias and improve fairnes
 
 - Various Contribution opportunities are available. Some of the possible contributions have been listed at [the pinned issue](https://github.com/ashryaagr/Fairness.jl/issues/3#issuecomment-656812338)
 - Feel free to open an issue or contact on slack. Let us know where your intersts and strengths lie and we can find possible contribution opportunities for you.
+
+# Citing Fairness.jl
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3965741.svg)](https://doi.org/10.5281/zenodo.3965741)
+
+```bibtex
+@software{ashrya_agrawal_2020_3965741,
+  author       = {Ashrya Agrawal and
+                  Jiahao Chen and
+                  Sebastian Vollmer and
+                  Anthony Blaom},
+  title        = {Fairness.jl},
+  month        = jul,
+  year         = 2020,
+  publisher    = {Zenodo},
+  version      = {v0.1.1},
+  doi          = {10.5281/zenodo.3965741},
+  url          = {https://doi.org/10.5281/zenodo.3965741}
+}
+```
