@@ -2,19 +2,19 @@ Base.zero(::Type{Union{Int64, VariableRef, GenericAffExpr{Float64,VariableRef}}}
 
 # Helper function to modify the fairness tensor according to the values for sp2n, on2p, etc
 # vals is a 2D array of the form [[sp2n, sn2p], [op2n, on2p]]
-function _fairTensorLinProg!(ft::FairTensor, vals)
-	mat = deepcopy(ft.mat)
-	ft.mat = zeros(Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, size(mat)...)
+function _fairTensorLinProg(ft::FairTensor, vals)
+	newftmat = zeros(Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, size(ft.mat)...)
 	for i in 1:length(ft.labels)
 		p2n, n2p = vals[i, :] #These vals are VariableRef from library JuMP
 		p2p, n2n = 1-p2n, 1-n2p
 		a = zeros(Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, 2, 2) # The numbers for modified fairness tensor values for a group
-		a[1, 1] = mat[i, 1, 1]*p2p + mat[i, 2, 2]*n2p
-		a[1, 2] = mat[i, 1, 2]*p2p + mat[i, 2, 1]*n2p
-		a[2, 1] = mat[i, 2, 1]*n2n + mat[i, 1, 1]*p2n
-		a[2, 2] = mat[i, 2, 2]*n2n + mat[i, 1, 2]*p2n
-		ft.mat[i, :, :] = a
+		a[1, 1] = ft.mat[i, 1, 1]*p2p + ft.mat[i, 2, 2]*n2p
+		a[1, 2] = ft.mat[i, 1, 2]*p2p + ft.mat[i, 2, 1]*n2p
+		a[2, 1] = ft.mat[i, 2, 1]*n2n + ft.mat[i, 1, 1]*p2n
+		a[2, 2] = ft.mat[i, 2, 2]*n2n + ft.mat[i, 1, 2]*p2n
+		newftmat[i, :, :] = a
 	end
+	return FairTensor(newftmat, ft.labels)
 end
 
 """
@@ -23,7 +23,7 @@ end
 It is a postprocessing algorithm that uses JuMP and Ipopt library to minimise error and satisfy the equality of specified specified measures for all groups at the same time.
 Automatic differentiation and gradient based optimisation is used to find probabilities with which the predictions are changed for each group.
 """
-mutable struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
+struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
 	classifier::M
 	measure::Measure
@@ -85,7 +85,7 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	vals[: , 1] = p2n
 	vals[: , 2] = n2p
 
-	_fairTensorLinProg!(ft, vals)
+	ft = _fairTensorLinProg(ft, vals)
 
 	mat = reshape(ft.mat, (4n))
 	@variable(m, aux[1:4n])

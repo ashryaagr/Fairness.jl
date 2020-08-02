@@ -27,7 +27,7 @@ end
 ReweighingWrapper is a preprocessing algorithm wrapper in which Weights for each group-label combination is calculated.
 These calculated weights are then passed to the classifier model which further uses it to make training fair.
 """
-mutable struct ReweighingWrapper{M<:MLJBase.Model} <: DeterministicComposite
+struct ReweighingWrapper{M<:MLJBase.Model} <: DeterministicComposite
     grp::Symbol
     classifier::M
 end
@@ -85,7 +85,7 @@ ReweighingSamplingWrapper is a preprocessing algorithm wrapper in which Weights 
 Using the calculated weights, rows are sampled uniformly. The weight is used to sample uniformly.
 The number of datapoints used to train after sampling from the reweighed dataset can be controlled by `factor`.
 """
-mutable struct ReweighingSamplingWrapper{M<:MLJBase.Model} <: DeterministicComposite
+struct ReweighingSamplingWrapper{M<:MLJBase.Model} <: DeterministicComposite
     grp::Symbol
     classifier::M
     factor::Float64
