@@ -7,9 +7,10 @@ mutable struct DemographicParity <: Measure
 end
 
 
-function (dp::DemographicParity)(ft::FairTensor{C}) where C
+function (dp::DemographicParity)(ft::FairTensor)
     if dp.C==0
         # Here matrix A of DemographicParity will be initialised as it wasn't previously initialised
+        C = length(ft.labels)
         dp.C = C
         dp.A = zeros(Int, C, 8)
         Nc = sum(ft[C, :, :])
