@@ -14,7 +14,7 @@ function _fairTensorLinProg(ft::FairTensor, vals)
 		a[2, 2] = ft.mat[i, 2, 2]*n2n + ft.mat[i, 1, 2]*p2n
 		newftmat[i, :, :] = a
 	end
-	return FairTensor(newftmat, ft.labels)
+	return FairnessTensor(newftmat, labels=ft.labels)
 end
 
 """
@@ -91,15 +91,15 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	@variable(m, aux[1:4n])
 	@constraint(m,[i=1:4n], mat[i]==aux[i])
 
-	register(m, :fpr, 4n, (x...)->fpr(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels)), autodiff=true)
-	register(m, :fnr, 4n, (x...)->fnr(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels)), autodiff=true)
+	register(m, :fpr, 4n, (x...)->fpr(Fairness.FairnessTensor(reshape(collect(x), (n, 2, 2)), labels=ft.labels)), autodiff=true)
+	register(m, :fnr, 4n, (x...)->fnr(Fairness.FairnessTensor(reshape(collect(x), (n, 2, 2)), labels=ft.labels)), autodiff=true)
 	@NLobjective(m, Min, fpr(aux...) + fnr(aux...))
 
 	measure = model.measure
-	register(m, :func1, 4n, (x...)->measure(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[1]), autodiff=true)
+	register(m, :func1, 4n, (x...)->measure(Fairness.FairnessTensor(reshape(collect(x), (n, 2, 2)), labels=ft.labels), grp=levels(grps)[1]), autodiff=true)
 	for i in 2:n
 		fn_symbol = Symbol("func$i")
-		register(m, fn_symbol, 4n, (x...)->measure(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[i]), autodiff=true)
+		register(m, fn_symbol, 4n, (x...)->measure(Fairness.FairnessTensor(reshape(collect(x), (n, 2, 2)), labels=ft.labels), grp=levels(grps)[i]), autodiff=true)
 		JuMP.add_NL_constraint(m, :($(Expr(:call, fn_symbol, aux...))==$(Expr(:call, Symbol("func1"), aux...))))
 		# TODO: Replace call to func1 with a pre-computed expression
 	end

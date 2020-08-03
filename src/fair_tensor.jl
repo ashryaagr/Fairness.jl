@@ -1,29 +1,29 @@
-"""
-    FairTensor{C}
-
-Fairness Tensor with C classes. It consists of C 2 x 2 matrices stacked up to form a Matrix
-of size C x 2 x 2. Each 2 x 2 matrix contains values [[TP, FP], [FN, TN]].
-"""
-struct FairTensor{C}
-    mat # No type has been specified here due to the LinProgWrapper postprocessing algorithm
-    labels::Vector{String}
-end
+const FairTensor = AxisArray
 
 """
-    FairTensor(m, labels)
+    FairTensor(m; labels, outcomes=[1, 0])
 
-Instantiates a FairTensor using the matrix m.
+Uses labels and array m to create FairTensor. Returns Fairness Tensor which consists of C 2 x 2 matrices stacked up to form a Matrix
+of size C x 2 x 2 where C is the number of groups. Each 2 x 2 matrix contains values [[TP, FP], [FN, TN]].
+The FairTensor returned is of type AxisArray and has both, group labels and values.
 """
-function FairTensor(m, labels::Vector{String})
+function FairnessTensor(m::Array{R, 3}; labels::Vector{String}, outcomes::Vector=[0, 1]) where R
     s = size(m)
     (s[3] == s[2] && s[3] == 2) || throw(ArgumentError("Expected a C*2*2 type Matrix."))
     length(labels) == s[1] ||
         throw(ArgumentError("As many labels as classes must be provided."))
-    FairTensor{s[1]}(m, labels)
+    return AxisArray(m, labels=labels, pred=outcomes, truth=outcomes)
 end
 
-# allow to access ft[i,j] but not set (it's immutable)
-Base.getindex(ft::FairTensor, inds...) = getindex(ft.mat, inds...)
+function Base.getproperty(obj::AxisArray, sym::Symbol)
+   if sym === :labels
+       return obj[Axis{:labels}].val
+   elseif sym === :mat
+       return obj.data
+   else # fallback to getfield
+       return getfield(obj, sym)
+   end
+end
 
 """
     fair_tensor(ŷ, y, grp)
@@ -40,9 +40,9 @@ function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement
     check_dimensions(ŷ, y)
     check_dimensions(ŷ, grp)
     length(levels(y))==2 || throw(ArgumentError("Binary Targets are only supported"))
-    labels = levels(y)
-    favLabel = labels[2]
-    unfavLabel = labels[1]
+    outcomes = levels(y)
+    favLabel = outcomes[2]
+    unfavLabel = outcomes[1]
 
     levels_ = levels(grp)
     c = length(levels_)
@@ -71,18 +71,8 @@ function fair_tensor(ŷ::Vec{<:CategoricalElement}, y::Vec{<:CategoricalElement
             fact[grp_idx[grp[i]], 2, 2] += 1
         end
     end
-    return FairTensor(fact, string.(levels_))
-
+    return AxisArray(fact, labels=string.(levels_), pred=[unfavLabel, favLabel], truth=[unfavLabel, favLabel])
 end
 
 # synonym
 fact = fair_tensor
-
-# aggregation:
-Base.round(m::FairTensor; kws...) = m
-function Base.:+(t1::FairTensor, t2::FairTensor)
-    if t1.labels != t2.labels
-        throw(ArgumentError("Tensor labels must agree"))
-    end
-    FairTensor(t1.mat + t2.mat, t1.labels)
-end

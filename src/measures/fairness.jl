@@ -18,10 +18,11 @@ The second argument shall correspond to reference group.
 
 Please note that division by 0 will result in NaN
 """
-function disparity(measures::Vector, ft::FairTensor{C}; refGrp=nothing, func=/) where C
+function disparity(measures::Vector, ft::FairTensor; refGrp=nothing, func=/)
     refGrp!==nothing || throw(ArgumentError("Value of reference group needs to be provided"))
     refGrpIdx = _ftIdx(ft, refGrp)
     df = DataFrame(labels=ft.labels)
+    C = length(ft.labels)
     for measure in measures
         colName = string(measure) * "_disparity"
         colDisparity = Symbol(colName)

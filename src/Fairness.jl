@@ -7,6 +7,7 @@ import Base
 using Random
 using DataFrames, CSV # For loading datasets
 using MLJBase
+using AxisArrays # For FairTensor
 using CategoricalArrays
 using MLJModels, MLJModelInterface
 using StatsBase # For reweighing algorithm
