@@ -49,37 +49,35 @@ function MMI.fit(model::PenaltyWrapper, verbosity::Int,
 	end
 
 	λ = fill(0.5, n_grps) #Thresholds for various groups
+	ft = FairTensor(fill(0.25, (n_grps, 2, 2)), levels(grps))
 	score(x) = x.prob_given_ref[2]
 	all_indices = convert(Array, 1:n)
-	for itr in 1:n_model.steps
-		y_train = shuffle!(all_indices)[1:Int(round(0.7n))]
-		y_tune = a[Int(round(0.7n))+1:n]
-		mch = machine(model.classifier, X, y)
+	for itr in 1:n_iters
+		train_indices = shuffle!(all_indices)[1:Int(round(0.7n))]
+		tune_indices = a[Int(round(0.7n))+1:n]
+		mch = machine(model.classifier, X[train_indices, :], y[train_indices])
 		fit!(mch)
-		ŷ = MMI.predict(mch, X)
+		ŷ = MMI.predict(mch, X[tune_indices, :])
 		for i in 1:n_grps
-			Xnew = MLJBase.transform(MLJBase.fit!(machine(ContinuousEncoder(), X)), X)
-			Xnew.y = convert(Array, y)
+			Xnew = MLJBase.transform(MLJBase.fit!(machine(ContinuousEncoder(), X[tune_indices])), X[tune_indices])
+			Xnew.y = convert(Array, y[tune_indices])
 			Xnew.scores = score.(ŷ)
-			i=1
-			indices = grps.==levels_[i]
+			indices = grps[tune_indices].==levels_[i]
 			scores = score.(ŷ[indices])
-			dis = Distributions.fit(Distributions.Normal, scores)
-			md = Distributions.MvNormal(StatsBase.mean.(eachcol(Xnew)), StatsBase.std.(eachcol(Xnew)))
-			ft = FairTensor(fill(0.25, (n_grps, 2, 2)), levels(grps))
-			for j in 1:length(scores)
-				a, b, c, d = [convert(Array, Xnew[j, names(Xnew)[1:length(names(Xnew))-2]]) for _ in 1:4]
+			dis0 = Distributions.fit(Distributions.Normal, scores[Xnew.y.==unfavLabel])
+			dis1 = Distributions.fit(Distributions.Normal, scores[Xnew.y.==favLabel])
+			function lambdafair(λ)
 				pr = zeros(2, 2)
-				# TODO: The scores will hardly ever be 1. So, pdf calculations below are wrong!
-				# We should instead use λ to calculate the values in fairness metric.
-				pr[1, 1] = pdf(md, push!(a, 1, 1)) #TruePositive
-				pr[1, 2] = pdf(md, push!(b, 0, 1)) #FalsePositive
-				pr[2, 1] = pdf(md, push!(c, 1, 0)) #FalseNegative
-				pr[2, 2] = pdf(md, push!(d, 0, 0)) #TrueNegative
+				pr[1, 1] = cdf(dis1, λ) #TruePositive
+				pr[1, 2] = cdf(dis0, λ) #FalsePositive
+				pr[2, 1] = cdf(dis1, λ) #FalseNegative
+				pr[2, 2] = cdf(dis0, λ) #TrueNegative
 				pr /= sum(pr)
 				ft[i, :, :] = pr
+				ft
 			end
-			loss(λ) = mean(accuracy(ft)) + model.alpha*measure(ft)^2
+			compositeloss(ft::FairTensor) =  mean(accuracy(ft)) + model.alpha*measure(ft)^2
+			loss(λ) = compositeloss(lambdafair(λ))
 
 			λᵢ_grad = ForwardDiff.gradient(loss, [0.6])
 			λ[i] -= λᵢ_grad*model.lr
