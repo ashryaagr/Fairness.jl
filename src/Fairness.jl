@@ -52,12 +52,12 @@ export disparity, parity, Disparity, Disparities
 
 export ReweighingWrapper, ReweighingSamplingWrapper
 export EqOddsWrapper, LinProgWrapper
+export PenaltyWrapper
 
 # Export macros for datasets from datasets/
 export @load_toydata, @load_toyfairtensor
 export @load_compas, @load_adult, @load_german
 
-export PenaltyWrapper
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
 export categorical, levels, levels!

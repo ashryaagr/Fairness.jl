@@ -1,3 +1,10 @@
+"""
+	PenaltyWrapper
+
+It is an inprocessing algorithm that wraps a Probabilistic classifier.
+Optimal thresholds for each group in protected attribute is found to minimise accuracy+ alpha*fairness_measure^2.
+Gradients are used to find optimal threshold values. alpha controls the fairness accuracy tradeoff.
+"""
 struct PenaltyWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
 	classifier::M
@@ -7,6 +14,12 @@ struct PenaltyWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	lr::Float64
 end
 
+"""
+	PenaltyWrapper(classifier=nothing, grp=:class, measure, alpha=1, n_iters=1000, lr=0.01)
+
+Instantiates PenaltyWrapper which wraps the classifier and contains measure to be optimised.
+It also provides various hyperparameters to the wrapper.
+"""
 function PenaltyWrapper(;
 	grp::Symbol = :class,
     classifier::MLJBase.Model = nothing,
@@ -52,26 +65,26 @@ function MMI.fit(model::PenaltyWrapper, verbosity::Int,
 	ft = FairTensor(fill(0.25, (n_grps, 2, 2)), levels(grps))
 	score(x) = x.prob_given_ref[2]
 	all_indices = convert(Array, 1:n)
-	for itr in 1:n_iters
+	for itr in 1:model.n_iters
 		train_indices = shuffle!(all_indices)[1:Int(round(0.7n))]
-		tune_indices = a[Int(round(0.7n))+1:n]
+		tune_indices = all_indices[Int(round(0.7n))+1:n]
 		mch = machine(model.classifier, X[train_indices, :], y[train_indices])
 		fit!(mch)
 		ŷ = MMI.predict(mch, X[tune_indices, :])
 		for i in 1:n_grps
-			Xnew = MLJBase.transform(MLJBase.fit!(machine(ContinuousEncoder(), X[tune_indices])), X[tune_indices])
-			Xnew.y = convert(Array, y[tune_indices])
-			Xnew.scores = score.(ŷ)
 			indices = grps[tune_indices].==levels_[i]
+			y_tune_indices = convert(Array, y[tune_indices][indices])
+			if all(y_tune_indices.==unfavLabel) || all(y_tune_indices.==favLabel) continue end
 			scores = score.(ŷ[indices])
-			dis0 = Distributions.fit(Distributions.Normal, scores[Xnew.y.==unfavLabel])
-			dis1 = Distributions.fit(Distributions.Normal, scores[Xnew.y.==favLabel])
+			println(scores, y_tune_indices)
+			dis0 = Distributions.fit(Distributions.Normal, scores[y_tune_indices .== unfavLabel])
+			dis1 = Distributions.fit(Distributions.Normal, scores[y_tune_indices .== favLabel])
 			function lambdafair(λ)
 				pr = zeros(2, 2)
-				pr[1, 1] = cdf(dis1, λ) #TruePositive
-				pr[1, 2] = cdf(dis0, λ) #FalsePositive
-				pr[2, 1] = cdf(dis1, λ) #FalseNegative
-				pr[2, 2] = cdf(dis0, λ) #TrueNegative
+				pr[1, 1] = Distributions.cdf(dis1, λ) #TruePositive
+				pr[1, 2] = Distributions.cdf(dis0, λ) #FalsePositive
+				pr[2, 1] = Distributions.cdf(dis1, λ) #FalseNegative
+				pr[2, 2] = Distributions.cdf(dis0, λ) #TrueNegative
 				pr /= sum(pr)
 				ft[i, :, :] = pr
 				ft

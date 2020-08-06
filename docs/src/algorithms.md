@@ -47,6 +47,15 @@ LinProgWrapper
 Fairness.LinProgWrapper()
 ```
 
+## Inprocessing
+These are the algorithms that have control over the training process. They can modify the training process to optimise fairness constraints.
+
+### Penalty Algorithm
+```@docs
+PenaltyWrapper
+Fairness.PenaltyWrapper()
+```
+
 ## Composability
 
 Fairness.jl provides you the ability to easily use multiple fairness algorithms on top of each other.

@@ -19,7 +19,7 @@ It shall be divided into following components
   - BoolMetrics
 - Algorithms
   - Preprocessing Algorithms
-  - InProcessing Algorithms [WIP]
+  - InProcessing Algorithms
   - PostProcessing Algorithms
 - Fairness Datasets (Macros)
 

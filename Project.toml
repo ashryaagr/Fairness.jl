@@ -17,11 +17,14 @@ MLJModelInterface = "e80e1ace-859a-464e-9ed9-23947d8ae3ea"
 MLJModels = "d491faf4-2d78-11e9-2867-c94bc002c0b7"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
 
 [compat]
 CSV = "^0.7"
 CategoricalArrays = "^0.8"
 DataFrames = "^0.21"
+Distributions = "^0.23.8"
+ForwardDiff = "^0.10.12"
 GLPK = "^0.13"
 Ipopt = "^0.6"
 JuMP = "^0.21"
@@ -32,7 +35,8 @@ StatsBase = "^0.33"
 julia = "1"
 
 [extras]
+DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["DecisionTree", "Test"]
