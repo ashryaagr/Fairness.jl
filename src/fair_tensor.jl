@@ -22,8 +22,9 @@ function FairTensor(m, labels::Vector{String})
     FairTensor{s[1]}(m, labels)
 end
 
-# allow to access ft[i,j] but not set (it's immutable)
+# allow to access ft[i,j]
 Base.getindex(ft::FairTensor, inds...) = getindex(ft.mat, inds...)
+Base.setindex!(ft::FairTensor, value, inds...) = setindex!(ft.mat, value, inds...)
 
 """
     fair_tensor(ŷ, y, grp)

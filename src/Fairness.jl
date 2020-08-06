@@ -12,6 +12,8 @@ using MLJModels, MLJModelInterface
 using StatsBase # For reweighing algorithm
 using JuMP, GLPK # For Equalized Odds Postprocessing algorithms
 using Ipopt # For LinProgWrapper algorithm
+using ForwardDiff # For MetaFair algorithm
+import Distributions
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -54,6 +56,8 @@ export EqOddsWrapper, LinProgWrapper
 # Export macros for datasets from datasets/
 export @load_toydata, @load_toyfairtensor
 export @load_compas, @load_adult, @load_german
+
+export PenaltyWrapper
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
 export categorical, levels, levels!
@@ -76,7 +80,7 @@ const MODULE_DIR = dirname(@__FILE__)
 include("utilities.jl")
 include("fair_tensor.jl")
 include("measures/measures.jl")
-include("algorithms/algorithms.jl")
 include("datasets/datasets.jl")
+include("algorithms/algorithms.jl")
 
 end # module
