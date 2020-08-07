@@ -80,18 +80,19 @@ function MMI.fit(model::PenaltyWrapper, verbosity::Int,
 			dis1 = Distributions.fit(Distributions.Normal, scores[y_tune_indices .== favLabel])
 			function lambdafair(λ)
 				pr = Array{Any, 2}(undef, 2, 2)
-				pr[1, 1] = Distributions.cdf(dis1, λ) #TruePositive
-				pr[1, 2] = Distributions.cdf(dis0, λ) #FalsePositive
+				pr[1, 1] = 1-Distributions.cdf(dis1, λ) #TruePositive
+				pr[1, 2] = 1-Distributions.cdf(dis0, λ) #FalsePositive
 				pr[2, 1] = Distributions.cdf(dis1, λ) #FalseNegative
 				pr[2, 2] = Distributions.cdf(dis0, λ) #TrueNegative
 				pr /= sum(pr)
 				ft[i, :, :] = pr
 				ft
 			end
-			compositeloss(ft::FairTensor) =  mean(accuracy(ft)) + model.alpha*model.measure(ft)^2
+			compositeloss(ft::FairTensor) =  accuracy(ft) +
+				model.alpha*(model.measure(ft, grp=levels_[i])-model.measure(ft, grp=levels_[1]))^2
 			loss(λ) = compositeloss(lambdafair(λ[1]))
 
-			λᵢ_grad = ForwardDiff.gradient(loss, [0.6])
+			λᵢ_grad = ForwardDiff.gradient(loss, [λ[i]])
 			λ[i] -= λᵢ_grad[1]*model.lr
 		end
 	end
