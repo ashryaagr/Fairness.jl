@@ -43,9 +43,6 @@ end
 
 function MMI.fit(model::PenaltyWrapper, verbosity::Int,
 	X, y)
-	model = PenaltyWrapper(classifier=ConstantClassifier(), grp=:Sex, measure=tpr)
-	X, y = @load_toydata
-	measure=tpr
 	grps = X[:, model.grp]
 	labels = levels(y)
 	favLabel = labels[2]
@@ -62,25 +59,27 @@ function MMI.fit(model::PenaltyWrapper, verbosity::Int,
 	end
 
 	λ = fill(0.5, n_grps) #Thresholds for various groups
-	ft = FairTensor(fill(0.25, (n_grps, 2, 2)), levels(grps))
+	mat = Array{Any, 3}(undef, n_grps, 2, 2)
+	mat .= 0.25
+	ft = FairTensor(mat, levels(grps))
+
 	score(x) = x.prob_given_ref[2]
 	all_indices = convert(Array, 1:n)
 	for itr in 1:model.n_iters
 		train_indices = shuffle!(all_indices)[1:Int(round(0.7n))]
 		tune_indices = all_indices[Int(round(0.7n))+1:n]
 		mch = machine(model.classifier, X[train_indices, :], y[train_indices])
-		fit!(mch)
+		fit!(mch, verbosity=0)
 		ŷ = MMI.predict(mch, X[tune_indices, :])
 		for i in 1:n_grps
 			indices = grps[tune_indices].==levels_[i]
 			y_tune_indices = convert(Array, y[tune_indices][indices])
 			if all(y_tune_indices.==unfavLabel) || all(y_tune_indices.==favLabel) continue end
 			scores = score.(ŷ[indices])
-			println(scores, y_tune_indices)
 			dis0 = Distributions.fit(Distributions.Normal, scores[y_tune_indices .== unfavLabel])
 			dis1 = Distributions.fit(Distributions.Normal, scores[y_tune_indices .== favLabel])
 			function lambdafair(λ)
-				pr = zeros(2, 2)
+				pr = Array{Any, 2}(undef, 2, 2)
 				pr[1, 1] = Distributions.cdf(dis1, λ) #TruePositive
 				pr[1, 2] = Distributions.cdf(dis0, λ) #FalsePositive
 				pr[2, 1] = Distributions.cdf(dis1, λ) #FalseNegative
@@ -89,24 +88,25 @@ function MMI.fit(model::PenaltyWrapper, verbosity::Int,
 				ft[i, :, :] = pr
 				ft
 			end
-			compositeloss(ft::FairTensor) =  mean(accuracy(ft)) + model.alpha*measure(ft)^2
-			loss(λ) = compositeloss(lambdafair(λ))
+			compositeloss(ft::FairTensor) =  mean(accuracy(ft)) + model.alpha*model.measure(ft)^2
+			loss(λ) = compositeloss(lambdafair(λ[1]))
 
 			λᵢ_grad = ForwardDiff.gradient(loss, [0.6])
-			λ[i] -= λᵢ_grad*model.lr
+			λ[i] -= λᵢ_grad[1]*model.lr
 		end
 	end
 
 	# Make y and ŷ as an attribute. And then predict whether that is true or false
-	fitresult = [mch.fitresult, λ]
+	mach = machine(model.classifier, X, y)
+	fit!(mach, verbosity=verbosity)
+	fitresult = [mach.fitresult, λ]
 	return fitresult, nothing, nothing
 end
 
 function MMI.predict(model::PenaltyWrapper, fitresult, Xnew)
 	classifier_fitresult, λ = fitresult
-
 	n = size(Xnew)[1]
-	grps = model.grp
+	grps = Xnew[:, model.grp]
 	levels_ = levels(grps)
 	n_grps = length(levels(grps))
 	grp_idx = Dict() # Maps group_name => index of group in levels_
@@ -119,7 +119,7 @@ function MMI.predict(model::PenaltyWrapper, fitresult, Xnew)
 	scores = score.(preds)
 	ŷ = zeros(Int, n)
 	for i in 1:n
-		ŷ[i] = scores[i]>λ[grp_idx[X[i, model.grp]]]
+		ŷ[i] = scores[i]>λ[grp_idx[Xnew[i, model.grp]]]
 	end
 	return ŷ
 end
