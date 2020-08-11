@@ -123,20 +123,20 @@ These algorithms are wrappers. These help in mitigating bias and improve fairnes
 
 # Citing Fairness.jl
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3965741.svg)](https://doi.org/10.5281/zenodo.3965741)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3977197.svg)](https://doi.org/10.5281/zenodo.3977197)
 
 ```bibtex
-@software{ashrya_agrawal_2020_3965741,
+@software{ashrya_agrawal_2020_3977197,
   author       = {Ashrya Agrawal and
                   Jiahao Chen and
                   Sebastian Vollmer and
                   Anthony Blaom},
-  title        = {Fairness.jl},
-  month        = jul,
+  title        = {ashryaagr/Fairness.jl},
+  month        = aug,
   year         = 2020,
   publisher    = {Zenodo},
-  version      = {v0.1.1},
-  doi          = {10.5281/zenodo.3965741},
-  url          = {https://doi.org/10.5281/zenodo.3965741}
+  version      = {v0.1.2},
+  doi          = {10.5281/zenodo.3977197},
+  url          = {https://doi.org/10.5281/zenodo.3977197}
 }
 ```

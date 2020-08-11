@@ -1,0 +1,9 @@
+[deps]
+DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
+Fairness = "7c232609-d7a1-4356-98a6-13e736dd6dcd"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+MLJ = "add582a8-e3ab-11e8-2d5e-e98b27df1bc7"
+MLJFlux = "094fc8d1-fd35-5302-93ea-dabda2abf845"
+MLJModels = "d491faf4-2d78-11e9-2867-c94bc002c0b7"
+MLJScikitLearnInterface = "5ae90465-5518-4432-b9d2-8a1def2f0cab"
+PrettyPrinting = "54e16d92-306c-5ea0-a30b-337be88ac337"
