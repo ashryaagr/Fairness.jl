@@ -1,13 +1,11 @@
-Base.zero(::Type{Union{Int64, VariableRef, GenericAffExpr{Float64,VariableRef}}}) = 0
-
 # Helper function to modify the fairness tensor according to the values for sp2n, on2p, etc
 # vals is a 2D array of the form [[sp2n, sn2p], [op2n, on2p]]
 function _fairTensorLinProg(ft::FairTensor, vals)
-	newftmat = zeros(Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, size(ft.mat)...)
+	newftmat = Array{Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, 3}(undef, size(ft.mat)...)
 	for i in 1:length(ft.labels)
 		p2n, n2p = vals[i, :] #These vals are VariableRef from library JuMP
 		p2p, n2n = 1-p2n, 1-n2p
-		a = zeros(Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, 2, 2) # The numbers for modified fairness tensor values for a group
+		a = Array{Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, 2}(undef, 2, 2) # The numbers for modified fairness tensor values for a group
 		a[1, 1] = ft.mat[i, 1, 1]*p2p + ft.mat[i, 2, 2]*n2p
 		a[1, 2] = ft.mat[i, 1, 2]*p2p + ft.mat[i, 2, 1]*n2p
 		a[2, 1] = ft.mat[i, 2, 1]*n2n + ft.mat[i, 1, 1]*p2n
@@ -81,7 +79,7 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 
 	ft = fair_tensor(categorical(ŷ), categorical(y), categorical(grps))
 
-	vals = zeros(Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, n, 2)
+	vals = Array{Union{VariableRef, Int, GenericAffExpr{Float64,VariableRef}}, 2}(undef, n, 2)
 	vals[: , 1] = p2n
 	vals[: , 2] = n2p
 
