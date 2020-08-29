@@ -36,3 +36,24 @@ end
 	]
 	@test string.(names(X)) == cols
 end
+
+@testset "Bank Marketing Dataset" begin
+	X, y = @load_bank_marketing
+	fpath = joinpath(Fairness.DATA_DIR, "bank-marketing.csv")
+	@test isfile(fpath)
+	@test scitype(y) == AbstractArray{Multiclass{2},1};
+end
+
+@testset "Communities Crime Dataset" begin
+	X, y = @load_communities_crime
+	fpath = joinpath(Fairness.DATA_DIR, "communities_crime.data")
+	@test isfile(fpath)
+	@test scitype(y) == AbstractArray{Multiclass{2},1};
+end
+
+@testset "Student Performance" begin
+	X, y = @load_student_performance
+	fpath = joinpath(Fairness.DATA_DIR, "student-performance.csv")
+	@test isfile(fpath)
+	@test scitype(y) == AbstractArray{Multiclass{2},1};
+end

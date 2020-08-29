@@ -157,3 +157,82 @@ macro load_german()
         (X, y)
     end
 end
+
+"""
+The data is related with direct marketing campaigns of a Portuguese banking institution.
+The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required,
+in order to access if the product (bank term deposit) would be ('yes') or not ('no') subscribed.
+It has 20 features and 41188 rows. The protected attributes is marital.
+"""
+macro load_bank_marketing()
+    quote
+        url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip"
+        fname = "bank-marketing.csv"
+        fpath = joinpath(DATA_DIR, fname)
+        if !isfile(fpath)
+            download(url, "tempdataset.zip")
+            zarchive = ZipFile.Reader("tempdataset.zip")
+            zipfile = filter(x->x.name==string(joinpath("bank-additional", "bank-additional-full.csv")), zarchive.files)[1]
+            df = DataFrame!(CSV.File(read(zipfile)))
+            CSV.write(fpath, df)
+            close(zarchive)
+            Base.Filesystem.rm("tempdataset.zip", recursive=true)
+        end
+        df = DataFrame!(CSV.File(fpath))
+        coerce!(df, Textual => Multiclass)
+        coerce(df, :y => Multiclass)
+        (y, X) = unpack(df, ==(:y), col->true)
+        y = categorical(y)
+        levels!(y, ["yes", "no"])
+        (X, y)
+    end
+end
+
+# TODO: Construct protected attribute from the attributes: blackpct, whitepct, asianpct
+"""
+The per capita violent crimes variable was calculated using population and
+the sum of crime variables considered violent crimes in the United States: murder, rape, robbery, and assault.
+It has 127 features and 1994 rows. The protected attributes are ....?
+"""
+macro load_communities_crime()
+    quote
+        url = "http://archive.ics.uci.edu/ml/machine-learning-databases/communities/communities.data"
+        fname = "communities_crime.data"
+        ensure_download(url, fname)
+        fpath = joinpath(DATA_DIR, fname)
+        df = DataFrame!(CSV.File(fname, header=false))
+        df = dropmissing(df, names(df))
+        X = df[!, names(df)[1:127]]
+        y = df[!, names(df)[128]] .> 0.7
+        y = categorical(y)
+        (X, y)
+    end
+end
+
+"""
+Student Performance Dataset. It has 395 rows and 30 features.
+The target attribute corresponds to grade G1. The target tells whether the student gets grade >= 12.
+The protected attribute is sex.
+"""
+macro load_student_performance()
+    quote
+        url= "https://archive.ics.uci.edu/ml/machine-learning-databases/00320/student.zip"
+        fname = "student-performance.csv"
+        fpath = joinpath(DATA_DIR, fname)
+        if !isfile(fpath)
+            download(url, "tempdataset.zip")
+            zarchive = ZipFile.Reader("tempdataset.zip")
+            zipfile = filter(x->x.name=="student-mat.csv", zarchive.files)[1]
+            df = DataFrame!(CSV.File(read(zipfile)))
+            CSV.write(fpath, df)
+            close(zarchive)
+            Base.Filesystem.rm("tempdataset.zip", recursive=true)
+        end
+        df = DataFrame!(CSV.File(fpath))
+        coerce!(df, Textual => Multiclass)
+        X = df[!, names(df)[1:30]]
+        y = df[!, names(df)[31]] .>= 12
+        y = categorical(y)
+        (X, y)
+    end
+end

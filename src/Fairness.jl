@@ -13,6 +13,7 @@ using StatsBase # For reweighing algorithm
 using JuMP, GLPK # For Equalized Odds Postprocessing algorithms
 using Ipopt # For LinProgWrapper algorithm
 using ForwardDiff # For MetaFair algorithm
+using ZipFile # For downloading datasets
 import Distributions
 # ===================================================================
 ## METHOD EXPORTS
@@ -56,7 +57,8 @@ export PenaltyWrapper
 
 # Export macros for datasets from datasets/
 export @load_toydata, @load_toyfairtensor
-export @load_compas, @load_adult, @load_german
+export @load_compas, @load_adult, @load_german,
+       @load_bank_marketing, @load_communities_crime, @load_student_performance
 
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
