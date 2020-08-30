@@ -172,7 +172,7 @@ macro load_bank_marketing()
         if !isfile(fpath)
             download(url, "tempdataset.zip")
             zarchive = ZipFile.Reader("tempdataset.zip")
-            zipfile = filter(x->x.name==string(joinpath("bank-additional", "bank-additional-full.csv")), zarchive.files)[1]
+            zipfile = filter(x->x.name=="bank-additional/bank-additional-full.csv", zarchive.files)[1]
             df = DataFrame!(CSV.File(read(zipfile)))
             CSV.write(fpath, df)
             close(zarchive)

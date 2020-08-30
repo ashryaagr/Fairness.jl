@@ -23,6 +23,21 @@ X, y = @load_compas;
 @load_german
 ```
 
+## Bank Marketing Dataset
+```@docs
+@load_bank_marketing
+```
+
+## Communities and Crime Dataset
+```@docs
+@load_communities_crime
+```
+
+## Student Performance Dataset
+```@docs
+@load_student_performance
+```
+
 ### Inspecting Datasets
 To see the columns in dataset, their types and scientific types, you can use `schema` from MLJ.
 ```@repl

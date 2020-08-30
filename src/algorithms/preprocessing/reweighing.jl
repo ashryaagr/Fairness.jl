@@ -70,9 +70,7 @@ function MLJBase.fit(model::ReweighingWrapper,
     ŷ = MMI.predict(mach1, Xs)
 
     mach2 = machine(Deterministic(), Xs, ys; predict=ŷ)
-    fit!(mach2, verbosity=verbosity)
-
-    return mach2()
+    return!(mach2, model, verbosity)
 end
 
 MMI.input_scitype(::Type{<:ReweighingWrapper{M}}) where M = input_scitype(M)
@@ -134,9 +132,7 @@ function MLJBase.fit(model::ReweighingSamplingWrapper,
     ŷ = MMI.predict(mach1, Xs)
 
     mach2 = machine(Deterministic(), Xs, ys; predict=ŷ)
-    fit!(mach2, verbosity=verbosity)
-
-    return mach2()
+    return!(mach2, model, verbosity)
 end
 
 MMI.input_scitype(::Type{<:ReweighingSamplingWrapper{M}}) where M = input_scitype(M)
