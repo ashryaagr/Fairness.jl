@@ -15,6 +15,7 @@ using Ipopt # For LinProgWrapper algorithm
 using ForwardDiff # For MetaFair algorithm
 using ZipFile # For downloading datasets
 import Distributions
+using HypothesisTests # For Benchmarking
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -66,6 +67,8 @@ export categorical, levels, levels!
 
 # re-export from MLJBase
 export pretty
+
+export fairevaluate
 # ===================================================================
 ## CONSTANTS
 
@@ -84,5 +87,6 @@ include("fair_tensor.jl")
 include("measures/measures.jl")
 include("datasets/datasets.jl")
 include("algorithms/algorithms.jl")
+include("benchmark/benchmark.jl")
 
 end # module

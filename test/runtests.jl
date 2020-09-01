@@ -17,3 +17,7 @@ end
 @testset "algorithms" begin
     include("algorithms/algorithms.jl")
 end
+
+@testset "benchmarking" begin
+    include("benchmark/benchmark.jl")
+end
