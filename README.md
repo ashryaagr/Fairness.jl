@@ -16,6 +16,8 @@
 
 For an introduction to Fairness.jl refer the notebook available at https://nextjournal.com/ashryaagr/fairness
 
+> :warning: **This is experimental software**: We refer [Aequitas](https://github.com/dssg/aequitas) for stable bias auditing.
+
 # Installation
 ```julia
 using Pkg
