@@ -69,8 +69,6 @@ Generate synthetic data from Zafar et al., 2017 Fairness Beyond Disparate Treatm
 - `X` : DataFrame containing features and protected attribute z
 - `y` : Binary Target variable
 """
-using DataFrames
-using Distributions
 function genZafarData2(n = 10000)
 
     y = rand(Bernoulli(0.5), n)
