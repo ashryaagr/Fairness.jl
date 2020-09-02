@@ -60,6 +60,46 @@ function genZafarData(n = 10000, d = pi/4)
     return X, y
 end
 
+
+"""
+Generate synthetic data from Zafar et al., 2017 Fairness Beyond Disparate Treatment & Disparate Impact
+# Arguments
+- `n=10000` : number of samples
+# Returns
+- `X` : DataFrame containing features and protected attribute z
+- `y` : Binary Target variable
+"""
+using DataFrames
+using Distributions
+function genZafarData2(n = 10000)
+
+    y = rand(Bernoulli(0.5), n)
+    z = rand(Bernoulli(0.5), n)
+    M = [
+      [MvNormal([1., 1.],    [[3., 1.] [1., 3.]]), MvNormal([2., 2.],    [[3., 1.] [1., 3.]])],
+      [MvNormal([-2., -2.],  [[3., 1.] [1., 3.]]),  MvNormal([2., 2.],    [[3., 1.] [1., 3.]])]
+      ]
+
+    # Iterate over z and y in parallel, drawing from the appropritate Distribution.
+    for i in 1:n
+      if i == 1
+        X = rand(M[z[i]+1][y[i]+1], 1)
+      else
+        X = hcat(X, rand(M[z[i]+1][y[i]+1], 1))
+      end
+    end
+
+    perm = shuffle(1:n)
+    X = DataFrame(transpose(X)[perm,:])
+    y = y[perm]
+    X.z = z[perm]
+    coerce!(X, :z => Multiclass)
+    y = categorical(y)
+    return X, y
+end
+
+
+
 """
   genSubgroupData(n=10000, setting="B00")
 
@@ -71,7 +111,7 @@ For "B00", ..., "B02" there is no "bias" in the data, i.e. group membership has 
 whereas for  "B1", ... , "B8", there is a direct effect of group membership z on y, usually mediated by one or more features.
 # Returns
 - `X` : DataFrame containing features and protected attribute z
-- `y` : Binary Target variable
+- `y` : Binary target variable
 """
 function genSubgroupData(n = 10000, setting = "B00")
     xdists = [
@@ -146,4 +186,50 @@ function logit_fun(X, z, setting)
   # Compute a random y with probability yprob
   u = rand(n)
   return X, ifelse.(yprob .> u, 1, 0)
+end
+
+"""
+  genBiasedSampleData(n=10000, sampling_bias=0.8)
+
+Generate synthetic data: Biased sample
+
+# Arguments
+- `n=10000` : number of samples
+- `sampling_bias=0.8` : Percentage of data belonging to majority group.
+
+The idea behind this simulation is that algorithms might fit the process in the
+majority group while disregarding the process in the minority group.
+
+Two different processes for d1 and d2:
+d1: logit(y) = 0.5*(    X1 + X2 + 0.3*X4) + 2*(I(X3 > 0))
+d2: logit(y) = 0.5*(0.3*X1 + X2 +     X4) + 2*(I(X3 > 0.2))
+
+# Returns
+- `X` : DataFrame containing features and protected attribute z
+- `y` : Binary Target variable
+"""
+function genBiasedSampleData(n = 10000, sampling_bias = 0.8)
+
+  d1 = MvNormal([0., 0., 0., 0.], [[1, 0.3, 0.3, 0.3] [0.3, 1, 0.3, 0.3] [0.3, 0.3, 1, 0.3] [0.3, 0.3, 0.3, 1]])
+  d2 = MvNormal([0.2, 0.2, 0.2, 0.2], [[1, 0.5, 0.5, 0.5] [0.5, 1, 0.5, 0.5] [0.5, 0.5, 1, 0.5] [0.5, 0.5, 0.5, 1]])
+
+  s1 = Int64(floor(n * sampling_bias))
+
+  X1 = transpose(rand(d1, s1))
+  X2 = transpose(rand(d2, n-s1))
+
+  perm = shuffle(1:n)
+  yprob = vcat(
+    log_link.(0.5 * (       X1[:,1] + X1[:,2] + 0.3 * X1[:,4]) + map(x -> ifelse(x > 0, 2., 0.), X1[:,3])),
+    log_link.(0.5 * (0.3 .* X2[:,2] + X2[:,2] +       X2[:,4]) + map(x -> ifelse(x > .2, 2., 0.), X2[:,3]))
+  )[perm]
+  X = vcat(X1, X2)[perm,:]
+  z = vcat(repeat([0], s1), repeat([1], n-s1))[perm]
+
+  X = DataFrame(X)
+  X.z = z
+  coerce!(X, :z => Multiclass)
+  u = rand(n)
+  y = categorical(ifelse.(yprob .> u, 1, 0))
+  return X, y
 end
