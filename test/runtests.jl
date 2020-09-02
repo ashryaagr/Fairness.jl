@@ -12,6 +12,7 @@ end
 
 @testset "dataset_macros" begin
     include("datasets/datasets.jl")
+    include("datasets/synthetic.jl")
 end
 
 @testset "algorithms" begin

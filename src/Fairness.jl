@@ -16,6 +16,7 @@ using ForwardDiff # For MetaFair algorithm
 using ZipFile # For downloading datasets
 import Distributions
 using HypothesisTests # For Benchmarking
+using LinearAlgebra # For synthetic datasets
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -61,6 +62,7 @@ export @load_toydata, @load_toyfairtensor
 export @load_compas, @load_adult, @load_german,
        @load_bank_marketing, @load_communities_crime, @load_student_performance
 
+export genZafarData, genSubgroupData
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
 export categorical, levels, levels!
@@ -86,6 +88,7 @@ include("utilities.jl")
 include("fair_tensor.jl")
 include("measures/measures.jl")
 include("datasets/datasets.jl")
+include("datasets/synthetic.jl")
 include("algorithms/algorithms.jl")
 include("benchmark/benchmark.jl")
 

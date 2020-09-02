@@ -23,22 +23,28 @@ X, y = @load_compas;
 @load_german
 ```
 
-## Bank Marketing Dataset
+### Bank Marketing Dataset
 ```@docs
 @load_bank_marketing
 ```
 
-## Communities and Crime Dataset
+### Communities and Crime Dataset
 ```@docs
 @load_communities_crime
 ```
 
-## Student Performance Dataset
+### Student Performance Dataset
 ```@docs
 @load_student_performance
 ```
 
-### Inspecting Datasets
+## Synthetic Datasets
+```@docs
+genZafarData
+genSubgroupData
+```
+
+## Inspecting Datasets
 To see the columns in dataset, their types and scientific types, you can use `schema` from MLJ.
 ```@repl
 using Fairness, MLJ
@@ -78,4 +84,6 @@ coerce!(X, :V2 => Multiclass, Count => Continuous); # Specifying which columns a
 ## Helper Functions
 ```@docs
 Fairness.ensure_download
+Fairness.genGaussian
+Fairness.logit_fun
 ```

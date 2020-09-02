@@ -1,5 +1,23 @@
 include("utils.jl")
 
+"""
+    fairevaluate(classifiers, X, y; measure=nothing, grp=:class, priv_grps, random_seed=12345, n_grps=6)
+
+Performed paired t-test for each pair of classifier in classifiers and return p values and t statistics.
+# Arguments
+- `classifiers`: Array of classifiers to compare
+- `X`: DataFrame with features and protected attribute
+- `y`: Binary Target Variable
+- `measure=nothing`: The performance/fairness measure used to perform hypothesis tests.
+                    If no values for measure is passed, then Disparate Impact will be used by default.
+- `grp=:class`: Protected Attribute Name
+- `priv_grps=nothing`: If default measure i.e. Disparate Impact is used, then pass an array of groups which are privileged in dataset.
+- `random_seed=12345`: Random seed to ensure reproducibility
+- `n_grps=6`: Number of folds for cross validation
+# Returns
+- `pvalues`
+- `tstats`
+"""
 function fairevaluate(
     classifiers::Array{<:MLJBase.Model,1}, X, y;
     measure = nothing,

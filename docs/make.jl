@@ -12,7 +12,8 @@ makedocs(;
         "FairTensor" => "fairtensor.md",
         "Measures" => "measures.md",
         "Fairness Algortihms" => "algorithms.md",
-        "Datasets" => "datasets.md"
+        "Datasets" => "datasets.md",
+        "Benchmark" => "benchmark.md"
     ],
     repo="https://github.com/ashryaagr/Fairness.jl/blob/{commit}{path}#L{line}",
     sitename="Fairness"
