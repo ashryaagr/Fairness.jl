@@ -144,5 +144,6 @@ function logit_fun(X, z, setting)
   end
   yprob = log_link.(logit)
   # Compute a random y with probability yprob
-  return ifelse.(yprob .> rand(1)[1], 1, 0)
+  u = rand(n)
+  return X, ifelse.(yprob .> u, 1, 0)
 end
