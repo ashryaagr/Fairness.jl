@@ -182,7 +182,7 @@ function logit_fun(X, z, setting)
   end
   yprob = log_link.(logit)
   # Compute a random y with probability yprob
-  u = rand()
+  u = rand(length(yprob))
   return yprob .> u
 end
 
