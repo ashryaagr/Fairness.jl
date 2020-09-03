@@ -71,11 +71,11 @@ Generate synthetic data from Zafar et al., 2017 Fairness Beyond Disparate Treatm
 """
 function genZafarData2(n = 10000)
 
-    y = rand(Bernoulli(0.5), n)
-    z = rand(Bernoulli(0.5), n)
+    y = rand(Distributions.Bernoulli(0.5), n)
+    z = rand(Distributions.Bernoulli(0.5), n)
     M = [
-      [MvNormal([1., 1.],    [[3., 1.] [1., 3.]]), MvNormal([2., 2.],    [[3., 1.] [1., 3.]])],
-      [MvNormal([-2., -2.],  [[3., 1.] [1., 3.]]),  MvNormal([2., 2.],    [[3., 1.] [1., 3.]])]
+      [Distributions.MvNormal([1., 1.],    [[3., 1.] [1., 3.]]), Distributions.MvNormal([2., 2.],    [[3., 1.] [1., 3.]])],
+      [Distributions.MvNormal([-2., -2.],  [[3., 1.] [1., 3.]]),  Distributions.MvNormal([2., 2.],    [[3., 1.] [1., 3.]])]
       ]
 
     # Iterate over z and y in parallel, drawing from the appropritate Distribution.
@@ -182,8 +182,8 @@ function logit_fun(X, z, setting)
   end
   yprob = log_link.(logit)
   # Compute a random y with probability yprob
-  u = rand(n)
-  return X, ifelse.(yprob .> u, 1, 0)
+  u = rand()
+  return yprob .> u
 end
 
 """
@@ -208,8 +208,8 @@ d2: logit(y) = 0.5*(0.3*X1 + X2 +     X4) + 2*(I(X3 > 0.2))
 """
 function genBiasedSampleData(n = 10000, sampling_bias = 0.8)
 
-  d1 = MvNormal([0., 0., 0., 0.], [[1, 0.3, 0.3, 0.3] [0.3, 1, 0.3, 0.3] [0.3, 0.3, 1, 0.3] [0.3, 0.3, 0.3, 1]])
-  d2 = MvNormal([0.2, 0.2, 0.2, 0.2], [[1, 0.5, 0.5, 0.5] [0.5, 1, 0.5, 0.5] [0.5, 0.5, 1, 0.5] [0.5, 0.5, 0.5, 1]])
+  d1 = Distributions.MvNormal([0., 0., 0., 0.], [[1, 0.3, 0.3, 0.3] [0.3, 1, 0.3, 0.3] [0.3, 0.3, 1, 0.3] [0.3, 0.3, 0.3, 1]])
+  d2 = Distributions.MvNormal([0.2, 0.2, 0.2, 0.2], [[1, 0.5, 0.5, 0.5] [0.5, 1, 0.5, 0.5] [0.5, 0.5, 1, 0.5] [0.5, 0.5, 0.5, 1]])
 
   s1 = Int64(floor(n * sampling_bias))
 
