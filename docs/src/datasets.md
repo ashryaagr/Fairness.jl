@@ -42,6 +42,8 @@ X, y = @load_compas;
 ```@docs
 genZafarData
 genSubgroupData
+genZafarData2
+genBiasedSampleData
 ```
 
 ## Inspecting Datasets
