@@ -37,7 +37,7 @@ function genZafarData(n = 10000, d = pi/4)
     rotation_mult = [[cos(d), -sin(d)] [sin(d), cos(d)]]
     X_aux = X * rotation_mult
     """ Generate the sensitive feature here """
-    x_control = [] # this array holds the sensitive feature value
+    x_control = Array{String, 1}(undef, 2*Int64(floor(n/2))) # this array holds the sensitive feature value
     for i in 1:(2*Int64(floor(n/2)))
         x = X_aux[i,:]
         # probability for each cluster that the point belongs to it
@@ -48,9 +48,9 @@ function genZafarData(n = 10000, d = pi/4)
         p1 = p1/s
         p2 = p2/s
         if rand(1)[1] < p1 # the first cluster is the positive class
-            append!(x_control, 1.0)
+            x_control[i] = "A"
         else
-            append!(x_control, 0.0)
+            x_control[i] = "B"
         end
     end
     X = DataFrame(X)
