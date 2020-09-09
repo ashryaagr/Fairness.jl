@@ -143,7 +143,7 @@ function genSubgroupData(n = 10000; setting = "B00")
     end
     y = logit_fun(X, z, setting)
     X = DataFrame(X)
-
+    X.z = z
     coerce!(X, :z => Multiclass)
     y = categorical(y)
     return X, y
