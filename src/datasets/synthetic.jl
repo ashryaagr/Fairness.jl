@@ -8,57 +8,65 @@ Draw from a gaussian distribution
 - `class_label` : class_label
 - `n` : number of samples to draw
 """
-function genGaussian(mean_in, cov_in, class_label, n)
+function genGaussian(mean_in::Array, cov_in::Array, class_label::Int64, n::Int64)
   nv = Distributions.MvNormal(mean_in, cov_in)
   X = rand(nv, n)
-  y = ones(n) .* class_label
+  y = ones(Int64, n) .* class_label
   return nv, transpose(X), y
 end
 
 """
   genZafarData(n = 10000, d = pi/4)
 
-Generate synthetic data from Zafar et al., 2017 Fairness Constraints: Mechanisms for Fair Classification
+Generate synthetic data from Zafar et al., 2017 Fairness Constraints: Mechanisms for Fair Classification.
+Code translated to julia from
+https://github.com/mbilalzafar/fair-classification/blob/master/disparate_impact/synthetic_data_demo/generate_synthetic_data.py
+
 # Arguments
 - `n=10000` : number of samples
 - `d=pi/4` : discrimination factor
+
 # Returns
-- `X` : DataFrame containing features and protected attribute z
-- `y` : Binary Target variable
+- `X` : DataFrame containing features and protected attribute z  {0, 1} where
+        z=0 is the protected group.
+- `y` : Binary Target variable {-1, 1}
 """
 function genZafarData(n = 10000, d = pi/4)
     mu1, sigma1 = [2., 2.],  [[5., 1.] [1., 5.]]
     mu2, sigma2 = [-2.,-2.], [[10., 1.]  [1., 3.]]
-    nv1, X1, y1 = genGaussian(mu1, sigma1, 1, Int64(floor(n/2))) # positive class
-    nv2, X2, y2 = genGaussian(mu2, sigma2, -1, Int64(floor(n/2))) # negative class
-    perm = shuffle(1:(2*Int64(floor(n/2))))
+    npos = Int64(floor(n/2))
+    nv1, X1, y1 = genGaussian(mu1, sigma1,  1, npos)     # positive class
+    nv2, X2, y2 = genGaussian(mu2, sigma2, -1, n - npos) # negative class
+    perm = shuffle(1:n)
     X = vcat(X1, X2)[perm,:]
     y = vcat(y1, y2)[perm]
     rotation_mult = [[cos(d), -sin(d)] [sin(d), cos(d)]]
     X_aux = X * rotation_mult
     """ Generate the sensitive feature here """
-    x_control = [] # this array holds the sensitive feature value
-    for i in 1:(2*Int64(floor(n/2)))
+    x_control = Int64[] # this array holds the sensitive feature value
+    for i in 1:n
         x = X_aux[i,:]
         # probability for each cluster that the point belongs to it
         p1 = Distributions.pdf(nv1, x)
         p2 = Distributions.pdf(nv2, x)
         # normalize the probabilities from 0 to 1
         s = p1+p2
-        p1 = p1/s
-        p2 = p2/s
-        if rand(1)[1] < p1 # the first cluster is the positive class
-            append!(x_control, 1.0)
+        p1 = p1/s # p2 = p2/s
+
+        u = rand(1)[1]
+        if u < p1
+            append!(x_control, 1) # majority class
         else
-            append!(x_control, 0.0)
+            append!(x_control, 0) # protected class
         end
     end
     X = DataFrame(X)
-    X.z = x_control
+    X.z = categorical(x_control)
     coerce!(X, :z => Multiclass)
     y = categorical(y)
     return X, y
 end
+
 
 
 """
