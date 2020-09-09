@@ -28,10 +28,11 @@ end
 MetricWrapper wraps the fairness metrics and has the information about the protected attribute.
 
 """
-struct MetricWrapper <: MLJBase.Measure
+mutable struct MetricWrapper <: MLJBase.Measure
     measure::MLJBase.Measure
     grp::Symbol
 end
+# This struct is made mutable to avoid repetitive specification of grp attribute in functions like fairevaluate
 
 """
     MetricWrapper(measure, grp=:class)

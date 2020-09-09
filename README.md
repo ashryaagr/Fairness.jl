@@ -51,7 +51,7 @@ X, y, ŷ = @load_toydata
 julia> model = ConstantClassifier()
 ConstantClassifier() @904
 
-julia> wrappedModel = ReweighingSamplingWrapper(model, grp=:Sex)
+julia> wrappedModel = ReweighingSamplingWrapper(classifier=model, grp=:Sex)
 ReweighingSamplingWrapper(
     grp = :Sex,
     classifier = ConstantClassifier(),

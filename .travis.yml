@@ -13,6 +13,7 @@ julia:
 jobs:
   allow_failures:
     - julia: nightly
+  fast_finish: true
   include:
     - if: branch = master OR tag IS present
       stage: "Documentation"

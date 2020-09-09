@@ -16,7 +16,7 @@ function genGaussian(mean_in::Array, cov_in::Array, class_label::Int64, n::Int64
 end
 
 """
-  genZafarData(n = 10000, d = pi/4)
+  genZafarData(n = 10000; d = pi/4)
 
 Generate synthetic data from Zafar et al., 2017 Fairness Constraints: Mechanisms for Fair Classification.
 Code translated to julia from
@@ -27,11 +27,11 @@ https://github.com/mbilalzafar/fair-classification/blob/master/disparate_impact/
 - `d=pi/4` : discrimination factor
 
 # Returns
-- `X` : DataFrame containing features and protected attribute z  {0, 1} where
-        z=0 is the protected group.
+- `X` : DataFrame containing features and protected attribute z {"A", "B"} where
+        z="B" is the protected group.
 - `y` : Binary Target variable {-1, 1}
 """
-function genZafarData(n = 10000, d = pi/4)
+function genZafarData(n = 10000; d = pi/4)
     mu1, sigma1 = [2., 2.],  [[5., 1.] [1., 5.]]
     mu2, sigma2 = [-2.,-2.], [[10., 1.]  [1., 3.]]
     npos = Int64(floor(n/2))
@@ -43,7 +43,7 @@ function genZafarData(n = 10000, d = pi/4)
     rotation_mult = [[cos(d), -sin(d)] [sin(d), cos(d)]]
     X_aux = X * rotation_mult
     """ Generate the sensitive feature here """
-    x_control = Int64[] # this array holds the sensitive feature value
+    x_control = Array{String, 1}(undef, n) # this array holds the sensitive feature value
     for i in 1:n
         x = X_aux[i,:]
         # probability for each cluster that the point belongs to it
@@ -52,12 +52,10 @@ function genZafarData(n = 10000, d = pi/4)
         # normalize the probabilities from 0 to 1
         s = p1+p2
         p1 = p1/s # p2 = p2/s
-
-        u = rand(1)[1]
-        if u < p1
-            append!(x_control, 1) # majority class
+        if rand(1)[1] < p1
+            x_control[i] = "A" # majority class
         else
-            append!(x_control, 0) # protected class
+            x_control[i] = "B" # protected class
         end
     end
     X = DataFrame(X)
@@ -81,9 +79,10 @@ function genZafarData2(n = 10000)
 
     y = rand(Distributions.Bernoulli(0.5), n)
     z = rand(Distributions.Bernoulli(0.5), n)
+    # Depending on z and y, we draw from one of the 4 distributions in M.
     M = [
-      [Distributions.MvNormal([1., 1.],    [[3., 1.] [1., 3.]]), Distributions.MvNormal([2., 2.],    [[3., 1.] [1., 3.]])],
-      [Distributions.MvNormal([-2., -2.],  [[3., 1.] [1., 3.]]),  Distributions.MvNormal([2., 2.],    [[3., 1.] [1., 3.]])]
+      [Distributions.MvNormal([1., 1.],    [[3., 1.] [1., 3.]]), Distributions.MvNormal([2., 2.], [[3., 1.] [1., 3.]])],
+      [Distributions.MvNormal([-2., -2.],  [[3., 1.] [1., 3.]]), Distributions.MvNormal([2., 2.], [[3., 1.] [1., 3.]])]
       ]
 
     # Iterate over z and y in parallel, drawing from the appropritate Distribution.
@@ -98,7 +97,7 @@ function genZafarData2(n = 10000)
     perm = shuffle(1:n)
     X = DataFrame(transpose(X)[perm,:])
     y = y[perm]
-    X.z = z[perm]
+    X.z = [x == 0 ? "A" : "B" for x in z[perm]]
     coerce!(X, :z => Multiclass)
     y = categorical(y)
     return X, y
@@ -119,7 +118,7 @@ whereas for  "B1", ... , "B8", there is a direct effect of group membership z on
 - `X` : DataFrame containing features and protected attribute z
 - `y` : Binary target variable
 """
-function genSubgroupData(n = 10000, setting = "B00")
+function genSubgroupData(n = 10000; setting = "B00")
     xdists = [
       Distributions.Normal(0.,1.), # x1 is N(0,1)
       Distributions.MvNormal([0., 0.], [[1, 0.5] [0.5, 1]]), # x2 and x3 are N(0,1) with cor 0.5
@@ -129,7 +128,7 @@ function genSubgroupData(n = 10000, setting = "B00")
       Distributions.MvNormal([0., 0., 0., 0.], [[1, 0.5, 0.5, 0.5] [0.5, 1, 0.5, 0.5] [0.5, 0.5, 1, 0.5] [0.5, 0.5, 0.5, 1]]
       ) # x7 to 10 are N(0,1) with cor 0.5
     ]
-    z = rand(Distributions.Bernoulli(0.5), n)
+    z = [x == 0 ? "A" : "B" for x in rand(Distributions.Bernoulli(0.5), n)]
     X = []
     for d in xdists
       if length(X) > 0
@@ -144,7 +143,7 @@ function genSubgroupData(n = 10000, setting = "B00")
     end
     y = logit_fun(X, z, setting)
     X = DataFrame(X)
-    X.z = z
+
     coerce!(X, :z => Multiclass)
     y = categorical(y)
     return X, y
@@ -214,7 +213,7 @@ d2: logit(y) = 0.5*(0.3*X1 + X2 +     X4) + 2*(I(X3 > 0.2))
 - `X` : DataFrame containing features and protected attribute z
 - `y` : Binary Target variable
 """
-function genBiasedSampleData(n = 10000, sampling_bias = 0.8)
+function genBiasedSampleData(n = 10000; sampling_bias = 0.8)
 
   d1 = Distributions.MvNormal([0., 0., 0., 0.], [[1, 0.3, 0.3, 0.3] [0.3, 1, 0.3, 0.3] [0.3, 0.3, 1, 0.3] [0.3, 0.3, 0.3, 1]])
   d2 = Distributions.MvNormal([0.2, 0.2, 0.2, 0.2], [[1, 0.5, 0.5, 0.5] [0.5, 1, 0.5, 0.5] [0.5, 0.5, 1, 0.5] [0.5, 0.5, 0.5, 1]])
@@ -230,7 +229,7 @@ function genBiasedSampleData(n = 10000, sampling_bias = 0.8)
     log_link.(0.5 * (0.3 .* X2[:,2] + X2[:,2] +       X2[:,4]) + map(x -> ifelse(x > .2, 2., 0.), X2[:,3]))
   )[perm]
   X = vcat(X1, X2)[perm,:]
-  z = vcat(repeat([0], s1), repeat([1], n-s1))[perm]
+  z = vcat(repeat(["A"], s1), repeat(["B"], n-s1))[perm]
 
   X = DataFrame(X)
   X.z = z
