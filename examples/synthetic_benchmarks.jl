@@ -16,8 +16,8 @@ function get_scores(m, X, y, rows, set)
   return df
 end
 
-function run_synthetic_experiment(m, ntrain = 10000, genFun = genZafarData; genargs...)
-  (k, m) = m
+function run_synthetic_experiment(md, ntrain = 10000, genFun = genZafarData; genargs...)
+  (k, m) = md
 
   ntest = 1000
   repls = 30
