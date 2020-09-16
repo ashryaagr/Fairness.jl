@@ -71,6 +71,9 @@ function MMI.fit(model::PenaltyWrapper, verbosity::Int,
 		mch = machine(model.classifier, X[train_indices, :], y[train_indices])
 		fit!(mch, verbosity=0)
 		ŷ = MMI.predict(mch, X[tune_indices, :])
+		μ = mean(score.(ŷ))
+		pr_max = maximum(score.(ŷ))
+		pr_min = minimum(score.(ŷ))
 		for i in 1:n_grps
 			indices = grps[tune_indices].==levels_[i]
 			y_tune_indices = convert(Array, y[tune_indices][indices])
@@ -90,7 +93,7 @@ function MMI.fit(model::PenaltyWrapper, verbosity::Int,
 			end
 			compositeloss(ft::FairTensor) =  accuracy(ft) +
 				model.alpha*(model.measure(ft, grp=levels_[i])-model.measure(ft, grp=levels_[1]))^2
-			loss(λ) = compositeloss(lambdafair(λ[1]))
+			loss(λ) = compositeloss(lambdafair(λ[1])) + ((λ[1]-μ))^2/(pr_max-pr_min)
 
 			λᵢ_grad = ForwardDiff.gradient(loss, [λ[i]])
 			λ[i] -= λᵢ_grad[1]*model.lr
