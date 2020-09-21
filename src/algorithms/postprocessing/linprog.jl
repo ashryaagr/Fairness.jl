@@ -24,16 +24,18 @@ Automatic differentiation and gradient based optimisation is used to find probab
 struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
 	classifier::M
-	measure::Measure
+	measures::Array{<:Measure}
 end
 
 """
-    LinProgWrapper(classifier=nothing, grp=:class, measure)
+    LinProgWrapper(classifier=nothing, grp=:class, measure=nothing, measures=nothing)
 
 Instantiates LinProgWrapper which wraps the classifier and containts the measure to optimised and the sensitive attribute(grp)
+You can optimize the all fairness metrics in measures. You can optimize for only a single metric using keyword measure.
 """
-function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure::Measure)
-	model = LinProgWrapper(grp, classifier, measure)
+function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure=nothing, measures=nothing)
+	if measures==nothing measures=[measure] end
+	model = LinProgWrapper(grp, classifier, measures)
 	message = MLJBase.clean!(model)
 	isempty(message) || @warn message
 	return model
@@ -41,6 +43,7 @@ end
 
 function MLJBase.clean!(model::LinProgWrapper)
     warning = ""
+	model.measures[1]!=nothing || (warning *= "No Debiasing Measure specified\n")
 	model.classifier!=nothing || (warning *= "No classifier specified in model\n")
     target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
     return warning
@@ -93,13 +96,15 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	register(m, :fnr, 4n, (x...)->fnr(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels)), autodiff=true)
 	@NLobjective(m, Min, fpr(aux...) + fnr(aux...))
 
-	measure = model.measure
-	register(m, :func1, 4n, (x...)->measure(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[1]), autodiff=true)
-	for i in 2:n
-		fn_symbol = Symbol("func$i")
-		register(m, fn_symbol, 4n, (x...)->measure(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[i]), autodiff=true)
-		JuMP.add_NL_constraint(m, :($(Expr(:call, fn_symbol, aux...))==$(Expr(:call, Symbol("func1"), aux...))))
-		# TODO: Replace call to func1 with a pre-computed expression
+	for j in 1:length(model.measures)
+		measure = model.measures[j]
+		register(m, Symbol("func$j"), 4n, (x...)->measure(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[1]), autodiff=true)
+		for i in 2:n
+			fn_symbol = Symbol("func$(j)_$(i)")
+			register(m, fn_symbol, 4n, (x...)->measure(Fairness.FairTensor{n}(reshape(collect(x), (n, 2, 2)), ft.labels), grp=levels(grps)[i]), autodiff=true)
+			JuMP.add_NL_constraint(m, :($(Expr(:call, fn_symbol, aux...))==$(Expr(:call, Symbol("func$j"), aux...))))
+			# TODO: Replace call to func1 with a pre-computed expression
+		end
 	end
 	optimize!(m)
 
