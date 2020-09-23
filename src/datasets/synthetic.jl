@@ -19,8 +19,6 @@ end
   genZafarData(n = 10000; d = pi/4)
 
 Generate synthetic data from Zafar et al., 2017 Fairness Constraints: Mechanisms for Fair Classification.
-Code translated to julia from
-https://github.com/mbilalzafar/fair-classification/blob/master/disparate_impact/synthetic_data_demo/generate_synthetic_data.py
 
 # Arguments
 - `n=10000` : number of samples
@@ -164,6 +162,7 @@ Compute y from X and z according to a setting provided in Loh et al., 2019: Subg
 - `setting` : Simulation data setting: one of "B00", ..., "B02", "B1", ... , "B8"
 """
 function logit_fun(X, z, setting)
+  z = z == "A" ? 1 : 0
   if setting == "B00"
     logit = repeat([0.], length(z))
   elseif setting == "B01"
