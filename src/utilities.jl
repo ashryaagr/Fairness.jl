@@ -5,3 +5,12 @@ function check_dimensions(X::AbstractVecOrMat, Y::AbstractVecOrMat)
                                 "number of rows."))
     return nothing
 end
+
+
+function show(ft::Fairness.FairTensor)
+    for i=1:length(ft.labels)
+        show(ft.labels[i])
+        show("\n")
+        show(ft[i,:,:])
+    end
+end
