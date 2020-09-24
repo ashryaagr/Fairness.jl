@@ -67,7 +67,7 @@ function fairevaluate(
     cv = CV(nfolds = n_folds, shuffle=false, rng=random_seed)
     for i = 1:n
         Random.seed!(random_seed)
-        operation = classifiers[i] isa Probabilistic ? MLJBase.predict_mode : MLJBase.predict
+        operation = istype(classifiers[i], Probabilistic) ? MLJBase.predict_mode : MLJBase.predict
         result = evaluate(
             classifiers[i],
             X,

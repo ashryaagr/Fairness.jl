@@ -75,6 +75,7 @@ end
 
 MMI.input_scitype(::Type{<:ReweighingWrapper{M}}) where M = input_scitype(M)
 MMI.target_scitype(::Type{<:ReweighingWrapper{M}}) where M = AbstractVector{<:Finite{2}}
+istype(model::ReweighingWrapper, type) = istype(model.classifier, type)
 
 """
     ReweighingSamplingWrapper
@@ -137,3 +138,4 @@ end
 
 MMI.input_scitype(::Type{<:ReweighingSamplingWrapper{M}}) where M = input_scitype(M)
 MMI.target_scitype(::Type{<:ReweighingSamplingWrapper{M}}) where M = AbstractVector{<:Finite{2}}
+istype(model::ReweighingSamplingWrapper, type) = istype(model.classifier, type)
