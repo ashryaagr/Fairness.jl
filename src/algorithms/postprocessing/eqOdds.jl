@@ -6,6 +6,7 @@ It is a postprocessing algorithm which uses Linear Programming to optimise the c
 struct EqOddsWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
 	classifier::M
+    holdout::Holdout
 end
 
 """
@@ -13,8 +14,8 @@ end
 
 Instantiates EqOddsWrapper which wraps the classifier
 """
-function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class)
-	model =  EqOddsWrapper(grp, classifier)
+function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, holdout::Holdout=Holdout(fraction_train=0.8))
+	model =  EqOddsWrapper(grp, classifier, holdout)
 	message = MLJBase.clean!(model)
 	isempty(message) || @warn message
 	return model
@@ -30,13 +31,19 @@ end
 # Corresponds to eq_odds_optimal_mix_rates function, mix_rates are returned as fitresult
 function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 	X, y)
-	grps = X[:, model.grp]
+
+	indices = MLJBase.train_test_pairs(model.holdout, 1:length(y))
+
+    X_train, y_train = X[indices[1][1], :], y[indices[1][1]]
+    X_fair, y_fair = X[indices[1][2], :], y[indices[1][2]]
+
+	grps = X_fair[:, model.grp]
 	n = length(levels(grps)) # Number of different values for sensitive attribute
 
 	# As equalized odds is a postprocessing algorithm, the model needs to be fitted a_
-	mch = machine(model.classifier, X, y)
+	mch = machine(model.classifier, X_train, y_train)
 	fit!(mch)
-	ŷ = MMI.predict(mch, X)
+	ŷ = MMI.predict(mch, X_fair)
 
 	if typeof(ŷ[1]) <: MLJBase.UnivariateFinite
 		ŷ = MLJBase.mode.(ŷ)
@@ -45,7 +52,7 @@ function MMI.fit(model::EqOddsWrapper, verbosity::Int,
 	labels = levels(y)
 	favLabel = labels[2]
 	unfavLabel = labels[1]
-	y = y.==favLabel
+	y = y_fair.==favLabel # All references to y below will be referring to y_fair
 	ŷ = ŷ.==favLabel
 
 	# Finding the probabilities of changing predictions is a Linear Programming Problem

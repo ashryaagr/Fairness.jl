@@ -25,6 +25,7 @@ struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
 	classifier::M
 	measures::Array{<:Measure}
+    holdout::Holdout
 end
 
 """
@@ -33,9 +34,9 @@ end
 Instantiates LinProgWrapper which wraps the classifier and containts the measure to optimised and the sensitive attribute(grp)
 You can optimize the all fairness metrics in measures. You can optimize for only a single metric using keyword measure.
 """
-function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure=nothing, measures=nothing)
+function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure=nothing, measures=nothing, holdout::Holdout=Holdout(fraction_train=0.8))
 	if measures==nothing measures=[measure] end
-	model = LinProgWrapper(grp, classifier, measures)
+	model = LinProgWrapper(grp, classifier, measures, holdout)
 	message = MLJBase.clean!(model)
 	isempty(message) || @warn message
 	return model
@@ -50,13 +51,19 @@ function MLJBase.clean!(model::LinProgWrapper)
 end
 
 function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
-	grps = X[:, model.grp]
+
+	indices = MLJBase.train_test_pairs(model.holdout, 1:length(y))
+
+    X_train, y_train = X[indices[1][1], :], y[indices[1][1]]
+    X_fair, y_fair = X[indices[1][2], :], y[indices[1][2]]
+
+	grps = X_fair[:, model.grp]
 	n = length(levels(grps)) # Number of different values for sensitive attribute
 
 	# As LinProgWrapper is a postprocessing algorithm, the model needs to be fitted first
-	mch = machine(model.classifier, X, y)
+	mch = machine(model.classifier, X_train, y_train)
 	fit!(mch)
-	ŷ = MMI.predict(mch, X)
+	ŷ = MMI.predict(mch, X_fair)
 
 	if typeof(ŷ[1]) <: MLJBase.UnivariateFinite
 		ŷ = MLJBase.mode.(ŷ)
@@ -65,7 +72,7 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 	labels = levels(y)
 	favLabel = labels[2]
 	unfavLabel = labels[1]
-	y = y.==favLabel
+	y = y_fair.==favLabel # All references to y below will be referring to y_fair
 	ŷ = ŷ.==favLabel
 
 	# Finding the probabilities of changing predictions is a Linear Programming Problem
