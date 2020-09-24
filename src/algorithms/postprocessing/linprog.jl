@@ -21,7 +21,7 @@ end
 It is a postprocessing algorithm that uses JuMP and Ipopt library to minimise error and satisfy the equality of specified specified measures for all groups at the same time.
 Automatic differentiation and gradient based optimisation is used to find probabilities with which the predictions are changed for each group.
 """
-struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
+struct LinProgWrapper{M<:MLJBase.Model} <: Deterministic
 	grp::Symbol
 	classifier::M
 	measures::Array{<:Measure}
@@ -110,7 +110,7 @@ function MMI.fit(model::LinProgWrapper, verbosity::Int, X, y)
 
 	# fitresult will provide the info we require in the predict function.
 	fitresult = [[JuMP.value.(p2n), JuMP.value.(n2p)], mch.fitresult, labels]
-	# Note: It was necessary to return the levels(y) value in fitreult because in predict there
+	# Note: It was necessary to return the levels(y) value in fitresult because in predict there
 	# is no way to infer the 2 possible values of labels/targets.
 	# Main reason to return values is the edge case : Maybe all of the ŷ predictions are same and we don't get to know both labels
 
