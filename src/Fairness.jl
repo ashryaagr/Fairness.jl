@@ -22,6 +22,7 @@ using LinearAlgebra # For synthetic datasets
 
 export fair_tensor, fact
 export _ftIdx
+export istype
 
 # Export the Boolean Metrics
 export DemographicParity
@@ -81,6 +82,10 @@ const MMI =  MLJModelInterface
 
 # the directory containing this file: (.../src/)
 const MODULE_DIR = dirname(@__FILE__)
+
+# This will be used to find whether the outcomes we will get will be probabilistic or deterministic
+# This will can be defined overrided for any algorithm. This will specifically help in preprocessing algorithms
+istype(x, y) = isa(x, y)
 # ===================================================================
 ## Includes
 
