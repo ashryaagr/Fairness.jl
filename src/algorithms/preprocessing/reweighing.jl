@@ -37,7 +37,7 @@ These calculated weights are then passed to the classifier model which further u
 struct ReweighingWrapper{M<:MLJBase.Model} <: DeterministicComposite
     grp::Symbol
     classifier::M
-    holdout::Holdout
+    holdout::ResamplingStrategy
 end
 
 """
@@ -47,7 +47,7 @@ Instantiates a ReweighingWrapper which wrapper the `classifier` with the Reweigh
 The sensitive attribute can be specified by the parameter `grp`.
 If `classifier` doesn't support weights while training, an error is thrown.
 """
-function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, holdout::Holdout=Holdout(fraction_train=0.8))
+function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, holdout::ResamplingStrategy=Holdout(fraction_train=0.8))
     model = ReweighingWrapper(grp, classifier, holdout)
     message = MLJBase.clean!(model)
     isempty(message) || @warn message
@@ -97,7 +97,7 @@ struct ReweighingSamplingWrapper{M<:MLJBase.Model} <: DeterministicComposite
     classifier::M
     factor::Float64
     rng::Union{Int,AbstractRNG}
-    holdout::Holdout
+    holdout::ResamplingStrategy
 end
 
 """
@@ -108,7 +108,7 @@ The sensitive attribute can be specified by the parameter `grp`.
 `factor`*number_of_samples_in_original_data datapoints are sampled using calculated weights and then used to train after sampling from the reweighed dataset.
 A negative or no value value for `factor` parameter instructs the algorithm to use the same number of datapoints as in original sample.
 """
-function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, factor::Float64=1.0, rng=nothing, holdout::Holdout=Holdout(fraction_train=0.8))
+function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, factor::Float64=1.0, rng=nothing, holdout::ResamplingStrategy=Holdout(fraction_train=0.8))
     if rng isa Integer
         rng = MersenneTwister(rng)
     end

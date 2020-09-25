@@ -6,7 +6,7 @@ It is a postprocessing algorithm which uses Linear Programming to optimise the c
 struct EqOddsWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
 	classifier::M
-    holdout::Holdout
+    holdout::ResamplingStrategy
 end
 
 """
@@ -14,7 +14,7 @@ end
 
 Instantiates EqOddsWrapper which wraps the classifier
 """
-function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, holdout::Holdout=Holdout(fraction_train=0.8))
+function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, holdout::ResamplingStrategy=Holdout(fraction_train=0.8))
 	model =  EqOddsWrapper(grp, classifier, holdout)
 	message = MLJBase.clean!(model)
 	isempty(message) || @warn message

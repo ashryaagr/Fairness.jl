@@ -25,7 +25,7 @@ struct LinProgWrapper{M<:MLJBase.Model} <: DeterministicComposite
 	grp::Symbol
 	classifier::M
 	measures::Array{<:Measure}
-    holdout::Holdout
+    holdout::ResamplingStrategy
 end
 
 """
@@ -34,7 +34,7 @@ end
 Instantiates LinProgWrapper which wraps the classifier and containts the measure to optimised and the sensitive attribute(grp)
 You can optimize the all fairness metrics in measures. You can optimize for only a single metric using keyword measure.
 """
-function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure=nothing, measures=nothing, holdout::Holdout=Holdout(fraction_train=0.8))
+function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure=nothing, measures=nothing, holdout::ResamplingStrategy=Holdout(fraction_train=0.8))
 	if measures==nothing measures=[measure] end
 	model = LinProgWrapper(grp, classifier, measures, holdout)
 	message = MLJBase.clean!(model)
