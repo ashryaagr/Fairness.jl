@@ -25,6 +25,7 @@ struct LinProgWrapper{M<:MLJBase.Model} <: Deterministic
 	grp::Symbol
 	classifier::M
 	measures::Array{<:Measure}
+	alpha::Float64
 end
 
 """
@@ -33,9 +34,9 @@ end
 Instantiates LinProgWrapper which wraps the classifier and containts the measure to optimised and the sensitive attribute(grp)
 You can optimize the all fairness metrics in measures. You can optimize for only a single metric using keyword measure.
 """
-function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure=nothing, measures=nothing)
+function LinProgWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, measure=nothing, measures=nothing, alpha=0.0)
 	if measures==nothing measures=[measure] end
-	model = LinProgWrapper(grp, classifier, measures)
+	model = LinProgWrapper(grp, classifier, measures, alpha)
 	message = MLJBase.clean!(model)
 	isempty(message) || @warn message
 	return model
@@ -46,6 +47,7 @@ function MLJBase.clean!(model::LinProgWrapper)
 	model.measures[1]!=nothing || (warning *= "No Debiasing Measure specified\n")
 	model.classifier!=nothing || (warning *= "No classifier specified in model\n")
     target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
+	(model.alpha>=0 && model.alpha<=1) || (warning*="alpha should be between 0 and 1 (inclusive)\n")
     return warning
 end
 
@@ -121,6 +123,8 @@ end
 function MMI.predict(model::LinProgWrapper, fitresult, Xnew)
 
 	(p2n, n2p), classifier_fitresult, labels = fitresult
+	p2n = p2n*model.alpha
+	n2p = n2p*model.alpha
 
 	ŷ = MMI.predict(model.classifier, classifier_fitresult, Xnew)
 

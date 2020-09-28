@@ -30,6 +30,7 @@ These calculated weights are then passed to the classifier model which further u
 struct ReweighingWrapper{M<:MLJBase.Model} <: DeterministicComposite
     grp::Symbol
     classifier::M
+    alpha::Float64
 end
 
 """
@@ -39,8 +40,8 @@ Instantiates a ReweighingWrapper which wrapper the `classifier` with the Reweigh
 The sensitive attribute can be specified by the parameter `grp`.
 If `classifier` doesn't support weights while training, an error is thrown.
 """
-function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class)
-    model = ReweighingWrapper(grp, classifier)
+function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, alpha=0.0)
+    model = ReweighingWrapper(grp, classifier, alpha)
     message = MLJBase.clean!(model)
     isempty(message) || @warn message
     return model
@@ -51,6 +52,7 @@ function MLJBase.clean!(model::ReweighingWrapper)
     model.classifier!=nothing || (warning *= "No classifier specified in model\n")
     target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
     supports_weights(model.classifier) || (warning *= "Classifier provided does not support weights\n")
+    (model.alpha>=0 && model.alpha<=1) || (warning*="alpha should be between 0 and 1 (inclusive)\n")
     return warning
 end
 
@@ -60,6 +62,7 @@ function MLJBase.fit(model::ReweighingWrapper,
     grps = X[:, model.grp]
 
     weights = _calculateWeights(grps, y)
+    weights = 1 .+ (weights.-1)*model.alpha
 
     Xs = source(X)
     ys = source(y)
@@ -89,6 +92,7 @@ struct ReweighingSamplingWrapper{M<:MLJBase.Model} <: DeterministicComposite
     classifier::M
     factor::Float64
     rng::Union{Int,AbstractRNG}
+    alpha::Float64
 end
 
 """
@@ -99,14 +103,14 @@ The sensitive attribute can be specified by the parameter `grp`.
 `factor`*number_of_samples_in_original_data datapoints are sampled using calculated weights and then used to train after sampling from the reweighed dataset.
 A negative or no value value for `factor` parameter instructs the algorithm to use the same number of datapoints as in original sample.
 """
-function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, factor::Float64=1.0, rng=nothing)
+function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, factor::Float64=1.0, rng=nothing, alpha=0.0)
     if rng isa Integer
         rng = MersenneTwister(rng)
     end
     if rng == nothing
         rng = Random.GLOBAL_RNG
     end
-    model = ReweighingSamplingWrapper(grp, classifier, factor, rng)
+    model = ReweighingSamplingWrapper(grp, classifier, factor, rng, alpha)
     message = MLJBase.clean!(model)
     isempty(message) || @warn message
     return model
@@ -116,6 +120,7 @@ function MLJBase.clean!(model::ReweighingSamplingWrapper)
     warning = ""
     model.classifier!=nothing || (warning *= "No classifier specified in model\n")
     target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
+    (model.alpha>=0 && model.alpha<=1) || (warning*="alpha should be between 0 and 1 (inclusive)\n")
     return warning
 end
 
@@ -124,6 +129,7 @@ function MLJBase.fit(model::ReweighingSamplingWrapper,
     grps = X[:, model.grp]
     n = model.factor<0 ? length(y) : Int(round(model.factor*length(y)))
     weights = _calculateWeights(grps, y)
+    weights = 1 .+ (weights.-1)*model.alpha
     indices = sample(model.rng, 1:length(y), FrequencyWeights(weights), n; replace=true, ordered=false)
     Xnew = X[indices, :]
     ynew = y[indices]
