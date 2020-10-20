@@ -40,7 +40,7 @@ Instantiates a ReweighingWrapper which wrapper the `classifier` with the Reweigh
 The sensitive attribute can be specified by the parameter `grp`.
 If `classifier` doesn't support weights while training, an error is thrown.
 """
-function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, alpha=0.0)
+function ReweighingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, alpha=1.0)
     model = ReweighingWrapper(grp, classifier, alpha)
     message = MLJBase.clean!(model)
     isempty(message) || @warn message
@@ -103,7 +103,7 @@ The sensitive attribute can be specified by the parameter `grp`.
 `factor`*number_of_samples_in_original_data datapoints are sampled using calculated weights and then used to train after sampling from the reweighed dataset.
 A negative or no value value for `factor` parameter instructs the algorithm to use the same number of datapoints as in original sample.
 """
-function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, factor::Float64=1.0, rng=nothing, alpha=0.0)
+function ReweighingSamplingWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, factor::Float64=1.0, rng=nothing, alpha=1.0)
     if rng isa Integer
         rng = MersenneTwister(rng)
     end

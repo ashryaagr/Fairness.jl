@@ -14,7 +14,7 @@ end
 
 Instantiates EqOddsWrapper which wraps the classifier
 """
-function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, alpha=0.0)
+function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, alpha=1.0)
 	model =  EqOddsWrapper(grp, classifier, alpha)
 	message = MLJBase.clean!(model)
 	isempty(message) || @warn message
