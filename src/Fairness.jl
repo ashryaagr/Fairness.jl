@@ -17,6 +17,8 @@ using ZipFile # For downloading datasets
 import Distributions
 using HypothesisTests # For Benchmarking
 using LinearAlgebra # For synthetic datasets
+using Suppressor, Logging # To enable/disable unnecessary logs while evaluation
+using ProgressMeter # To track progress while running benchmarking
 # ===================================================================
 ## METHOD EXPORTS
 
@@ -48,6 +50,9 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
        recall, sensitivity, hit_rate, miss_rate,
        specificity, selectivity, f1score, fallout
 
+export PredictedPositiveRate, PP, predicted_positive_rate,
+        ppr, FalseOmissionRate, FOR, false_omission_rate, foar
+
 # Export Fairness Metric Wrappers
 export MetricWrapper, MetricWrappers
 
@@ -71,7 +76,11 @@ export categorical, levels, levels!
 # re-export from MLJBase
 export pretty
 
-export fairevaluate
+export Task, FairnessProblem
+export fairevaluate, get_df, get_pareto_df
+# export fairness problems of available datasets
+export communities_crime, student, hmda, zafar, zafar2, subgroup, biased,
+        adult, german, portuguese, framingham, loan, medical, fairness_problems
 # ===================================================================
 ## CONSTANTS
 

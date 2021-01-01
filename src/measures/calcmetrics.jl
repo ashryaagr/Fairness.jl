@@ -36,3 +36,16 @@ _calcmetric(ft::FairTensor, grp, inds...) = typeof(grp)==Colon ? sum(ft[:, inds.
 (::MLJBase.Accuracy)(ft::FairTensor; grp=:) = (true_positive(ft; grp = grp) + true_negative(ft; grp = grp))/(
         true_positive(ft; grp = grp) + true_negative(ft; grp = grp) +
         false_positive(ft; grp = grp) + false_negative(ft; grp = grp))
+
+
+struct PredictedPositiveRate <: Measure end
+PP = PredictedPositiveRate
+predicted_positive_rate = PP()
+ppr = predicted_positive_rate
+(::PP)(ft::FairTensor; grp=:) = _calcmetric(ft, grp, 1, :)/_calcmetric(ft, grp, :, :)
+
+struct FalseOmissionRate <: Measure end
+FOR = FalseOmissionRate
+false_omission_rate = FOR()
+foar = false_omission_rate
+(::FOR)(ft::FairTensor; grp=:) = 1/(1+true_negative(ft; grp=grp)/(1e-15 + false_negative(ft; grp=grp)))
