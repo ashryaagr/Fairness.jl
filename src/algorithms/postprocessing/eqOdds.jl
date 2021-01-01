@@ -6,6 +6,7 @@ It is a postprocessing algorithm which uses Linear Programming to optimise the c
 struct EqOddsWrapper{M<:MLJBase.Model} <: Deterministic
 	grp::Symbol
 	classifier::M
+	alpha::Float64
 end
 
 """
@@ -13,8 +14,8 @@ end
 
 Instantiates EqOddsWrapper which wraps the classifier
 """
-function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class)
-	model =  EqOddsWrapper(grp, classifier)
+function EqOddsWrapper(; classifier::MLJBase.Model=nothing, grp::Symbol=:class, alpha=1.0)
+	model =  EqOddsWrapper(grp, classifier, alpha)
 	message = MLJBase.clean!(model)
 	isempty(message) || @warn message
 	return model
@@ -24,6 +25,7 @@ function MLJBase.clean!(model::EqOddsWrapper)
     warning = ""
 	model.classifier!=nothing || (warning *= "No classifier specified in model\n")
     target_scitype(model) <: AbstractVector{<:Finite} || (warning *= "Only Binary Classifiers are supported\n")
+	(model.alpha>=0 && model.alpha<=1) || (warning*="alpha should be between 0 and 1 (inclusive)\n")
     return warning
 end
 
@@ -133,6 +135,8 @@ end
 function MMI.predict(model::EqOddsWrapper, fitresult, Xnew)
 
 	(p2n, n2p), classifier_fitresult, labels = fitresult
+	p2n = p2n*model.alpha
+	n2p = n2p*model.alpha
 
 	ŷ = MMI.predict(model.classifier, classifier_fitresult, Xnew)
 
