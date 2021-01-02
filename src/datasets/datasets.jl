@@ -36,8 +36,8 @@ Returns the tuple (X, y, ŷ)
 macro load_toydata()
     quote
         fpath = joinpath(DATA_DIR, "jobs.csv")
-        data = DataFrame!(CSV.File(fpath))
-        categorical!(data, names(data)[1:6])
+        data = DataFrame(CSV.File(fpath); copycols = false)
+        transform!(data, names(data)[1:6] .=> categorical, renamecols=false)
         (data[!, names(data)[1:4]], data[!, :Class], data[!, :Pred])
     end
 end
@@ -68,7 +68,7 @@ macro load_compas()
         ensure_download(url, fname)
 
         fpath = joinpath(DATA_DIR, fname)
-        data = DataFrame!(CSV.File(fpath))
+        data = DataFrame(CSV.File(fpath); copycols = false)
         data = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score", "is_recid"]]
         dropmissing!(data, disallowmissing=true)
         coerce!(data, Textual => Multiclass)
@@ -100,7 +100,7 @@ macro load_adult()
         ]
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
-        data = DataFrame!(CSV.File(fpath, header=cols, silencewarnings=true, delim=", "))
+        data = DataFrame(CSV.File(fpath, header=cols, silencewarnings=true, delim=", "); copycols = false)
         # Warning is silenced to supress warnings for lesser number of columns
 
         data = dropmissing(data, names(data))
@@ -137,7 +137,7 @@ macro load_german()
         ]
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
-        df = DataFrame!(CSV.File(fpath, header=cols))
+        df = DataFrame(CSV.File(fpath, header=cols); copycols = false)
 
         gender_status = Dict(
             "A91" => "male_divorced_separated",
@@ -178,7 +178,7 @@ macro load_bank_marketing()
             close(zarchive)
             Base.Filesystem.rm("tempdataset.zip", recursive=true)
         end
-        df = DataFrame!(CSV.File(fpath))
+        df = DataFrame(CSV.File(fpath); copycols = false)
         coerce!(df, Textual => Multiclass)
         coerce(df, :y => Multiclass)
         (y, X) = unpack(df, ==(:y), col->true)
@@ -200,7 +200,7 @@ macro load_communities_crime()
         fname = "communities_crime.data"
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
-        df = DataFrame!(CSV.File(fname, header=false))
+        df = DataFrame(CSV.File(fname, header=false); copycols = false)
         df = dropmissing(df, names(df))
         X = df[!, names(df)[1:127]]
         y = df[!, names(df)[128]] .> 0.7
@@ -228,7 +228,7 @@ macro load_student_performance()
             close(zarchive)
             Base.Filesystem.rm("tempdataset.zip", recursive=true)
         end
-        df = DataFrame!(CSV.File(fpath))
+        df = DataFrame(CSV.File(fpath); copycols = false)
         coerce!(df, Textual => Multiclass)
         X = df[!, names(df)[1:30]]
         y = df[!, names(df)[31]] .>= 12

@@ -3,8 +3,7 @@
     M = [true_positive_rate, false_positive_rate, ppv]
     @test_throws ArgumentError disparity(M, ft)
     d = disparity(M, ft; refGrp="Education")
-    @test names(d) == ["labels", "true_positive_rate_disparity", "false_positive_rate_disparity",
-                        "positive_predictive_value_disparity"]
+    @test names(d) == ["labels", "TruePositiveRate_disparity", "FalsePositiveRate_disparity", "Precision_disparity"]
     @test size(d)==(3, 4)
 end
 
@@ -23,7 +22,7 @@ end
     M = [true_positive_rate]
     df = disparity(M, ft; refGrp="Board")
     df = parity(df, 0.2)
-    @test names(df)[3] == "true_positive_rate_parity"
-    arr = df[:, :true_positive_rate_parity]
+    @test names(df)[3] == "TruePositiveRate_parity"
+    arr = df[:, :TruePositiveRate_parity]
     @test arr[1] && !arr[2] && !arr[3]
 end
