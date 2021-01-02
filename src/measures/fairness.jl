@@ -23,7 +23,7 @@ function disparity(measures::Vector, ft::FairTensor{C}; refGrp=nothing, func=/) 
     refGrpIdx = _ftIdx(ft, refGrp)
     df = DataFrame(labels=ft.labels)
     for measure in measures
-        colName = string(measure) * "_disparity"
+        colName = MMI.name(measure) * "_disparity"
         colDisparity = Symbol(colName)
         # TODO : _ftIdx is repeatedly called internally. Instead the value can be stored and reused.
         baseVal = measure(ft, grp=refGrp)
