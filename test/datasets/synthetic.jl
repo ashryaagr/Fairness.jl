@@ -21,3 +21,8 @@ end
   @test scitype(y) == AbstractArray{Multiclass{2}, 1}
   @test string.(names(X)) == ["x1", "x2", "x3", "x4", "z"]
 end
+
+@testset "Law School" begin
+  A = law_school(10)
+  @test length(A)==6
+end

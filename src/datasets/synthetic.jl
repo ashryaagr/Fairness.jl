@@ -237,3 +237,26 @@ function genBiasedSampleData(n = 10000; sampling_bias = 0.8)
   y = categorical(ifelse.(yprob .> u, 1, 0))
   return X, y
 end
+
+"""
+returns R, S, A, G, L, F
+see https://github.com/apedawi-cs/Causal-inference-discussion/blob/master/law_school.ipynb
+"""
+function law_school(nb_obs, R_pct=0.75, S_pct=0.6)
+  function simulate_exogenous_vars(nb_obs, R_pct=0.5, S_pct=0.5)
+    R = rand(Distributions.Uniform(0, 1), nb_obs, 1) .< R_pct
+    S = rand(Distributions.Uniform(0, 1), nb_obs, 1) .< S_pct
+    A = randn(nb_obs, 1)
+    return R, S, A
+  end
+  function simulate_endogenous_vars(A, R, S)
+    nb_obs = length(A)
+    G = A + 2.1 * R + 3.3 * S + 0.5 * randn(nb_obs, 1)
+    L = A + 5.8 * R + 0.7 * S + 0.1 * randn(nb_obs, 1)
+    F = A + 2.3 * R + 1.0 * S + 0.3 * randn(nb_obs, 1)
+    return G, L, F
+  end
+  R, S, A = simulate_exogenous_vars(nb_obs, R_pct, S_pct)
+  G, L, F = simulate_endogenous_vars(A, R, S)
+  R, S, A, G, L, F
+end

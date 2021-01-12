@@ -1,4 +1,4 @@
-function communities_crime()
+function communities_crime(repls=1, nfolds=6)
 	communities_data = @load_communities_crime
 	communities_data[1].Column8 = convert(Array{Float64},
 										communities_data[1].Column8) .<= 0.18
@@ -10,19 +10,19 @@ function communities_crime()
 	FairnessProblem(
 		communities_crime_task,
 		measures=[fnr, fpr],
-		repls=10, nfolds=10, name="communities_crime")
+		repls=repls, nfolds=nfolds, name="communities_crime")
 end
 
-function student()
+function student(repls=1, nfolds=6)
    student_task = Task((@load_student_performance)...,
 					   grp=:sex, debiasmeasures=[fnr])
    FairnessProblem(
 	   student_task,
 	   measures=[fnr, fpr],
-	   repls=10, nfolds=10, name="StudentPerformance")
+	   repls=repls, nfolds=nfolds, name="StudentPerformance")
 end
 
-function hmda()
+function hmda(repls=1, nfolds=6)
 	hmda_df = CSV.read(joinpath(@__DIR__, "..", "data", "HMDA_2018_California.csv"))
 	filter!(:derived_sex => x -> x != "Sex Not Available", hmda_df)
 	categorical!(hmda_df, [:conforming_loan_limit, :derived_loan_product_type ,
@@ -37,71 +37,71 @@ function hmda()
 
 	FairnessProblem(hmda_task,
 		measures=[false_omission_rate, fpr],
-		repls=10, nfolds=10, name="HMDA_Mortgage")
+		repls=repls, nfolds=nfolds, name="HMDA_Mortgage")
 end
 
-function zafar()
+function zafar(repls=1, nfolds=6)
    zafar_task = Task((genZafarData())...,
 					   grp=:z, debiasmeasures=[])
    FairnessProblem(
 	   zafar_task,
 	   measures=[],
-	   repls=10, nfolds=10, name="ZafarData")
+	   repls=repls, nfolds=nfolds, name="ZafarData")
 end
 
-function zafar2()
+function zafar2(repls=1, nfolds=6)
    zafar2_task = Task((genZafarData2())...,
 					   grp=:z, debiasmeasures=[])
    FairnessProblem(
 	   zafar2_task,
 	   measures=[],
-	   repls=10, nfolds=10, name="StudentPerformance")
+	   repls=repls, nfolds=nfolds, name="StudentPerformance")
 end
 
-function subgroup()
+function subgroup(repls=1, nfolds=6)
    subgroup_task = Task((genSubgroupData(setting="B01"))...,
 					   grp=:z, debiasmeasures=[])
    FairnessProblem(
 	   subgroup_task,
 	   measures=[],
-	   repls=10, nfolds=10, name="SubGroupData")
+	   repls=repls, nfolds=nfolds, name="SubGroupData")
 end
 
-function biased()
+function biased(repls=1, nfolds=6)
    biased_task = Task((genBiasedSampleData())...,
 					   grp=:z, debiasmeasures=[])
    biased = FairnessProblem(
 	   biased_task,
 	   measures=[],
-	   repls=10, nfolds=10, name="BiasedSampleData")
+	   repls=repls, nfolds=nfolds, name="BiasedSampleData")
 end
 
-function adult()
+function adult(repls=1, nfolds=6)
    adult_task = Task((@load_adult)..., grp=:sex, debiasmeasures=[ppr]) # could keep :sex also as protected attribute
    FairnessProblem(
 	   adult_task,
 	   refGrp="Male", measures=[ppr, fnr, fpr],
-	   repls=10, nfolds=10, name="Adult")
+	   repls=repls, nfolds=nfolds, name="Adult")
 end
 
-function german()
+function german(repls=1, nfolds=6)
    german_task = Task((@load_german)..., grp=:gender_status, debiasmeasures=[false_omission_rate])
    FairnessProblem(
 	   german_task,
 	   refGrp="male_single", measures=[foar, fnr, fpr],
-	   repls=10, nfolds=10, name="German")
+	   repls=repls, nfolds=nfolds, name="German")
 end
 
-function portuguese()
+function portuguese(repls=1, nfolds=6)
    portuguese_task = Task((@load_bank_marketing)...,
 					   grp=:marital, debiasmeasures=[false_omission_rate, ppr])
    FairnessProblem(
 	   portuguese_task,
 	   measures=[false_omission_rate, ppr, fpr],
-	   repls=10, nfolds=10, name="Portuguese")
+	   repls=repls, nfolds=nfolds, name="Portuguese")
 end
 
-function framingham()
+function framingham(repls=1, nfolds=6)
    framingham_df = CSV.read(joinpath(@__DIR__, "..", "data", "framingham.csv"))
    categorical!(framingham_df, [:male, :education, :currentSmoker, :BPMeds,
 			   :prevalentStroke, :prevalentHyp, :diabetes, :TenYearCHD])
@@ -112,10 +112,10 @@ function framingham()
 
    FairnessProblem(framingham_task,
 				   measures=[false_omission_rate],
-				   repls=10, nfolds=10, name="Framingham")
+				   repls=repls, nfolds=nfolds, name="Framingham")
 end
 
-function loan()
+function loan(repls=1, nfolds=6)
    loan_df = CSV.read(joinpath(@__DIR__, "..", "data", "loan_default.csv"))
    categorical!(loan_df, [:SEX, :EDUCATION, :MARRIAGE,
 		   Symbol("default payment next month")])
@@ -123,10 +123,10 @@ function loan()
 			   loan_df[!, Symbol("default payment next month")],
 			   grp=:SEX, debiasmeasures=[false_omission_rate])
    FairnessProblem(loan_task, measures=[false_omission_rate, fpr],
-					   repls=10, nfolds=10, name="LoanDefault")
+					   repls=repls, nfolds=nfolds, name="LoanDefault")
 end
 
-function medical()
+function medical(repls=1, nfolds=6)
    medical_df = CSV.read(joinpath(@__DIR__, "..", "data", "meps.csv"))
 
    categorical!(medical_df, ["REGION","SEX","MARRY","FTSTU","ACTDTY","HONRDC",
@@ -140,7 +140,7 @@ function medical()
 			   medical_df[!, Symbol("UTILIZATION")],
 			   grp=:RACE, debiasmeasures=[false_omission_rate])
    FairnessProblem(medical_task, measures=[false_omission_rate, fnr],
-					   repls=10, nfolds=10, name="MedicalExpenditure")
+					   repls=repls, nfolds=nfolds, name="MedicalExpenditure")
 end
 
 fairness_problems() = [compas(), adult(), german(), portuguese(),

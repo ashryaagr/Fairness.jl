@@ -38,14 +38,14 @@ function FairnessProblem(task::Task; refGrp=nothing,
 								   seed=5, name=nothing)
    name = name==nothing ? randstring(['A':'Z'; '0':'9'], 12) : name
    measures = measures==nothing ? debiasmeasures : measures
-   refGrp = refGrp==nothing ? mode(task.X[!, task.grp]) : refGrp
+   refGrp = refGrp==nothing ? StatsBase.mode(task.X[!, task.grp]) : refGrp
    task.X[!, task.grp] = convert(Array{Any}, task.X[!, task.grp])
    task.X[!, task.grp] = string.(task.X[!, task.grp])
    task.X[task.X[!, task.grp].!=refGrp, task.grp] .= "0"
    task.X[task.X[!, task.grp].==refGrp, task.grp] .= "1"
    task.X[!, task.grp] = categorical(convert(Array{String},
 												task.X[!, task.grp]))
-   categorical!(task.X, task.grp)
+   transform!(task.X, task.grp => categorical, renamecols=false)
    return FairnessProblem(task, refGrp, measures, repls, nfolds, seed, name)
 end
 

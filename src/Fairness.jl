@@ -68,7 +68,7 @@ export @load_toydata, @load_toyfairtensor
 export @load_compas, @load_adult, @load_german,
        @load_bank_marketing, @load_communities_crime, @load_student_performance
 
-export genZafarData, genSubgroupData, genZafarData2, genBiasedSampleData
+export genZafarData, genSubgroupData, genZafarData2, genBiasedSampleData, law_school
 # -------------------------------------------------------------------
 # re-export From CategoricalArrays
 export categorical, levels, levels!

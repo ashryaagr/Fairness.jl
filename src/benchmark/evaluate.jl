@@ -28,7 +28,7 @@ function get_df(fp::FairnessProblem, models_fn)
 	for i in 1:runs
 		cv = StratifiedCV(nfolds=nfolds, shuffle=true, rng=seeds[i])
 		tr_tt_pairs = MLJBase.train_test_pairs(cv, 1:length(y),
-			categorical(X[!, protected_attr] .* "-" .* string(y)))
+			categorical(string.(X[!, protected_attr]) .* "-" .* string(y)))
 		for i_model in 1:length(models)
 			model = models[i_model]
 			for j in 1:nfolds
@@ -37,8 +37,8 @@ function get_df(fp::FairnessProblem, models_fn)
 				@suppress fit!(mach, rows=tr_tt_pairs[j][1], verbosity=0)
 
 				# Add out-sample performance measures
-				ŷ = predict(mach, rows=tr_tt_pairs[j][2])
-				if typeof(ŷ[1])<:MLJ.UnivariateFinite ŷ = mode.(ŷ) end
+				ŷ = MMI.predict(mach, rows=tr_tt_pairs[j][2])
+				if typeof(ŷ[1])<:MLJBase.UnivariateFinite ŷ = StatsBase.mode.(ŷ) end
 				ft = fair_tensor(ŷ, y[tr_tt_pairs[j][2]],
 										X[tr_tt_pairs[j][2], protected_attr])
 				accVal = accuracy(ft)
@@ -51,8 +51,8 @@ function get_df(fp::FairnessProblem, models_fn)
 
 
 				# Add in-sample performance measures
-				ŷ = predict(mach, rows=tr_tt_pairs[j][1])
-				if typeof(ŷ[1])<:MLJ.UnivariateFinite ŷ = mode.(ŷ) end
+				ŷ = MMI.predict(mach, rows=tr_tt_pairs[j][1])
+				if typeof(ŷ[1])<:MLJBase.UnivariateFinite ŷ = StatsBase.mode.(ŷ) end
 				ft = fair_tensor(ŷ, y[tr_tt_pairs[j][1]],
 										X[tr_tt_pairs[j][1], protected_attr])
 				accVal = accuracy(ft)
@@ -66,7 +66,7 @@ function get_df(fp::FairnessProblem, models_fn)
 			end
 		end
 	end
-	CSV.write(joinpath(dirname(@__FILE__), "results", fp.name*".csv"), df)
+	CSV.write(joinpath(pwd(), fp.name*"-results.csv"), df)
 	return df
 end
 
@@ -103,7 +103,7 @@ function get_pareto_df(fp::FairnessProblem, models_fn, alphas=0:0.1:1)
 		for i in 1:runs
 			cv = StratifiedCV(nfolds=nfolds, shuffle=true, rng=seeds[i])
 			tr_tt_pairs = MLJBase.train_test_pairs(cv, 1:length(y),
-				categorical(X[!, protected_attr] .* "-" .* string(y)))
+				categorical(string.(X[!, protected_attr]) .* "-" .* string(y)))
 			for i_model in 1:length(models)
 				model = models[i_model]
 				for j in 1:nfolds
@@ -111,8 +111,8 @@ function get_pareto_df(fp::FairnessProblem, models_fn, alphas=0:0.1:1)
 					mach = machine(model, X, y)
 					@suppress fit!(mach, rows=tr_tt_pairs[j][1])
 					# Add out-sample performance measures
-					ŷ = predict(mach, rows=tr_tt_pairs[j][2])
-					if typeof(ŷ[1])<:MLJ.UnivariateFinite ŷ = mode.(ŷ) end
+					ŷ = MMI.predict(mach, rows=tr_tt_pairs[j][2])
+					if typeof(ŷ[1])<:MLJBase.UnivariateFinite ŷ = StatsBase.mode.(ŷ) end
 					ft = fair_tensor(ŷ, y[tr_tt_pairs[j][2]],
 											X[tr_tt_pairs[j][2], protected_attr])
 					accVal = accuracy(ft)
@@ -125,8 +125,8 @@ function get_pareto_df(fp::FairnessProblem, models_fn, alphas=0:0.1:1)
 
 
 					# Add in-sample performance measures
-					ŷ = predict(mach, rows=tr_tt_pairs[j][1])
-					if typeof(ŷ[1])<:MLJ.UnivariateFinite ŷ = mode.(ŷ) end
+					ŷ = MMI.predict(mach, rows=tr_tt_pairs[j][1])
+					if typeof(ŷ[1])<:MLJBase.UnivariateFinite ŷ = StatsBase.mode.(ŷ) end
 					ft = fair_tensor(ŷ, y[tr_tt_pairs[j][1]],
 											X[tr_tt_pairs[j][1], protected_attr])
 					accVal = accuracy(ft)
@@ -141,7 +141,7 @@ function get_pareto_df(fp::FairnessProblem, models_fn, alphas=0:0.1:1)
 			end
 		end
 	end
-	CSV.write(joinpath(dirname(@__FILE__), "results", fp.name*"-pareto.csv"), df)
+	CSV.write(joinpath(pwd(), fp.name*"-pareto-results.csv"), df)
 	return df
 end
 
