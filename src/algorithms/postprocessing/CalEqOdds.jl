@@ -1,13 +1,13 @@
 struct CalEqOddsWrapper{M<:MLJBase.Model} <: Deterministic
-        grp::Symbol
-		classifier::M
-		alpha::Float64
+    grp::Symbol
+    classifier::M
+    alpha::Float64
 end
 function CalEqOddsWrapper(; classifier::MLJBase.Model=nothing,grp::Symbol=:class, alpha=1.0)
-        model =  CalEqOddsWrapper(grp, classifier, alpha)
-		message = MLJBase.clean!(model)
-		isempty(message) || @warn message
-        return model
+    model =  CalEqOddsWrapper(grp, classifier, alpha)
+    message = MLJBase.clean!(model)
+    isempty(message) || @warn message
+    return model
 end
 function MLJBase.clean!(model::CalEqOddsWrapper)
     warning = ""
@@ -24,7 +24,6 @@ function MMI.fit(model::CalEqOddsWrapper, verbosity::Int,
 	mch = machine(model.classifier, X, y)
 	fit!(mch)
 	ŷ = MMI.predict(mch, X)
-	# println("This is ŷ",(ŷ))
 	if typeof(ŷ[1]) <: MLJBase.UnivariateFinite
 		ŷ = MLJBase.mode.(ŷ)
 	end
@@ -59,34 +58,30 @@ function MMI.fit(model::CalEqOddsWrapper, verbosity::Int,
 	return fitresult, nothing, nothing
 end
 function MMI.predict(model::CalEqOddsWrapper, fitresult, Xnew)
-		mix_rate1, mix_rate2, y1br, y2br,classifier_fitresult, labels = fitresult
-		ŷ = MMI.predict(model.classifier, classifier_fitresult, Xnew)
-		if typeof(ŷ[1]) <: MLJBase.UnivariateFinite
-			ŷ = MLJBase.mode.(ŷ)
-		end
-		favLabel = labels[2]
-		unfavLabel = labels[1]
+	mix_rate1, mix_rate2, y1br, y2br,classifier_fitresult, labels = fitresult
+	ŷ = MMI.predict(model.classifier, classifier_fitresult, Xnew)
+	if typeof(ŷ[1]) <: MLJBase.UnivariateFinite
+		ŷ = MLJBase.mode.(ŷ)
+	end
+	favLabel = labels[2]
+	unfavLabel = labels[1]
 
-		grps = Xnew[:, model.grp]
+	grps = Xnew[:, model.grp]
 
-		# n = length(levels(grps))
-		a_Class = levels(grps)[1]
-		a_Grp = grps .== a_Class
-		b_Grp = grps .!= a_Class
-		# a_flip = 1 .- ŷ[a_Grp]
-		a_const = shuffle(findall((grps.== a_Class)))
-		b_const = shuffle(findall((grps.!= a_Class)))
-		println(a_const[1:convert(Int64, floor((mix_rate1)*(length(a_const))))])
-		indices1 = a_const[1:convert(Int64, floor((mix_rate1)*(length(a_const))))]
-		# println(mix_rate1)
-		# println(b_const[2:3])
-		# indices2 = b_const[:convert(Int64,floor((mix_rate2)*(length(b_const))))]
-		indices2 =  b_const[1:convert(Int64, floor((mix_rate2)*(length(b_const))))]
-		new_ŷ = deepcopy(ŷ)
-		new_ŷ[indices1] .= convert(Int64,round(y1br))
-		new_ŷ[indices2] .= convert(Int64,round(y2br))
-		# println(new_ŷ)
-		return new_ŷ
+	# n = length(levels(grps))
+	a_Class = levels(grps)[1]
+	a_Grp = grps .== a_Class
+	b_Grp = grps .!= a_Class
+	# a_flip = 1 .- ŷ[a_Grp]
+	a_const = shuffle(findall((grps.== a_Class)))
+	b_const = shuffle(findall((grps.!= a_Class)))
+	indices1 = a_const[1:convert(Int64, floor((mix_rate1)*(length(a_const))))]
+	# indices2 = b_const[:convert(Int64,floor((mix_rate2)*(length(b_const))))]
+	indices2 =  b_const[1:convert(Int64, floor((mix_rate2)*(length(b_const))))]
+	new_ŷ = deepcopy(ŷ)
+	new_ŷ[indices1] .= convert(Int64,round(y1br))
+	new_ŷ[indices2] .= convert(Int64,round(y2br))
+	return new_ŷ
 end
 
 MMI.input_scitype(::Type{<:CalEqOddsWrapper{M}}) where M = input_scitype(M)
@@ -118,8 +113,8 @@ function CalEqOdds(ŷ1, ŷ2, y1, y2, fp_rate, fn_rate)
 	end
 
 	if cost2>cost1
-			mix_rate1 = (cost2-cost1)/(trivial_cost1-cost1)
-			mix_rate2 = 0
+        mix_rate1 = (cost2-cost1)/(trivial_cost1-cost1)
+		mix_rate2 = 0
 	else
 		mix_rate1 = 0
 		mix_rate2 = (cost1-cost2)/(trivial_cost2-cost2)
