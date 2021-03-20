@@ -56,7 +56,7 @@ function genZafarData(n = 10000; d = pi/4)
             x_control[i] = "B" # protected class
         end
     end
-    X = DataFrame(X)
+    X = DataFrame(X, :auto)
     X.z = categorical(x_control)
     coerce!(X, :z => Multiclass)
     y = categorical(y)
@@ -93,7 +93,7 @@ function genZafarData2(n = 10000)
     end
 
     perm = shuffle(1:n)
-    X = DataFrame(transpose(X)[perm,:])
+    X = DataFrame(transpose(X)[perm,:], :auto)
     y = y[perm]
     X.z = [x == 0 ? "A" : "B" for x in z[perm]]
     coerce!(X, :z => Multiclass)
@@ -140,7 +140,7 @@ function genSubgroupData(n = 10000; setting = "B00")
       end
     end
     y = logit_fun(X, z, setting)
-    X = DataFrame(X)
+    X = DataFrame(X, :auto)
     X.z = z
     coerce!(X, :z => Multiclass)
     y = categorical(y)
@@ -230,7 +230,7 @@ function genBiasedSampleData(n = 10000; sampling_bias = 0.8)
   X = vcat(X1, X2)[perm,:]
   z = vcat(repeat(["A"], s1), repeat(["B"], n-s1))[perm]
 
-  X = DataFrame(X)
+  X = DataFrame(X, :auto)
   X.z = z
   coerce!(X, :z => Multiclass)
   u = rand(n)

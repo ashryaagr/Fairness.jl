@@ -25,7 +25,7 @@ function ensure_download(url::String, file::String)
     cd(DATA_DIR) # This is to ensue that the dataset is not downloaded to /tmp instead of ./data
     fpath = joinpath(DATA_DIR, file)
     if !isfile(fpath)
-        download(url, file)
+        Downloads.download(url, file)
     end
 end
 
@@ -170,7 +170,7 @@ macro load_bank_marketing()
         fname = "bank-marketing.csv"
         fpath = joinpath(DATA_DIR, fname)
         if !isfile(fpath)
-            download(url, "tempdataset.zip")
+            Downloads.download(url, "tempdataset.zip")
             zarchive = ZipFile.Reader("tempdataset.zip")
             zipfile = filter(x->x.name=="bank-additional/bank-additional-full.csv", zarchive.files)[1]
             df = DataFrame(CSV.File(read(zipfile)); copycols = false)
@@ -220,7 +220,7 @@ macro load_student_performance()
         fname = "student-performance.csv"
         fpath = joinpath(DATA_DIR, fname)
         if !isfile(fpath)
-            download(url, "tempdataset.zip")
+            Downloads.download(url, "tempdataset.zip")
             zarchive = ZipFile.Reader("tempdataset.zip")
             zipfile = filter(x->x.name=="student-mat.csv", zarchive.files)[1]
             df = DataFrame(CSV.File(read(zipfile)); copycols = false)

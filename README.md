@@ -1,8 +1,8 @@
 # Fairness.jl
 
-[![Build Status](https://travis-ci.com/ashryaagr/Fairness.jl.svg?branch=master)](https://travis-ci.com/ashryaagr/Fairness.jl)
+[![Build Status](https://github.com/ashryaagr/Fairness.jl/workflows/CI/badge.svg)](https://github.com/ashryaagr/Fairness.jl/actions)
 [![Build status](https://ci.appveyor.com/api/projects/status/lsh7co54fplsdl4q?svg=true)](https://ci.appveyor.com/project/ashryaagr/fairness-jl)
-[![Coverage Status](https://coveralls.io/repos/github/ashryaagr/Fairness.jl/badge.svg)](https://coveralls.io/github/ashryaagr/Fairness.jl)
+[![Coverage Status](https://codecov.io/gh/ashryaagr/Fairness.jl/branch/master/graph/badge.svg?token=wbrk8MSeMp)](https://codecov.io/gh/ashryaagr/Fairness.jl)
 <a href="https://slackinvite.julialang.org/">
   <img src="https://img.shields.io/badge/chat-on%20slack-orange.svg"
        alt="#mlj">
