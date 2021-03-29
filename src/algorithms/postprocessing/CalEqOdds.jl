@@ -49,8 +49,8 @@ function MMI.fit(model::CalEqOddsWrapper, verbosity::Int,
 	# b_BaseRate = mean(y[b_Grp]) # Base rate for b_ class
 	br1 = mean(y[a_Grp])
 	br2 = mean(y[b_Grp])
-	fp_rate = 0
-	fn_rate = 1
+	fp_rate = 1
+	fn_rate = 0
 	mix_rate1,mix_rate2 = CalEqOdds(ŷ[a_Grp],ŷ[b_Grp],y[a_Grp],y[b_Grp],fp_rate,fn_rate)
 
 	# ft = fair_tensor(categorical(ŷ), categorical(y), categorical(grps))
@@ -67,7 +67,7 @@ function MMI.predict(model::CalEqOddsWrapper, fitresult, Xnew)
 	unfavLabel = labels[1]
 
 	grps = Xnew[:, model.grp]
-
+    println("Inside Predict")
 	# n = length(levels(grps))
 	a_Class = levels(grps)[1]
 	a_Grp = grps .== a_Class
@@ -75,6 +75,7 @@ function MMI.predict(model::CalEqOddsWrapper, fitresult, Xnew)
 	# a_flip = 1 .- ŷ[a_Grp]
 	a_const = shuffle(findall((grps.== a_Class)))
 	b_const = shuffle(findall((grps.!= a_Class)))
+    println(mix_rate1," ",mix_rate2)
 	indices1 = a_const[1:convert(Int64, floor((mix_rate1)*(length(a_const))))]
 	# indices2 = b_const[:convert(Int64,floor((mix_rate2)*(length(b_const))))]
 	indices2 =  b_const[1:convert(Int64, floor((mix_rate2)*(length(b_const))))]
@@ -91,13 +92,13 @@ function CalEqOdds(ŷ1, ŷ2, y1, y2, fp_rate, fn_rate)
 	y1_triv = ones(length(y1))*mean(y1)
 	y2_triv = ones(length(y2))*mean(y2)
 	if fn_rate == 0
+        println("inside fn rate")
 		cost1 = mean(ŷ1[y1.==0])
 		cost2 = mean(ŷ2[y2.==0])
 		trivial_cost1 = mean(y1_triv[y1.==0])
 		trivial_cost2 = mean(y2_triv[y2.==0])
 	elseif fp_rate == 0
 		println("inside fp_rate")
-		println(ŷ2.==0)
 		cost1 = 1-mean(ŷ1[y1.==1])
 		cost2 = 1-mean(ŷ2[y2.==1])
 		println(cost1, cost2)
@@ -112,13 +113,19 @@ function CalEqOdds(ŷ1, ŷ2, y1, y2, fp_rate, fn_rate)
 		trivial_cost2 = fp_rate/norm_cost * mean(y2_triv[y2.==0]) + fn_rate/norm_cost * (1-mean(y2_triv[y2.==1]))
 	end
 
-	if cost2>cost1
-        mix_rate1 = (cost2-cost1)/(trivial_cost1-cost1)
-		mix_rate2 = 0
-	else
-		mix_rate1 = 0
-		mix_rate2 = (cost1-cost2)/(trivial_cost2-cost2)
-	end
+        if cost2>cost1 && cost2<trivial_cost1
+			println("cost2>cost1")
+	        		mix_rate1 = (cost2-cost1)/(trivial_cost1-cost1)
+			mix_rate2 = 0
+		elseif cost1>cost2 && cost1<trivial_cost2
+			println("cost1>cost1")
+			mix_rate1 = 0
+			mix_rate2 = (cost1-cost2)/(trivial_cost2-cost2)
+		else 
+			println("conditions not satisfied")
+			mix_rate1 = 0
+			mix_rate2 = 0
+		end	
 	println(mix_rate1, mix_rate2)
 	return mix_rate1, mix_rate2
 end
