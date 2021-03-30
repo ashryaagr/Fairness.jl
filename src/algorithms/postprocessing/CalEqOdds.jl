@@ -1,6 +1,8 @@
 struct CalEqOddsWrapper{M<:MLJBase.Model} <: Deterministic
     grp::Symbol
     classifier::M
+    fp_rate::Int64
+    fn_rate::Int64
     alpha::Float64
 end
 function CalEqOddsWrapper(; classifier::MLJBase.Model=nothing,grp::Symbol=:class, fp_rate=1, fn_rate=1, alpha=1.0)
