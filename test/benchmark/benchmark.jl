@@ -29,7 +29,7 @@ function models_fn(fp::FairnessProblem, alpha=1.0)
 		lp = LinProgWrapper(classifier=models[i], grp=protected_attr,
 								measures=debiasmeasures, alpha=alpha)
 		eo = EqOddsWrapper(classifier=models[i], grp=protected_attr, alpha=alpha)
-        ce = CalEqOddsWrapper(classifier=models[i], grp=protected_attr, alpha=alpha)
+        ce = CalEqOddsWrapper(classifier=models[i], grp=protected_attr,fp_rate=0, fn_rate=1, alpha=alpha)
 		append!(models, [rw, lp, eo, ce])
 		append!(model_names, model_names[i]*"-".*["Reweighing",
 		"LinProg-".*join(debiasmeasures, "-"), "Equalized Odds","Calibrated Equalized Odds"])
