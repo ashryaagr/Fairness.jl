@@ -3,8 +3,8 @@ struct CalEqOddsWrapper{M<:MLJBase.Model} <: Deterministic
     classifier::M
     alpha::Float64
 end
-function CalEqOddsWrapper(; classifier::MLJBase.Model=nothing,grp::Symbol=:class, alpha=1.0)
-    model =  CalEqOddsWrapper(grp, classifier, alpha)
+function CalEqOddsWrapper(; classifier::MLJBase.Model=nothing,grp::Symbol=:class, fp_rate=1, fn_rate=1, alpha=1.0)
+    model =  CalEqOddsWrapper(grp, classifier, fp_rate, fn_rate, alpha)
     message = MLJBase.clean!(model)
     isempty(message) || @warn message
     return model
@@ -35,7 +35,7 @@ function MMI.fit(model::CalEqOddsWrapper, verbosity::Int,
 	ŷ = ŷ.==favLabel
 
 
-	a_Class = levels(grps)[1]
+	a_Class = levels(grps)[3]
 	a_Grp = grps .== a_Class
 
 	# a_flip = 1 .- ŷ[a_Grp]
@@ -49,8 +49,8 @@ function MMI.fit(model::CalEqOddsWrapper, verbosity::Int,
 	# b_BaseRate = mean(y[b_Grp]) # Base rate for b_ class
 	br1 = mean(y[a_Grp])
 	br2 = mean(y[b_Grp])
-	fp_rate = 1
-	fn_rate = 0
+	fp_rate = model.fp_rate
+	fn_rate = model.fn_rate
 	mix_rate1,mix_rate2 = CalEqOdds(ŷ[a_Grp],ŷ[b_Grp],y[a_Grp],y[b_Grp],fp_rate,fn_rate)
 
 	# ft = fair_tensor(categorical(ŷ), categorical(y), categorical(grps))
@@ -115,7 +115,7 @@ function CalEqOdds(ŷ1, ŷ2, y1, y2, fp_rate, fn_rate)
 
         if cost2>cost1 && cost2<trivial_cost1
 			println("cost2>cost1")
-	        		mix_rate1 = (cost2-cost1)/(trivial_cost1-cost1)
+	    	mix_rate1 = (cost2-cost1)/(trivial_cost1-cost1)
 			mix_rate2 = 0
 		elseif cost1>cost2 && cost1<trivial_cost2
 			println("cost1>cost1")
