@@ -1,4 +1,4 @@
-using Fairness2
+using Fairness
 using MLJBase, MLJModels
 using Test
 
