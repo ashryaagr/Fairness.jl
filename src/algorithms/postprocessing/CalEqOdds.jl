@@ -37,7 +37,7 @@ function MMI.fit(model::CalEqOddsWrapper, verbosity::Int,
 	ŷ = ŷ.==favLabel
 
 
-	a_Class = levels(grps)[3]
+	a_Class = levels(grps)[1]
 	a_Grp = grps .== a_Class
 
 	# a_flip = 1 .- ŷ[a_Grp]
