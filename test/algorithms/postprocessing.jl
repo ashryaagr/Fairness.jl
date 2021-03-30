@@ -14,7 +14,7 @@ end
 @testset "Calibrated Equalized Odds Postprocessing" begin
 	X, y, _ = @load_toydata;
 	model = ConstantClassifier()
-	wrappedModel = CalEqOddsWrapper(classifier=model, grp=:Sex)
+	wrappedModel = CalEqOddsWrapper(classifier=model, grp=:Sex, fp_rate=0, fn_rate=1)
 	mach = machine(wrappedModel, X, y)
 	fit!(mach)
 	ŷ = predict(mach, X[6:10, :])
