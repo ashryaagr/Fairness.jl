@@ -39,7 +39,11 @@ These are the algorithms that have control over the final predictions. They can 
 EqOddsWrapper
 Fairness.EqOddsWrapper()
 ```
-
+### Calibrated Equalized Odds Algorithm
+```@docs
+CalEqOddsWrapper
+Fairness.CalEqOddsWrapper()
+```
 ### LinProg Algorithm
 This algorithm supports all the metrics provided by Fairness.
 ```@docs
