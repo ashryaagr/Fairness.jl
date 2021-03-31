@@ -29,17 +29,18 @@ function models_fn(fp::FairnessProblem, alpha=1.0)
 		lp = LinProgWrapper(classifier=models[i], grp=protected_attr,
 								measures=debiasmeasures, alpha=alpha)
 		eo = EqOddsWrapper(classifier=models[i], grp=protected_attr, alpha=alpha)
-		append!(models, [rw, lp, eo])
+        ce = CalEqOddsWrapper(classifier=models[i], grp=protected_attr, fp_rate=0, fn_rate=1, alpha=alpha)
+		append!(models, [rw, lp, eo, ce])
 		append!(model_names, model_names[i]*"-".*["Reweighing",
-		"LinProg-".*join(debiasmeasures, "-"), "Equalized Odds"])
+		"LinProg-".*join(debiasmeasures, "-"), "Equalized Odds","Calibrated Equalized Odds"])
 	end
 	return models, model_names
 end
 
 @testset "Get df" begin
-	@test size(get_df(student(), models_fn))==(48, 7)
+	@test size(get_df(student(), models_fn))==(60, 7)
 end
 
 @testset "Get Pareto df" begin
-	@test size(get_pareto_df(student(), models_fn, 0:1:0.5))==(48, 8)
+	@test size(get_pareto_df(student(), models_fn, 0:1:0.5))==(60, 8)
 end

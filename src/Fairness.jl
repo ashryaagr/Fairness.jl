@@ -61,7 +61,7 @@ export MetricWrapper, MetricWrappers
 export disparity, parity, Disparity, Disparities
 
 export ReweighingWrapper, ReweighingSamplingWrapper
-export EqOddsWrapper, LinProgWrapper
+export EqOddsWrapper, LinProgWrapper, CalEqOddsWrapper
 export PenaltyWrapper
 
 # Export macros for datasets from datasets/
