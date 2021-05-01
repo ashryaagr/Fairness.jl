@@ -53,4 +53,5 @@ foar = false_omission_rate
 struct TruePositiveRateDifference <: Measure end
 TPRD = TruePositiveRateDifference
 true_positive_rate_difference = TPRD()
+tpdr = true_positive_rate_difference
 (::TPRD)(ft::FairTensor; grp=:)=abs(true_positive_rate(ft;grp=grp)-false_positive_rate(ft;grp=grp))
