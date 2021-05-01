@@ -116,6 +116,7 @@ These algorithms are wrappers. These help in mitigating bias and improve fairnes
 | Reweighing | General | :heavy_check_mark: |  Preprocessing | [Kamiran and Calders, 2012](http://doi.org/10.1007/s10115-011-0463-8)
 | Reweighing-Sampling | General | :heavy_check_mark: | Preprocessing | [Kamiran and Calders, 2012](http://doi.org/10.1007/s10115-011-0463-8)
 | Equalized Odds Algorithm | Equalized Odds | :heavy_check_mark: | Postprocessing | [Hardt et al., 2016](https://papers.nips.cc/paper/6374-equality-of-opportunity-in-supervised-learning)
+| Calibrated Equalized Odds Algorithm | Calibrated Equalized Odds | :x: | Postprocessing | [Pleiss et al., 2017](https://proceedings.neurips.cc/paper/2017/file/b8b9c74ac526fffbeb2d39ab038d1cd7-Paper.pdf)
 | LinProg Algorithm | Any metric | :heavy_check_mark: | Postprocessing | Our own Algorithm
 | Penalty Algorithm | Any metric | :heavy_check_mark: | Inprocessing | Our own Algorithm
 
