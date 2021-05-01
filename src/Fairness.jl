@@ -51,7 +51,8 @@ export TruePositive, TrueNegative, FalsePositive, FalseNegative,
        specificity, selectivity, f1score, fallout
 
 export PredictedPositiveRate, PP, predicted_positive_rate,
-        ppr, FalseOmissionRate, FOR, false_omission_rate, foar
+        ppr, FalseOmissionRate, FOR, false_omission_rate, foar,
+       TruePositiveRateDifference, TPDR, true_positive_rate_difference
 
 # Export Fairness Metric Wrappers
 export MetricWrapper, MetricWrappers
