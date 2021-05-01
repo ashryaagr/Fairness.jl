@@ -28,7 +28,7 @@ _calcmetric(ft::FairTensor, grp, inds...) = typeof(grp)==Colon ? sum(ft[:, inds.
 (::FPR)(ft::FairTensor; grp=:) = 1-true_negative_rate(ft; grp=grp)
 (::FNR)(ft::FairTensor; grp=:) = 1-true_positive_rate(ft; grp=grp)
 
-(::TPRD)(ft::FairTensor; grp1=:, grp2=:) = abs(true_positive_rate(ft; grp=grp1)-true_positive_rate(ft; grp=grp2))
+
 (::FDR)(ft::FairTensor; grp=:) = 1/(1+false_positive(ft; grp=grp)/(1e-15 + true_positive(ft; grp=grp)))
 (::Precision)(ft::FairTensor; grp=:) = 1 - false_discovery_rate(ft; grp=grp)
 (::NPV)(ft::FairTensor; grp=:) =  1/(1+false_negative(ft; grp=grp)/(1e-15 + true_negative(ft; grp=grp)))
