@@ -54,7 +54,7 @@ struct TruePositiveRateDifference <: Measure end
 TPRD = TruePositiveRateDifference
 true_positive_rate_difference = TPRD()
 tprd = true_positive_rate_difference
-(::TPRD)(ft::FairTensor; grp1=:,grp2=:)=abs(true_positive_rate(ft;grp=grp1)-true_positive_rate(ft;grp=grp2)
+(::TPRD)(ft::FairTensor; grp1=:,grp2=:)=abs(true_positive_rate(ft;grp=grp1)-true_positive_rate(ft;grp=grp2))
 
 struct FalsePositiveRateDifference <: Measure end
 FPRD = FalsePositiveRateDifference
