@@ -97,7 +97,7 @@ struct FalseOmissionRateRatio <: Measure end
 FORR = FalseOmissionRateRatio
 false_omission_rate_ratio = FORR()
 forr = false_omission_rate_ratio
-(::FORR)(ft::FairTensor; grp1=:, grp2=:)=false_omission_rateft;grp=grp1)/false_omission_rate(ft;grp=grp2)
+(::FORR)(ft::FairTensor; grp1=:, grp2=:)=false_omission_rate(ft;grp=grp1)/false_omission_rate(ft;grp=grp2)
 
 struct FalseDiscoveryRateRatio <: Measure end
 FDRR = FalseDiscoveryRateRatio
