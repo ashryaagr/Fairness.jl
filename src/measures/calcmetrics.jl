@@ -109,7 +109,7 @@ struct AverageOddsDifference <: Measure end
 AOD = AverageOddsDifference
 average_odds_difference = AOD()
 aod = average_odds_difference
-(::AOD)(ft::FairTensor; grp1=:, grp2=:)=0.5*(false_positive_rate_difference(ft;grp1=grp1;grp2=grp2)+true_positive_rate_difference(ft;grp1=grp1,grp2=grp2))
+(::AOD)(ft::FairTensor; grp1=:, grp2=:)=0.5*(false_positive_rate_difference(ft;grp1=grp1,grp2=grp2)+true_positive_rate_difference(ft;grp1=grp1,grp2=grp2))
 
 
 
