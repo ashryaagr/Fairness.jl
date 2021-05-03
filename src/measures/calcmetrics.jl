@@ -66,19 +66,19 @@ struct FalseNegativeRateDifference <: Measure end
 FNRD = FalseNegativeRateDifference
 false_negative_rate_difference = FNRD()
 fnrd = false_negative_rate_difference
-(::FNRD)(ft:FairTensor; grp1=:, grp2=:)=abs(false_negative_rate(ft;grp=grp1)-false_negative_rate(ft;grp=grp2)
+(::FNRD)(ft:FairTensor; grp1=:, grp2=:)=abs(false_negative_rate(ft;grp=grp1)-false_negative_rate(ft;grp=grp2))
 
 struct FalseOmissionRateDifference <: Measure end
 FORD = FalseOmissionRateDifference
 false_omission_rate_difference = FORD()
 ford = false_omission_rate_difference
-(::FORD)(ft:FairTensor; grp1=:, grp2=:)=abs(false_omission_rate(ft;grp=grp1)-false_omission_rate(ft;grp=grp2)
+(::FORD)(ft:FairTensor; grp1=:, grp2=:)=abs(false_omission_rate(ft;grp=grp1)-false_omission_rate(ft;grp=grp2))
 
 struct FalseDiscoveryRateDifference <: Measure end
 FDRD = FalseDiscoveryRateDifference
 false_discovery_rate_difference = FDRD()
 fdrd = false_discovery_rate_difference
-(::FDRD)(ft:FairTensor; grp1=:, grp2=:)=abs(false_discovery_rate(ft;grp=grp1)-false_discovery_rate(ft;grp=grp2)
+(::FDRD)(ft:FairTensor; grp1=:, grp2=:)=abs(false_discovery_rate(ft;grp=grp1)-false_discovery_rate(ft;grp=grp2))
 
 struct FalsePositiveRateRatio <: Measure end
 FPRR = FalsePositiveRateRatio
