@@ -60,7 +60,7 @@ struct FalsePositiveRateDifference <: Measure end
 FPRD = FalsePositiveRateDifference
 false_positive_rate_difference = FPRD()
 fprd = false_positive_rate_difference
-(::FPRD)(ft::FairTensor; grp1=:,grp2=:)=abs(false_positive_rate(ft;grp=grp1)-false_positive_rate(ft;grp=grp2)
+(::FPRD)(ft::FairTensor; grp1=:,grp2=:)=abs(false_positive_rate(ft;grp=grp1)-false_positive_rate(ft;grp=grp2))
 
 struct FalseNegativeRateDifference <: Measure end
 FNRD = FalseNegativeRateDifference
