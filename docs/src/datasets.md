@@ -77,7 +77,7 @@ The id to be passed to OpenML.load can be found through [OpenML site](https://ww
 using MLJ, Fairness
 using DataFrames
 data = OpenML.load(1480); # load Indian Liver Patient Dataset
-df = DataFrame(data, :auto) ;
+df = DataFrame(data) ;
 y, X = unpack(df, ==(:Class), name->true); # Unpack the data into features and target
 y = coerce(y, Multiclass); # Specifies that the target y is of type Multiclass. It is othewise a string.
 coerce!(X, :V2 => Multiclass, Count => Continuous); # Specifying which columns are Multiclass in nature. Converting from Count to Continuous enables use of more models.
