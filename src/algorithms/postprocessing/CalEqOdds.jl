@@ -1,13 +1,11 @@
-
 """
         CalEqOddsWrapper
 Calibrated equalized odds is a post-processing technique that optimizes over calibrated classifier score outputs to find probabilities with which to change output labels with an equalized odds objective
 
 """
-	
 struct CalEqOddsWrapper{M<:MLJBase.Model} <: Deterministic
 	grp::Symbol
-        classifier::M
+    classifier::M
 	fp_rate::Int64
 	fn_rate::Int64
 	alpha::Float64
@@ -15,15 +13,17 @@ end
 	
 """
         CalEqOddsWrapper(classifier=nothing, grp=:class, fp_rate=1, fn_rate=1)
+
 Instantiates CalEqOddsWrapper which wraps the classifier
 """
 function CalEqOddsWrapper(; classifier::MLJBase.Model=nothing,grp::Symbol=:class, fp_rate=1, fn_rate=1, alpha=1.0)
-        model =  CalEqOddsWrapper(grp, classifier, fp_rate, fn_rate, alpha)
+	model =  CalEqOddsWrapper(grp, classifier, fp_rate, fn_rate, alpha)
 	message = MLJBase.clean!(model)
 	isempty(message) || @warn message
 	return model
 end
-	
+
+
 function MLJBase.clean!(model::CalEqOddsWrapper)
 	warning = ""
 	model.classifier!=nothing || (warning *= "No classifier specified in model\n")
@@ -31,9 +31,10 @@ function MLJBase.clean!(model::CalEqOddsWrapper)
 	(model.alpha>=0 && model.alpha<=1) || (warning*="alpha should be between 0 and 1 (inclusive)\n")
 	return warning
 end
-	
-	# returns mixrates
-function MMI.fit(model::CalEqOddsWrapper, verbosity::Int, X, y)
+
+# returns mixrates
+function MMI.fit(model::CalEqOddsWrapper, verbosity::Int,
+	X, y)
 	grps = X[:, model.grp]
 	n = length(levels(grps)) # Number of different values for sensitive attribute
 	# As equalized odds is a postprocessing algorithm, the model needs to be fitted a_
@@ -71,7 +72,7 @@ function MMI.fit(model::CalEqOddsWrapper, verbosity::Int, X, y)
 	fitresult = [mix_rate1, mix_rate2, br1, br2, mch.fitresult, labels]
 	return fitresult, nothing, nothing
 end
-	
+
 # Modifies the predictions of the model based on the mixrates
 function MMI.predict(model::CalEqOddsWrapper, fitresult, Xnew)
 	mix_rate1, mix_rate2, y1br, y2br,classifier_fitresult, labels = fitresult
@@ -104,7 +105,7 @@ end
 	
 MMI.input_scitype(::Type{<:CalEqOddsWrapper{M}}) where M = input_scitype(M)
 MMI.target_scitype(::Type{<:CalEqOddsWrapper{M}}) where M = AbstractVector{<:Finite{2}}
-	
+
 # Corresponds to calib_eq_odds function which calculates mixrates
 function CalEqOdds(ŷ1, ŷ2, y1, y2, fp_rate, fn_rate)
 	y1_triv = ones(length(y1))*mean(y1)
@@ -127,8 +128,8 @@ function CalEqOdds(ŷ1, ŷ2, y1, y2, fp_rate, fn_rate)
 		trivial_cost2 = fp_rate/norm_cost * mean(y2_triv[y2.==0]) + fn_rate/norm_cost * (1-mean(y2_triv[y2.==1]))
 	end
 	
-        if cost2>cost1 && cost2<trivial_cost1
-	    	mix_rate1 = (cost2-cost1)/(trivial_cost1-cost1)
+	if cost2>cost1 && cost2<trivial_cost1
+		mix_rate1 = (cost2-cost1)/(trivial_cost1-cost1)
 		mix_rate2 = 0
 	elseif cost1>cost2 && cost1<trivial_cost2
 		mix_rate1 = 0

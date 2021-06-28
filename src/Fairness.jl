@@ -5,6 +5,7 @@ module Fairness
 
 import Base
 using Random
+using Downloads
 using DataFrames, CSV # For loading datasets
 using MLJBase
 using CategoricalArrays

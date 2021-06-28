@@ -1,4 +1,4 @@
-struct Mean <: MLJBase.AggregationMode end
+struct Mean <: MLJBase.StatisticalTraits.AggregationMode end
 
 function (::Mean)(dicts)
     valuesDict = Dict()
