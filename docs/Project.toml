@@ -8,5 +8,5 @@ MLJModels = "d491faf4-2d78-11e9-2867-c94bc002c0b7"
 PrettyPrinting = "54e16d92-306c-5ea0-a30b-337be88ac337"
 
 [compat]
-Documenter = "0.25"
-julia = "1.2"
+Documenter = "0.27"
+julia = "1.6"

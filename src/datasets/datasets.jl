@@ -36,7 +36,7 @@ Returns the tuple (X, y, ŷ)
 macro load_toydata()
     quote
         fpath = joinpath(DATA_DIR, "jobs.csv")
-        data = DataFrame(CSV.File(fpath); copycols = false)
+        data = DataFrame(CSV.File(fpath, silencewarnings=true, delim=","); copycols = false)
         transform!(data, names(data)[1:6] .=> categorical, renamecols=false)
         (data[!, names(data)[1:4]], data[!, :Class], data[!, :Pred])
     end
@@ -68,11 +68,12 @@ macro load_compas()
         ensure_download(url, fname)
 
         fpath = joinpath(DATA_DIR, fname)
-        data = DataFrame(CSV.File(fpath); copycols = false)
+        data = DataFrame(CSV.File(fpath, silencewarnings=true, delim=","); copycols = false)
         data = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score", "is_recid"]]
         dropmissing!(data, disallowmissing=true)
         coerce!(data, Textual => Multiclass)
-        coerce!(data, :is_recid => Multiclass)
+        data.is_recid = Array(data.is_recid) #Temporary Fix for bug: ambiguous definition while coercing to multiclass for SentinelArrays
+        coerce!(data, :is_recid=>Multiclass)
         y, X = unpack(data, ==(:is_recid), col -> true)
 
         X = data[!, ["sex", "age", "age_cat", "race", "c_charge_degree", "priors_count", "days_b_screening_arrest", "decile_score"]]
@@ -137,7 +138,7 @@ macro load_german()
         ]
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
-        df = DataFrame(CSV.File(fpath, header=cols); copycols = false)
+        df = DataFrame(CSV.File(fpath, header=cols, silencewarnings=true, delim=" "); copycols = false)
 
         gender_status = Dict(
             "A91" => "male_divorced_separated",
@@ -152,6 +153,7 @@ macro load_german()
         end
 
         coerce!(df, Textual => Multiclass)
+        df.label = Array(df.label)#Temporary Fix for bug: ambiguous definition while coercing to multiclass for SentinelArrays
         coerce!(df, :label => Multiclass)
         y, X = unpack(df, ==(:label), col -> true);
         (X, y)
@@ -173,14 +175,15 @@ macro load_bank_marketing()
             Downloads.download(url, "tempdataset.zip")
             zarchive = ZipFile.Reader("tempdataset.zip")
             zipfile = filter(x->x.name=="bank-additional/bank-additional-full.csv", zarchive.files)[1]
-            df = DataFrame(CSV.File(read(zipfile)); copycols = false)
+            df = DataFrame(CSV.File(read(zipfile), silencewarnings=true, delim=","); copycols = false)
             CSV.write(fpath, df)
             close(zarchive)
             Base.Filesystem.rm("tempdataset.zip", recursive=true)
         end
-        df = DataFrame(CSV.File(fpath); copycols = false)
+        df = DataFrame(CSV.File(fpath, silencewarnings=true, delim=","); copycols = false)
+        df.job = Array(df.job)#Temporary Fix for bug: ambiguous definition while coercing to multiclass for SentinelArrays
         coerce!(df, Textual => Multiclass)
-        coerce(df, :y => Multiclass)
+        coerce!(df, :y => Multiclass)
         (y, X) = unpack(df, ==(:y), col->true)
         y = categorical(y)
         levels!(y, ["yes", "no"])
@@ -200,7 +203,7 @@ macro load_communities_crime()
         fname = "communities_crime.data"
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
-        df = DataFrame(CSV.File(fname, header=false); copycols = false)
+        df = DataFrame(CSV.File(fname, header=false, silencewarnings=true, delim=","); copycols = false)
         df = dropmissing(df, names(df))
         X = df[!, names(df)[1:127]]
         y = df[!, names(df)[128]] .> 0.7
@@ -223,7 +226,7 @@ macro load_student_performance()
             Downloads.download(url, "tempdataset.zip")
             zarchive = ZipFile.Reader("tempdataset.zip")
             zipfile = filter(x->x.name=="student-mat.csv", zarchive.files)[1]
-            df = DataFrame(CSV.File(read(zipfile)); copycols = false)
+            df = DataFrame(CSV.File(read(zipfile), silencewarnings=true, delim=","); copycols = false)
             CSV.write(fpath, df)
             close(zarchive)
             Base.Filesystem.rm("tempdataset.zip", recursive=true)
