@@ -175,7 +175,7 @@ macro load_bank_marketing()
             Downloads.download(url, "tempdataset.zip")
             zarchive = ZipFile.Reader("tempdataset.zip")
             zipfile = filter(x->x.name=="bank-additional/bank-additional-full.csv", zarchive.files)[1]
-            df = DataFrame(CSV.File(read(zipfile), silencewarnings=true, delim=","); copycols = false)
+            df = DataFrame(CSV.File(read(zipfile), silencewarnings=true, delim=";"); copycols = false)
             CSV.write(fpath, df)
             close(zarchive)
             Base.Filesystem.rm("tempdataset.zip", recursive=true)
@@ -226,12 +226,12 @@ macro load_student_performance()
             Downloads.download(url, "tempdataset.zip")
             zarchive = ZipFile.Reader("tempdataset.zip")
             zipfile = filter(x->x.name=="student-mat.csv", zarchive.files)[1]
-            df = DataFrame(CSV.File(read(zipfile), silencewarnings=true, delim=","); copycols = false)
+            df = DataFrame(CSV.File(read(zipfile), silencewarnings=true, delim=";"); copycols = false)
             CSV.write(fpath, df)
             close(zarchive)
             Base.Filesystem.rm("tempdataset.zip", recursive=true)
         end
-        df = DataFrame(CSV.File(fpath); copycols = false)
+        df = DataFrame(CSV.File(fpath, silencewarnings=true, delim=","); copycols = false)
         coerce!(df, Textual => Multiclass)
         X = df[!, names(df)[1:30]]
         y = df[!, names(df)[31]] .>= 12

@@ -74,7 +74,7 @@ You can try working with the vast range of datasets available through OpenML.
 Refer [MLJ's OpenML documentation](https://alan-turing-institute.github.io/MLJ.jl/v0.9/openml_integration/) for the OpenML API.
 The id to be passed to OpenML.load can be found through [OpenML site](https://www.openml.org/search?type=data)
 ```@repl
-using MLJBase, Fairness
+using MLJ, Fairness
 using DataFrames
 data = OpenML.load(1480); # load Indian Liver Patient Dataset
 df = DataFrame(data, :auto) ;
