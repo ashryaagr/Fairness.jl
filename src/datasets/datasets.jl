@@ -22,10 +22,9 @@ const COERCE_ADULT = (
 Checks whether the dataset is already present in data directory. Downloads it if not present.
 """
 function ensure_download(url::String, file::String)
-    cd(DATA_DIR) # This is to ensue that the dataset is not downloaded to /tmp instead of ./data
     fpath = joinpath(DATA_DIR, file)
     if !isfile(fpath)
-        Downloads.download(url, file)
+        Downloads.download(url, fpath)
     end
 end
 
