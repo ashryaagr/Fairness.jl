@@ -202,7 +202,7 @@ macro load_communities_crime()
         fname = "communities_crime.data"
         ensure_download(url, fname)
         fpath = joinpath(DATA_DIR, fname)
-        df = DataFrame(CSV.File(fname, header=false, silencewarnings=true, delim=","); copycols = false)
+        df = DataFrame(CSV.File(fpath, header=false, silencewarnings=true, delim=","); copycols = false)
         df = dropmissing(df, names(df))
         X = df[!, names(df)[1:127]]
         y = df[!, names(df)[128]] .> 0.7
