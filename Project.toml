@@ -42,7 +42,7 @@ MLJModels = "^0.11, 0.12, 0.13, 0.14"
 ProgressMeter = "1.4"
 StatsBase = "^0.33"
 Suppressor = "0.2"
-ZipFile = "0.9"
+ZipFile = "0.9, 0.10"
 julia = "1"
 
 [extras]
